@@ -29,3 +29,4 @@ jobs:
                  --destination html \
                  --account-name jemishome \
                  --source out
+                 --overwrite
