@@ -1,31 +1,31 @@
 name: deploy-to-blob
 
-on: 
-  push:
-    branches:
-      - master
-  workflow_dispatch:
+on:
+   push:
+      branches:
+         - master
+   workflow_dispatch:
 
 jobs:
-  deploy-to-blob:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: npm install
-        run: npm install
-        shell: bash
-      - name: npm run build
-        run: npm run build
-      - name: Log in to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: upload folder to blob
-        uses: azure/cli@v1.0.0
-        with:
-          azcliver: 2.30.0
-          inlineScript: |
-            az storage blob upload-batch \
-            --destination html \
-            --account-name jemishome \
-            --source build
+   deploy-to-blob:
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@v3
+         - name: npm install
+           run: npm install
+           shell: bash
+         - name: npm run build
+           run: npm run build
+         - name: Log in to Azure
+           uses: azure/login@v1
+           with:
+              creds: ${{ secrets.AZURE_CREDENTIALS }}
+         - name: upload folder to blob
+           uses: azure/cli@v1.0.0
+           with:
+              azcliver: 2.30.0
+              inlineScript: |
+                 az storage blob upload-batch \
+                 --destination html \
+                 --account-name jemishome \
+                 --source out
