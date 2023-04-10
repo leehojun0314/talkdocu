@@ -28,5 +28,5 @@ jobs:
                  az storage blob upload-batch \
                  --destination html \
                  --account-name jemishome \
-                 --source out
+                 --source out \
                  --overwrite=true
