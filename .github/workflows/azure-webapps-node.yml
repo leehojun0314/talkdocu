@@ -26,7 +26,7 @@ jobs:
               azcliver: 2.30.0
               inlineScript: |
                  az storage blob upload-batch \
-                 --destination $web \
+                 --destination '$web' \
                  --account-name jemishome \
                  --source out \
                  --overwrite=true
