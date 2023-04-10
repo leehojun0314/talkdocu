@@ -1,8 +1,8 @@
-import { LoginView } from "@/domain/Login/LoginView";
-import { NextPage } from "next";
+import { UploadView } from '@/domain/Upload/UploadView';
+import { NextPage } from 'next';
 
 const MainPage: NextPage = () => {
-  return <LoginView />;
+	return <UploadView />;
 };
 
 export default MainPage;
