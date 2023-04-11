@@ -14,6 +14,7 @@ const nextConfig = {
 	trailingSlash: true,
 	publicRuntimeConfig: {
 		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+		API_ENDPOINT: process.env.API_ENDPOINT,
 	},
 };
 

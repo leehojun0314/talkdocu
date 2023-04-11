@@ -1,26 +1,25 @@
 import axios from 'axios';
 import type { AxiosProgressEvent } from 'axios';
-export enum axiosMethod {
-	GET = 'GET',
-	POST = 'POST',
-	PUT = 'PUT',
-	DELETE = 'DELETE',
-}
+import getConfig from 'next/config';
+const { API_ENDPOINT } = getConfig().publicRuntimeConfig;
 interface axiosAPIParams {
-	method: axiosMethod;
+	method: 'GET' | 'POST' | 'DELETE' | 'PUT' | 'UPDATE';
 	url: string;
 	data?: any;
 	onDownloadProgress?: (params: AxiosProgressEvent) => void;
 }
 
 export default function axiosAPI(params: axiosAPIParams) {
+	axios.defaults.withCredentials = true;
 	return axios({
-		url: process.env.API_ENDPOINT + params.url,
+		url: API_ENDPOINT + params.url,
 		method: params.method,
 		data: params.data,
-		headers: {
-			Authorization: `Bearer ${localStorage.getItem('user_token')}`,
-		},
+		// headers: {
+		// 	 Authorization: `Bearer ${localStorage.getItem('user_token')}`,
+
+		// },
+		withCredentials: true,
 		onDownloadProgress: params.onDownloadProgress,
 	});
 }
