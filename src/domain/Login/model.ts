@@ -2,6 +2,7 @@ import naver from '@/assets/logos/naver.png';
 import kakao from '@/assets/logos/kakao.png';
 import google from '@/assets/logos/google.png';
 import facebook from '@/assets/logos/facebook.png';
+import apple from '@/assets/logos/apple.png';
 import { Color } from '@/common/theme/colors';
 
 import getConfig from 'next/config';
@@ -45,32 +46,32 @@ export const SNSModels = [
 		onclick: () => {
 			const clientId = publicRuntimeConfig.GOOGLE_CLIENT_ID;
 			console.log('client id : ', clientId);
-			const redirectUrl = `${window.location.origin}/loginCallback`;
+			const redirectUrl = `${window.location.origin}/callback/google`;
 			const responseType = 'code';
 			const scope = 'openid email profile';
 			const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=${responseType}&scope=${scope}`;
-			// window.location.href = authUrl;
-		},
-	},
-	{
-		logo: facebook,
-		text: 'Facebook으로 계속하기',
-		bgColor: '#2374F2',
-		textColor: Color.WhiteText,
-		hoverColor: '#2064d1',
-		onclick: () => {
-			const clientId = process.env.FACEBOOK_CLIENT_ID;
-			const redirectUrl = `${window.location.origin}/loginCallback`;
-			const authUrl = `https://www.facebook.com/v11.0/dialog/oauth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}`;
 			window.location.href = authUrl;
 		},
 	},
+	// {
+	// 	logo: facebook,
+	// 	text: 'Facebook으로 계속하기',
+	// 	bgColor: '#2374F2',
+	// 	textColor: Color.WhiteText,
+	// 	hoverColor: '#2064d1',
+	// 	onclick: () => {
+	// 		const clientId = process.env.FACEBOOK_CLIENT_ID;
+	// 		const redirectUrl = `${window.location.origin}/loginCallback`;
+	// 		const authUrl = `https://www.facebook.com/v11.0/dialog/oauth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}`;
+	// 		window.location.href = authUrl;
+	// 	},
+	// },
 	{
-		logo: facebook,
+		logo: apple,
 		text: 'Apple로 계속하기',
-		bgColor: '#2374F2',
+		bgColor: 'black',
 		textColor: Color.WhiteText,
-		hoverColor: '#2064d1',
+		hoverColor: '#1b1b1b',
 		onclick: () => {
 			const clientId = process.env.APPLE_CLIENT_ID;
 			const redirectUrl = `${window.location.origin}/loginCallback`;
