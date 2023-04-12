@@ -44,16 +44,16 @@ export const Pcheader = () => {
 		// 			setAuth(err.response.data.isLoggedIn);
 		// 		}
 		// 	});
-		// axiosAPI({
-		// 	method: 'GET',
-		// 	url: '/auth',
-		// })
-		// 	.then((response) => {
-		// 		console.log('response: ', response);
-		// 	})
-		// 	.catch((err) => {
-		// 		console.log('err: ', err);
-		// 	});
+		axiosAPI({
+			method: 'GET',
+			url: '/auth',
+		})
+			.then((response) => {
+				console.log('response: ', response);
+			})
+			.catch((err) => {
+				console.log('err: ', err);
+			});
 	}, []);
 
 	const navModels = [
