@@ -46,7 +46,7 @@ export const Pcheader = () => {
 		// 	});
 		axiosAPI({
 			method: 'GET',
-			url: '/auth/',
+			url: '/cookietest',
 		})
 			.then((response) => {
 				console.log('response: ', response);
