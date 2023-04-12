@@ -10,7 +10,6 @@ interface axiosAPIParams {
 }
 
 export default function axiosAPI(params: axiosAPIParams) {
-	axios.defaults.withCredentials = true;
 	return axios({
 		url: API_ENDPOINT + params.url,
 		method: params.method,
