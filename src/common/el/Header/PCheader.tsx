@@ -28,31 +28,21 @@ export const Pcheader = () => {
 	};
 	useEffect(() => {
 		window.addEventListener('scroll', updateScroll);
-		// axiosAPI({
-		// 	method: 'GET',
-		// 	url: '/auth/check',
-		// })
-		// 	.then((response) => {
-		// 		console.log('data : ', response.data);
-		// 		setAuth({
-		// 			isLoggedIn: response.data.isLoggedIn,
-		// 			userData: response.data.userData,
-		// 		});
-		// 	})
-		// 	.catch((err) => {
-		// 		if (err.response.status === 401) {
-		// 			setAuth(err.response.data.isLoggedIn);
-		// 		}
-		// 	});
 		axiosAPI({
 			method: 'GET',
-			url: '/cookietest',
+			url: '/auth/check',
 		})
 			.then((response) => {
-				console.log('response: ', response);
+				console.log('data : ', response.data);
+				setAuth({
+					isLoggedIn: response.data.isLoggedIn,
+					userData: response.data.userData,
+				});
 			})
 			.catch((err) => {
-				console.log('err: ', err);
+				if (err.response.status === 401) {
+					setAuth(err.response.data.isLoggedIn);
+				}
 			});
 	}, []);
 
