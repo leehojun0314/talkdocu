@@ -16,6 +16,9 @@ jobs:
            shell: bash
          - name: npm run build
            run: npm run build
+           env:
+              API_ENDPOINT: https://chat4doc.com
+              GOOGLE_CLIENT_ID: 53471127537-jlk6u6k67veppbr1t858e033qk744tc0.apps.googleusercontent.com
          - name: Log in to Azure
            uses: azure/login@v1
            with:
