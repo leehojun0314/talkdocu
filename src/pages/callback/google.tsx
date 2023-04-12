@@ -25,6 +25,8 @@ const GoogleCallbackPage: NextPage = () => {
 			.then((response) => {
 				console.log('response: ', response);
 				if (response.status === 200) {
+					const token = response.data.token;
+					localStorage.setItem('token', token);
 					router.push('/');
 				}
 			})
