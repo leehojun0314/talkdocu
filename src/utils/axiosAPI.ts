@@ -14,10 +14,9 @@ export default function axiosAPI(params: axiosAPIParams) {
 		url: API_ENDPOINT + params.url,
 		method: params.method,
 		data: params.data,
-		// headers: {
-		// 	 Authorization: `Bearer ${localStorage.getItem('user_token')}`,
-
-		// },
+		headers: {
+			Authorization: `Bearer ${localStorage.getItem('token')}`,
+		},
 		withCredentials: true,
 		onDownloadProgress: params.onDownloadProgress,
 	});
