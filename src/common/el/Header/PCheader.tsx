@@ -1,82 +1,75 @@
 import { css } from '@emotion/react';
-import { Button, Typography } from '@mui/material';
+import { Button, Popover, Typography } from '@mui/material';
 import { Color } from '../../theme/colors';
 import arrowDown from '@/assets/icons/arrow_down.png';
 import Image from 'next/image';
 import { Logo, PurpleLogo } from '../logo';
 import { Mq } from '../../theme/screen';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import arrowDown_black from '@/assets/icons/arrowDown_black.png';
 import Link from 'next/link';
 import axiosAPI from '@/utils/axiosAPI';
-type authType = {
-	isLoggedIn: boolean;
-	userData?: {
-		user_email: string;
-		user_id: number;
-		user_name: string;
-	} | null;
-};
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducers';
+import usePCheader from './hooks/usePCheader';
+import useAlert from '@/common/hooks/useAlert';
+import AlertDialog from '../Dialog/alertDialog';
+
 export const Pcheader = () => {
-	const [scrollPosition, setScrollPosition] = useState(0);
-	const [auth, setAuth] = useState<authType>({
-		isLoggedIn: false,
-		userData: null,
-	});
-	const updateScroll = () => {
-		setScrollPosition(window.scrollY || document.documentElement.scrollTop);
-	};
-	useEffect(() => {
-		window.addEventListener('scroll', updateScroll);
-		axiosAPI({
-			method: 'GET',
-			url: '/auth/check',
-		})
-			.then((response) => {
-				console.log('data : ', response.data);
-				setAuth({
-					isLoggedIn: response.data.isLoggedIn,
-					userData: response.data.userData,
-				});
-			})
-			.catch((err) => {
-				if (err.response.status === 401) {
-					setAuth(err.response.data.isLoggedIn);
-				}
-			});
-	}, []);
-
-	const navModels = [
-		{ link: '/upload', title: '업로드' },
-		{ link: '/chat', title: '채팅' },
-		{ link: '/manage', title: 'PDF관리' },
-		{ link: '/plan', title: '요금제' },
-	];
-
+	const {
+		scrollPosition,
+		auth,
+		profilePopover,
+		popoverEl,
+		navModels,
+		handleProfilePopClose,
+		handleProfilePopOpen,
+		handleLogout,
+	} = usePCheader();
+	const { open, toggleOpen, content } = useAlert();
 	return (
 		<div css={sx.root} className={scrollPosition < 12 ? '' : 'headerBg'}>
+			<AlertDialog
+				open={open}
+				onClose={() => {
+					window.location.href = '/login';
+					toggleOpen('', false);
+				}}
+				content={content}
+			/>
 			<div css={sx.inner}>
 				{scrollPosition < 12 ? <Logo /> : <PurpleLogo />}
 				<ul css={sx.nav}>
 					{navModels.map((it, index) => (
 						<li key={index}>
-							<Link href={it.link}>
-								<Typography
-									variant='body2'
-									color={
-										scrollPosition < 12
-											? Color.WhiteText
-											: Color.BlackText
+							<Typography
+								variant='body2'
+								color={
+									scrollPosition < 12
+										? Color.WhiteText
+										: Color.BlackText
+								}
+								onClick={() => {
+									if (auth?.isLoggedIn || it.link === '/') {
+										window.location.href = it.link;
+									} else {
+										toggleOpen('로그인이 필요한 서비스입니다.');
 									}
-								>
-									{it.title}
-								</Typography>
-							</Link>
+								}}
+							>
+								{it.title}
+							</Typography>
 						</li>
 					))}
 				</ul>
-				{auth.isLoggedIn ? (
-					<div css={sx.nameBtn}>
+
+				{auth?.isLoggedIn ? (
+					<div
+						css={sx.nameBtn}
+						aria-owns='profile-popover'
+						onClick={handleProfilePopOpen}
+						className={scrollPosition < 12 ? '' : 'scrolled'}
+					>
 						<Typography
 							variant='body2'
 							color={
@@ -93,12 +86,39 @@ export const Pcheader = () => {
 						/>
 					</div>
 				) : (
-					<Button variant='contained' color='secondary'>
+					<Button css={sx.nameBtn}>
 						<Link href={'/login'}>
-							<Typography color={Color.BlackText}>Login</Typography>
+							<Typography
+								color={
+									scrollPosition < 12
+										? Color.WhiteText
+										: Color.BlackText
+								}
+							>
+								로그인
+							</Typography>
 						</Link>
 					</Button>
 				)}
+				<Popover
+					open={profilePopover}
+					disableScrollLock={true}
+					id='profile-popover'
+					anchorEl={popoverEl}
+					anchorOrigin={{
+						vertical: 'bottom',
+						horizontal: 'center',
+					}}
+					transformOrigin={{
+						vertical: 'top',
+						horizontal: 'center',
+					}}
+					onClose={handleProfilePopClose}
+				>
+					<Button css={sx.popover} onClick={handleLogout}>
+						로그아웃
+					</Button>
+				</Popover>
 			</div>
 		</div>
 	);
@@ -140,5 +160,28 @@ const sx = {
 		display: flex;
 		align-items: center;
 		gap: 11px;
+		height: 40px;
+		width: 80px;
+		padding-left: 7px;
+		/* background-color: ${Color.BrandMain}; */
+		color: ${Color.BrandMain};
+		border-radius: 8px;
+		cursor: pointer;
+		:hover {
+			background-color: ${Color.hoverBrandMain};
+		}
+		&.scrolled {
+			color: ${Color.BlackText};
+			background-color: #fff;
+			:hover {
+				background-color: ${Color.lightPurple};
+			}
+		}
+	`,
+	popover: css`
+		color: black;
+		:hover {
+			background-color: ${Color.lightPurple};
+		}
 	`,
 };

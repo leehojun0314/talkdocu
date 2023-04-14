@@ -12,9 +12,11 @@ import { NextPage } from 'next';
 import getConfig from 'next/config';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-
+import { useDispatch } from 'react-redux';
+import { login, logout } from '@/redux/reducers/actions';
 const GoogleCallbackPage: NextPage = () => {
 	const router = useRouter();
+	const dispatch = useDispatch();
 	useEffect(() => {
 		const code = new URLSearchParams(window.location.search).get('code');
 		console.log('code : ', code);
@@ -25,9 +27,13 @@ const GoogleCallbackPage: NextPage = () => {
 			.then((response) => {
 				console.log('response: ', response);
 				if (response.status === 200) {
-					const token = response.data.token;
-					localStorage.setItem('token', token);
+					const { jwt, userData } = response.data;
+					localStorage.setItem('token', jwt);
+
+					dispatch(login({ userData, isLoggedIn: true }));
 					router.push('/');
+				} else {
+					dispatch(logout());
 				}
 			})
 			.catch((err) => {
