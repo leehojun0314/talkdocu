@@ -6,6 +6,7 @@ import { useDropzone } from 'react-dropzone';
 function useDragnDrop() {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const { open, toggleOpen, content } = useAlert();
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const { getRootProps, isDragActive } = useDropzone({
 		onDrop: async (files) => {
 			console.log('files: ', files);
@@ -31,6 +32,7 @@ function useDragnDrop() {
 	function handleSubmit(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault();
 		console.log('submit clicked');
+		setIsLoading(true);
 		if (!selectedFile) {
 			window.alert('파일을 선택해주세요.');
 			return;
@@ -45,9 +47,11 @@ function useDragnDrop() {
 		})
 			.then((response) => {
 				console.log('response: ', response);
+				setIsLoading(false);
 			})
 			.catch((err) => {
 				console.log('err: ', err);
+				setIsLoading(false);
 			});
 	}
 	return {
@@ -58,6 +62,7 @@ function useDragnDrop() {
 		alertOpen: open,
 		alertContent: content,
 		toggleAlert: toggleOpen,
+		isLoading,
 	};
 }
 export default useDragnDrop;

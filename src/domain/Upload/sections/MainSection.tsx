@@ -1,7 +1,7 @@
 import { Pcheader } from '@/common/el/Header/PCheader';
 import { Color } from '@/common/theme/colors';
 import { css } from '@emotion/react';
-import { Button, Stack, Typography } from '@mui/material';
+import { Button, CircularProgress, Stack, Typography } from '@mui/material';
 import file from '@/assets/icons/file.png';
 import pdf from '@/assets/icons/pdf.png';
 import Image from 'next/image';
@@ -25,6 +25,7 @@ export const MainSection = () => {
 		alertOpen,
 		alertContent,
 		toggleAlert,
+		isLoading,
 	} = useDragnDrop();
 	return (
 		<div css={sx.root}>
@@ -64,9 +65,15 @@ export const MainSection = () => {
 								{selectedFile?.name}
 							</Typography>
 						</Stack>
-						<Button css={sx.button} onClick={handleSubmit}>
-							PDF 생성하기
-						</Button>
+						{isLoading ? (
+							<Button disabled={true} css={sx.button}>
+								<CircularProgress />
+							</Button>
+						) : (
+							<Button css={sx.button} onClick={handleSubmit}>
+								PDF 생성하기
+							</Button>
+						)}
 					</Stack>
 				</div>
 			</Stack>
@@ -110,7 +117,7 @@ const sx = {
 		background-color: ${Color.lightPurple};
 	`,
 	dashedBoxActive: css`
-		height: 160px;
+		height: 159px;
 		background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='%23B13FDCFF' stroke-width='4' stroke-dasharray='22' stroke-dashoffset='32' stroke-linecap='square'/%3e%3c/svg%3e");
 		border-radius: 10px;
 		margin: 20px 0;
