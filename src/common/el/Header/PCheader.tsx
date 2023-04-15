@@ -10,7 +10,7 @@ import arrowDown_black from '@/assets/icons/arrowDown_black.png';
 import Link from 'next/link';
 import axiosAPI from '@/utils/axiosAPI';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/reducers';
+import { TrootState } from '@/redux/reducers';
 import usePCheader from './hooks/usePCheader';
 import useAlert from '@/common/hooks/useAlert';
 import AlertDialog from '../Dialog/alertDialog';
@@ -26,17 +26,10 @@ export const Pcheader = () => {
 		handleProfilePopOpen,
 		handleLogout,
 	} = usePCheader();
-	const { open, toggleOpen, content } = useAlert();
+	const { open, toggleOpen, content, onClose } = useAlert();
 	return (
 		<div css={sx.root} className={scrollPosition < 12 ? '' : 'headerBg'}>
-			<AlertDialog
-				open={open}
-				onClose={() => {
-					window.location.href = '/login';
-					toggleOpen('', false);
-				}}
-				content={content}
-			/>
+			<AlertDialog open={open} onClose={onClose} content={content} />
 			<div css={sx.inner}>
 				{scrollPosition < 12 ? <Logo /> : <PurpleLogo />}
 				<ul css={sx.nav}>
@@ -50,10 +43,21 @@ export const Pcheader = () => {
 										: Color.BlackText
 								}
 								onClick={() => {
-									if (auth?.isLoggedIn || it.link === '/') {
+									if (auth?.isLoggedIn) {
 										window.location.href = it.link;
 									} else {
-										toggleOpen('로그인이 필요한 서비스입니다.');
+										if (
+											it.link === '/chat' ||
+											it.link === '/manage'
+										) {
+											toggleOpen(
+												'로그인이 필요한 서비스입니다.',
+												true,
+												() => {
+													toggleOpen('', false, () => {});
+												},
+											);
+										}
 									}
 								}}
 							>
@@ -168,7 +172,7 @@ const sx = {
 		border-radius: 8px;
 		cursor: pointer;
 		:hover {
-			background-color: ${Color.hoverBrandMain};
+			background-color: ${Color.hoverDark};
 		}
 		&.scrolled {
 			color: ${Color.BlackText};

@@ -2,8 +2,9 @@ import { useDispatch } from 'react-redux';
 import { login, logout } from '@/redux/reducers/actions';
 import axiosAPI from '@/utils/axiosAPI';
 import { useEffect } from 'react';
+import { TrootState } from '@/redux/reducers';
 export default function useLoginCheck(
-	onLogin?: () => void,
+	onLogin?: (auth: TrootState) => void,
 	onLogout?: () => void,
 ) {
 	const dispatch = useDispatch();
@@ -22,7 +23,12 @@ export default function useLoginCheck(
 							isLoggedIn: response.data.isLoggedIn,
 						}),
 					);
-					typeof onLogin === 'function' && onLogin();
+
+					typeof onLogin === 'function' &&
+						onLogin({
+							userData: data.userData,
+							isLoggedIn: response.data.isLoggedIn,
+						});
 				} else {
 					dispatch(logout());
 					typeof onLogout === 'function' && onLogout();

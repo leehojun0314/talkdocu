@@ -7,8 +7,23 @@ import { HeaderView } from '@/common/el/Header/HeaderView';
 import character from '@/assets/images/chat_chr.png';
 import Image from 'next/image';
 import { QuestionModels } from './el/model';
+import useChatView, { Tquestion } from './hooks/useChatView';
+import { Button } from '@mui/material';
 
 export const ChatView = () => {
+	const {
+		conversation,
+		messages,
+		questions,
+		answer,
+		input,
+		messageBoxRef,
+		handleSubmit,
+		setInput,
+		handleQuestionClick,
+		scrollToTop,
+	} = useChatView();
+
 	return (
 		<div css={sx.root}>
 			<Image
@@ -19,30 +34,41 @@ export const ChatView = () => {
 				height={270}
 			/>
 			<HeaderView />
-			<ChatFrame>
-				<div>
-					<ChatFromMe textFromMe='오늘 날씨 어때?' />
+			<Button onClick={scrollToTop} css={sx.scrollTopBtn}>
+				Top
+			</Button>
+			<ChatFrame
+				conversation={conversation}
+				input={input}
+				handleSubmit={handleSubmit}
+				setInput={setInput}
+			>
+				<div ref={messageBoxRef}>
 					<AIQuestion
-						textFromAI='AI에게 질문해보세요 : '
-						questions={QuestionModels}
+						questions={questions}
+						onQuestionClick={handleQuestionClick}
 					/>
-					<ChatFromMe
-						textFromMe='가나다라마바사아자차카타파하 가나다라마바사아자차카타파하
-가나다라마바사아자차카타파하.'
-					/>
-					<ChatFromAI
-						textFromAI='가나다라마바사아자차카타파하 가나다라마바사아자차카타파하
-가나다라마바사아자차카타파하.'
-					/>
-					<ChatFromMe textFromMe='오늘 날씨 어때?' />
-					<ChatFromAI textFromAI='오늘 날씨는 맑아요' />
-					<ChatFromMe textFromMe='오늘 날씨 어때?' />
-					<ChatFromMe textFromMe='오늘 날씨 어때?' />
-					<ChatFromAI textFromAI='오늘 날씨는 맑아요' />
-					<ChatFromMe textFromMe='오늘 날씨 어때?' />
-					<ChatFromMe textFromMe='오늘 날씨 어때?' />
-					<ChatFromAI textFromAI='오늘 날씨는 맑아요' />
-					<ChatFromMe textFromMe='오늘 날씨 어때?' />
+					{messages?.map((message) => {
+						if (message.sender === 'user') {
+							return (
+								<ChatFromMe
+									textFromMe={message.message}
+									key={message.message_id}
+								/>
+							);
+						} else if (message.sender === 'assistant') {
+							return (
+								<ChatFromAI
+									textFromAI={message.message}
+									key={message.message_id}
+								/>
+							);
+						} else {
+							return <></>;
+						}
+					})}
+
+					{answer.isOpen && <ChatFromAI textFromAI={answer.content} />}
 				</div>
 			</ChatFrame>
 		</div>
@@ -79,5 +105,16 @@ const sx = {
 		padding: 20px;
 		height: 100%;
 		border-left: solid 1px #fff;
+	`,
+	scrollTopBtn: css`
+		background-color: white;
+		position: fixed;
+		right: calc(50% - 450px);
+		bottom: 100px;
+		height: 50px;
+		color: ${Color.BrandMain};
+		@media (max-width: 1000px) {
+			right: 5%;
+		}
 	`,
 };
