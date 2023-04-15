@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 function useDragnDrop() {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-	const { open, toggleOpen, content } = useAlert();
+	const { open, toggleOpen, content, onClose } = useAlert();
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const { getRootProps, isDragActive } = useDropzone({
 		onDrop: async (files) => {
@@ -26,7 +26,9 @@ function useDragnDrop() {
 		},
 		onDropRejected: (files) => {
 			console.log('drop rejected : ', files);
-			toggleOpen('PDF, Text 파일만 업로드 할 수 있습니다.');
+			toggleOpen('PDF, Text 파일만 업로드 할 수 있습니다.', true, () => {
+				toggleOpen('', false, () => {});
+			});
 		},
 	});
 	function handleSubmit(event: React.MouseEvent<HTMLButtonElement>) {
@@ -61,8 +63,8 @@ function useDragnDrop() {
 		isDragActive,
 		alertOpen: open,
 		alertContent: content,
-		toggleAlert: toggleOpen,
 		isLoading,
+		onClose,
 	};
 }
 export default useDragnDrop;

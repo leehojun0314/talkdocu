@@ -17,7 +17,7 @@ export default function AlertDialog({
 }) {
 	const { isSmall } = useCustomMediaQuery();
 	return (
-		<Dialog open={open} fullWidth>
+		<Dialog open={open} fullWidth disableScrollLock={true}>
 			<Stack p={isSmall ? '40px ' : '60px'}>
 				<Stack my='40px' gap='6px'>
 					<Typography

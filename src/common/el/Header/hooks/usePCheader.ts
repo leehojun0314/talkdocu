@@ -1,4 +1,4 @@
-import { RootState } from '@/redux/reducers';
+import { TrootState } from '@/redux/reducers';
 import { logout } from '@/redux/reducers/actions';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 
 export default function usePCheader() {
 	const [scrollPosition, setScrollPosition] = useState(0);
-	const auth = useSelector((state: RootState) => state);
+	const auth = useSelector((state: TrootState) => state);
 	const dispatch = useDispatch();
 	const [popoverEl, setPopoverEl] = useState<HTMLElement | null>(null);
 	const profilePopover = Boolean(popoverEl);

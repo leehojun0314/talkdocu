@@ -24,8 +24,8 @@ export const MainSection = () => {
 		handleSubmit,
 		alertOpen,
 		alertContent,
-		toggleAlert,
 		isLoading,
+		onClose,
 	} = useDragnDrop();
 	return (
 		<div css={sx.root}>
@@ -43,9 +43,7 @@ export const MainSection = () => {
 					</Typography>
 					<AlertDialog
 						open={alertOpen}
-						onClose={() => {
-							toggleAlert('', false);
-						}}
+						onClose={onClose}
 						content={alertContent}
 					/>
 					<Stack

@@ -1,27 +1,30 @@
-import {
-	Button,
-	Input,
-	Stack,
-	TextareaAutosize,
-	TextField,
-	Typography,
-} from '@mui/material';
+import { Button, Stack, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
 import { Color } from '@/common/theme/colors';
 import { css } from '@emotion/react';
 import menu from '@/assets/icons/menu.png';
 import openIcon from '@/assets/icons/openFile.png';
 import send from '@/assets/icons/send.png';
-import { blue } from '@mui/material/colors';
 import { UploadDialog } from './uploadDialog';
-import { useState } from 'react';
+import { UIEvent, useCallback, useState } from 'react';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
+import { Tconversation } from '../hooks/useChatView';
 
 type ChatFrameType = {
 	children: React.ReactElement;
+	conversation: Tconversation | undefined;
+	input: string;
+	setInput: (content: string) => void;
+	handleSubmit: (input: string) => void;
 };
 
-export const ChatFrame = ({ children }: ChatFrameType) => {
+export const ChatFrame = ({
+	children,
+	conversation,
+	input,
+	setInput,
+	handleSubmit,
+}: ChatFrameType) => {
 	const [open, setOpen] = useState(false);
 	const handleClickOpen = () => {
 		setOpen(true);
@@ -29,8 +32,8 @@ export const ChatFrame = ({ children }: ChatFrameType) => {
 	const handleClose = () => {
 		setOpen(false);
 	};
-	const { isSmall } = useCustomMediaQuery();
 
+	const { isSmall } = useCustomMediaQuery();
 	return (
 		<Stack css={sx.chat}>
 			<UploadDialog open={open} onClose={handleClose}></UploadDialog>
@@ -40,7 +43,7 @@ export const ChatFrame = ({ children }: ChatFrameType) => {
 						<Image src={menu} alt='menu' width={18} height={18} />
 					</Button>
 					<Typography color={Color.WhiteText}>
-						conversation name
+						{conversation?.conversation_name}
 					</Typography>
 				</Stack>
 				<Button css={sx.pdfButton}>
@@ -59,7 +62,7 @@ export const ChatFrame = ({ children }: ChatFrameType) => {
 					</Stack>
 				</Button>
 			</Stack>
-			<Stack css={sx.chatContent}>{children}</Stack>
+			<div css={sx.chatContent}>{children}</div>
 			<div css={sx.chatBottom}>
 				<TextField
 					css={sx.message}
@@ -70,8 +73,25 @@ export const ChatFrame = ({ children }: ChatFrameType) => {
 						disableUnderline: true,
 						style: { color: 'white' },
 					}}
+					value={input}
+					onKeyDown={(evt) => {
+						if (evt.key === 'Enter') {
+							handleSubmit(input);
+							setInput('');
+						}
+					}}
+					onChange={(evt) => {
+						const text = evt.currentTarget.value;
+						setInput(text);
+					}}
 				/>
-				<Button css={sx.sendbtn}>
+				<Button
+					css={sx.sendbtn}
+					onClick={() => {
+						handleSubmit(input);
+						setInput('');
+					}}
+				>
 					<div css={sx.send}>
 						<Image src={send} alt='send' width={24} height={24} />
 					</div>

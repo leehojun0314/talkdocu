@@ -5,7 +5,7 @@ import { Reducer } from 'redux';
 // });
 export const LOGIN = 'login';
 export const LOGOUT = 'logout';
-export interface RootState {
+export type TrootState = {
 	// 상태의 인터페이스
 	userData: {
 		user_email: string;
@@ -14,18 +14,18 @@ export interface RootState {
 		last_conv: number;
 	} | null;
 	isLoggedIn: boolean;
-}
+};
 
-const initialState: RootState = {
+const initialState: TrootState = {
 	// 초기 상태
 	userData: null,
 	isLoggedIn: false,
 };
 
-const rootReducer: Reducer<RootState, any> = (
-	state: RootState = initialState,
+const rootReducer: Reducer<TrootState, any> = (
+	state: TrootState = initialState,
 	action: any,
-): RootState => {
+): TrootState => {
 	switch (action.type) {
 		case LOGIN:
 		case LOGOUT:

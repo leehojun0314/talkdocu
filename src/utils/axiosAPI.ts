@@ -2,15 +2,15 @@ import axios from 'axios';
 import type { AxiosProgressEvent } from 'axios';
 import getConfig from 'next/config';
 const { API_ENDPOINT } = getConfig().publicRuntimeConfig;
-interface axiosAPIParams {
-	method: 'GET' | 'POST' | 'DELETE' | 'PUT' | 'UPDATE';
+type TaxiosAPIParams = {
+	method: 'GET' | 'POST' | 'DELETE' | 'PUT' | 'UPDATE' | 'PATCH';
 	url: string;
 	data?: any;
 	onDownloadProgress?: (params: AxiosProgressEvent) => void;
 	// jwt?: string;
-}
+};
 
-export default function axiosAPI(params: axiosAPIParams) {
+export default function axiosAPI(params: TaxiosAPIParams) {
 	// axios.interceptors.response.use(
 	// 	(response) => response,
 	// 	(error) => {
