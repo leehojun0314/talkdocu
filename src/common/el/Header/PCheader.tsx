@@ -79,6 +79,12 @@ export const Pcheader = () => {
 							color={
 								scrollPosition < 12 ? Color.WhiteText : Color.BlackText
 							}
+							style={{
+								whiteSpace:
+									'nowrap' /* 텍스트가 한 줄로 표시되도록 설정 */,
+								overflow: 'hidden' /* 넘치는 텍스트를 숨김 */,
+								textOverflow: 'ellipsis' /* 말줄임표(...)를 표시 */,
+							}}
 						>
 							{auth?.userData?.user_name}
 						</Typography>
@@ -165,8 +171,9 @@ const sx = {
 		align-items: center;
 		gap: 11px;
 		height: 40px;
-		width: 80px;
+		width: 100px;
 		padding-left: 7px;
+		padding-right: 7px;
 		/* background-color: ${Color.BrandMain}; */
 		color: ${Color.BrandMain};
 		border-radius: 8px;

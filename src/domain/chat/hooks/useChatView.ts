@@ -49,20 +49,27 @@ export default function useChatView() {
 	});
 	const messageBoxRef = useRef<HTMLDivElement>(null);
 	const auth = useSelector((state: TrootState) => state);
+	const [isScroll, setIsScroll] = useState<boolean>(false);
 	useLoginCheck(
 		(auth) => {
-			axiosAPI({
-				method: 'GET',
-				url: `/message/v3?convId=${auth.userData?.last_conv}`,
-			})
-				.then((messageRes) => {
-					setConversation(messageRes.data.conversation);
-					setQuestions(messageRes.data.questions);
-					setMessages(messageRes.data.messages);
+			if (auth.userData?.last_conv) {
+				axiosAPI({
+					method: 'GET',
+					url: `/message/v3?convId=${auth.userData?.last_conv}`,
 				})
-				.catch((err) => {
-					console.log('get message err: ', err);
-				});
+					.then((messageRes) => {
+						setConversation(messageRes.data.conversation);
+						setQuestions(messageRes.data.questions);
+						setMessages(messageRes.data.messages);
+						setIsScroll(true);
+					})
+					.catch((err) => {
+						console.log('get message err: ', err);
+					});
+			} else {
+				window.alert('채팅방이 없습니다. 먼저 채팅방을 생성해주세요.');
+				window.location.href = '/';
+			}
 		},
 		() => {
 			window.alert('로그인이 필요한 서비스입니다.');
@@ -70,8 +77,11 @@ export default function useChatView() {
 		},
 	);
 	useEffect(() => {
-		scrollToBottom();
-	}, [messages, answer]);
+		if (isScroll) {
+			scrollToBottom();
+			setIsScroll(false);
+		}
+	}, [isScroll]);
 	function scrollToBottom() {
 		if (messageBoxRef.current) {
 			messageBoxRef.current.scrollIntoView({
@@ -104,7 +114,11 @@ export default function useChatView() {
 					}
 				});
 			}
-
+			setAnswer({
+				isOpen: true,
+				content: '',
+			});
+			setIsScroll(true);
 			axiosAPI({
 				method: 'POST',
 				url: '/message/v3',
@@ -114,6 +128,7 @@ export default function useChatView() {
 				},
 				onDownloadProgress: (progress) => {
 					const text = progress.event.currentTarget.response;
+
 					setAnswer({
 						isOpen: true,
 						content: text,
@@ -151,6 +166,7 @@ export default function useChatView() {
 		};
 	}
 	return {
+		auth,
 		conversation,
 		messages,
 		questions,

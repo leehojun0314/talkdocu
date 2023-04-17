@@ -12,6 +12,7 @@ export type TrootState = {
 		user_id: number;
 		user_name: string;
 		last_conv: number;
+		profile_img: string;
 	} | null;
 	isLoggedIn: boolean;
 };

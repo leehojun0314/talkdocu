@@ -30,7 +30,7 @@ export const MobileMenu = ({
 		// { name: '요금제', href: '/plan' },
 	];
 	return (
-		<Dialog open={open} fullScreen>
+		<Dialog open={open} fullScreen disableScrollLock>
 			<div css={sx.root}>
 				<Stack direction='row' justifyContent='space-between'>
 					<Link href='/upload'>
@@ -55,7 +55,7 @@ export const MobileMenu = ({
 									onClose();
 									window.location.href = it.href;
 								} else {
-									if (it.href === '/chat' || it.href === '/manage')
+									if (it.href === '/chat' || it.href === '/manage') {
 										toggleOpen(
 											'로그인이 필요한 서비스입니다.',
 											true,
@@ -64,6 +64,10 @@ export const MobileMenu = ({
 												toggleOpen('', false, () => {});
 											},
 										);
+									} else {
+										onClose();
+										window.location.href = it.href;
+									}
 								}
 							}}
 							// css={sx.menu}

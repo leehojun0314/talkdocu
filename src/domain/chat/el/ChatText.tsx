@@ -2,14 +2,15 @@ import { Button, Stack, Typography } from '@mui/material';
 import { css } from '@emotion/react';
 import { Color } from '@/common/theme/colors';
 import Image from 'next/image';
-import profile from '@/assets/images/profile.png';
+import profile from '@/assets/images/ai.png';
 import { Mq } from '@/common/theme/screen';
 import { Tquestion } from '../hooks/useChatView';
 type chatFromMeType = {
 	textFromMe: string;
+	profileUrl?: string | null;
 };
 
-export const ChatFromMe = ({ textFromMe }: chatFromMeType) => {
+export const ChatFromMe = ({ textFromMe, profileUrl }: chatFromMeType) => {
 	return (
 		<Stack direction='row' gap='10px' css={sx.textFromMeWrap}>
 			<Typography
@@ -19,7 +20,17 @@ export const ChatFromMe = ({ textFromMe }: chatFromMeType) => {
 			>
 				{textFromMe}
 			</Typography>
-			<Image src={profile} alt='profile' width={40} height={40} />
+			{profileUrl && (
+				<Image
+					src={profileUrl}
+					alt='profile'
+					width={40}
+					height={40}
+					style={{
+						borderRadius: '20px',
+					}}
+				/>
+			)}
 		</Stack>
 	);
 };

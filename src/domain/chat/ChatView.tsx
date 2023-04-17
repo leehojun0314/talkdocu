@@ -12,6 +12,7 @@ import { Button } from '@mui/material';
 
 export const ChatView = () => {
 	const {
+		auth,
 		conversation,
 		messages,
 		questions,
@@ -54,6 +55,7 @@ export const ChatView = () => {
 								<ChatFromMe
 									textFromMe={message.message}
 									key={message.message_id}
+									profileUrl={auth.userData?.profile_img}
 								/>
 							);
 						} else if (message.sender === 'assistant') {
