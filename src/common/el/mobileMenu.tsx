@@ -27,7 +27,7 @@ export const MobileMenu = ({
 		{ name: '업로드', href: '/' },
 		{ name: '채팅', href: '/chat' },
 		{ name: 'PDF관리', href: '/manage' },
-		{ name: '요금제', href: '/plan' },
+		// { name: '요금제', href: '/plan' },
 	];
 	return (
 		<Dialog open={open} fullScreen>
