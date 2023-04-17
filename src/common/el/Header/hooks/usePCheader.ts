@@ -32,7 +32,7 @@ export default function usePCheader() {
 		{ link: '/', title: '업로드' },
 		{ link: '/chat', title: '채팅' },
 		{ link: '/manage', title: 'PDF관리' },
-		{ link: '/plan', title: '요금제' },
+		// { link: '/plan', title: '요금제' },
 	];
 	return {
 		scrollPosition,
