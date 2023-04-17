@@ -1,12 +1,13 @@
 import useAlert from '@/common/hooks/useAlert';
 import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
-import { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 function useDragnDrop() {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const { open, toggleOpen, content, onClose } = useAlert();
 	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const inputRef = useRef<HTMLInputElement>(null);
 	const { getRootProps, isDragActive } = useDropzone({
 		onDrop: async (files) => {
 			console.log('files: ', files);
@@ -31,6 +32,26 @@ function useDragnDrop() {
 			});
 		},
 	});
+	function handleMobileClick() {
+		console.log('mobile click : ', inputRef);
+		if (inputRef) {
+			inputRef.current?.click();
+		}
+	}
+	function handleInputChange(evt: React.ChangeEvent<HTMLInputElement>) {
+		console.log('input changed: ', evt);
+		if (evt.currentTarget.files) {
+			const file = evt.currentTarget.files[0];
+			console.log('file: ', file);
+			if (!checkFileExtension(file.name, ['pdf', 'txt'])) {
+				toggleOpen('PDF, Text 파일만 업로드 할 수 있습니다.', true, () => {
+					toggleOpen('', false, () => {});
+				});
+			} else {
+				setSelectedFile(file);
+			}
+		}
+	}
 	function handleSubmit(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault();
 		console.log('submit clicked');
@@ -79,6 +100,9 @@ function useDragnDrop() {
 		alertContent: content,
 		isLoading,
 		onClose,
+		handleMobileClick,
+		handleInputChange,
+		inputRef,
 	};
 }
 export default useDragnDrop;
