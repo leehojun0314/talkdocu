@@ -23,6 +23,10 @@ export default function usePCheader() {
 		setPopoverEl(null);
 		localStorage.setItem('token', '');
 		dispatch(logout());
+		const pathname = window.location.pathname;
+		if (pathname.includes('chat') || pathname.includes('manage')) {
+			window.location.href = '/';
+		}
 	}
 
 	useEffect(() => {

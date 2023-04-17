@@ -48,8 +48,22 @@ function useDragnDrop() {
 			data: formData,
 		})
 			.then((response) => {
-				console.log('response: ', response);
+				console.log('create response: ', response);
+				return axiosAPI({
+					method: 'PATCH',
+					url: '/conversation/last',
+					data: {
+						convId: response.data.createdId,
+					},
+				});
+			})
+			.then((response) => {
+				console.log('patch response : ', response);
 				setIsLoading(false);
+				toggleOpen('업로드가 완료되었습니다.', true, () => {
+					toggleOpen('', false, () => {});
+					window.location.href = '/chat';
+				});
 			})
 			.catch((err) => {
 				console.log('err: ', err);

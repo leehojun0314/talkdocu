@@ -145,6 +145,7 @@ const sx = {
 		font-size: 15px;
 		border-radius: 10px;
 		line-height: 26px;
+		word-break: keep-all;
 		&:hover {
 			background-color: ${Color.hoverBrandMain};
 		}
