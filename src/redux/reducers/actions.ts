@@ -1,4 +1,4 @@
-import { LOGIN, LOGOUT } from './index';
+import { CHANGE_CONV, LOGIN, LOGOUT } from './index';
 export function login({
 	isLoggedIn,
 	userData,
@@ -6,9 +6,6 @@ export function login({
 	isLoggedIn: boolean;
 	userData: any;
 }) {
-	console.log('login action called ');
-	console.log('is logged in : ', isLoggedIn);
-	console.log('user data:', userData);
 	return {
 		type: LOGIN,
 		payload: {
@@ -18,12 +15,19 @@ export function login({
 	};
 }
 export function logout() {
-	console.log('logout action called : ');
 	return {
 		type: LOGOUT,
 		payload: {
 			isLoggedIn: false,
 			userData: null,
+		},
+	};
+}
+export function changeConv(last_conv: number) {
+	return {
+		type: CHANGE_CONV,
+		payload: {
+			last_conv: last_conv,
 		},
 	};
 }

@@ -5,6 +5,7 @@ import { Reducer } from 'redux';
 // });
 export const LOGIN = 'login';
 export const LOGOUT = 'logout';
+export const CHANGE_CONV = 'change conv';
 export type TrootState = {
 	// 상태의 인터페이스
 	userData: {
@@ -34,7 +35,16 @@ const rootReducer: Reducer<TrootState, any> = (
 				...state,
 				...action.payload,
 			};
-
+		case CHANGE_CONV: {
+			if (state.userData) {
+				state.userData.last_conv = action.payload.last_conv;
+				return {
+					...state,
+				};
+			} else {
+				return state;
+			}
+		}
 		default: {
 			return { ...state };
 		}

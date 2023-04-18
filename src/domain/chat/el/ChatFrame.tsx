@@ -9,6 +9,7 @@ import { UploadDialog } from './uploadDialog';
 import { UIEvent, useCallback, useState } from 'react';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { Tconversation } from '../hooks/useChatView';
+import { ConversationDialog } from './ConversationDialog';
 
 type ChatFrameType = {
 	children: React.ReactElement;
@@ -36,7 +37,8 @@ export const ChatFrame = ({
 	const { isSmall } = useCustomMediaQuery();
 	return (
 		<Stack css={sx.chat}>
-			<UploadDialog open={open} onClose={handleClose}></UploadDialog>
+			{/* <UploadDialog open={open} onClose={handleClose}></UploadDialog> */}
+			<ConversationDialog open={open} onClose={handleClose} />
 			<Stack css={sx.topChat} direction='row' justifyContent='space-between'>
 				<Stack direction='row' alignItems='center' gap='13px'>
 					<Button css={sx.menuBtn} onClick={handleClickOpen}>
@@ -134,6 +136,7 @@ const sx = {
 		border-left: solid 1px #fff;
 		border-right: solid 1px #fff;
 		overflow-y: scroll;
+		height: 100%;
 		::-webkit-scrollbar {
 			background-color: transparent;
 			width: 20px;

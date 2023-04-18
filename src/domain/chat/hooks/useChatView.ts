@@ -1,9 +1,11 @@
 import useLoginCheck from '@/common/hooks/useLoginCheck';
 import { TrootState } from '@/redux/reducers';
+import { login } from '@/redux/reducers/actions';
 import axiosAPI from '@/utils/axiosAPI';
+import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-import { text } from 'stream/consumers';
 export type Tconversation = {
 	conversation_id: number;
 	conversation_name: string;
@@ -36,6 +38,8 @@ export type Tmessage =
 			sender: 'assistant' | 'user';
 	  };
 export default function useChatView() {
+	const auth = useSelector((state: TrootState) => state);
+	const dispatch = useDispatch();
 	const [conversation, setConversation] = useState<Tconversation>();
 	const [messages, setMessages] = useState<Tmessage[]>();
 	const [questions, setQuestions] = useState<Tquestion[]>();
@@ -48,34 +52,89 @@ export default function useChatView() {
 		content: '',
 	});
 	const messageBoxRef = useRef<HTMLDivElement>(null);
-	const auth = useSelector((state: TrootState) => state);
 	const [isScroll, setIsScroll] = useState<boolean>(false);
-	useLoginCheck(
-		(auth) => {
-			if (auth.userData?.last_conv) {
-				axiosAPI({
-					method: 'GET',
-					url: `/message/v3?convId=${auth.userData?.last_conv}`,
-				})
-					.then((messageRes) => {
-						setConversation(messageRes.data.conversation);
-						setQuestions(messageRes.data.questions);
-						setMessages(messageRes.data.messages);
-						setIsScroll(true);
+	const router = useRouter();
+	//1. 로그인 체크
+	//2. 라우터 체크
+	//2.1 라우터에 conv 없으면 로그인 정보의 last_conv 참조
+	//2.2 라우터에 conv 있으면 해당 conv 로드 후 로그인 정보 변경
+
+	useEffect(() => {
+		console.log('router : ', router.query);
+		axiosAPI({
+			method: 'GET',
+			url: '/auth/check',
+		}).then((authRes) => {
+			console.log('auth res: ', authRes);
+			const userData = authRes.data.userData;
+			const isLoggedIn = authRes.data.isLoggedIn;
+			if (isLoggedIn) {
+				//라우터 체크
+				if (router.query.convId) {
+					axiosAPI({
+						method: 'GET',
+						url: `/message/v3?convId=${router.query.convId}`,
 					})
-					.catch((err) => {
-						console.log('get message err: ', err);
-					});
+						.then((messageRes) => {
+							authRes.data.userData.last_conv = router.query.convId;
+							dispatch(login(authRes.data));
+							setConversation(messageRes.data.conversation);
+							setQuestions(messageRes.data.questions);
+							setMessages(messageRes.data.messages);
+							setIsScroll(true);
+							//need to update last convid
+							return axiosAPI({
+								method: 'PATCH',
+								url: '/conversation/last',
+								data: {
+									convId: router.query.convId,
+								},
+							});
+						})
+						.then((patchRes) => {
+							console.log('patchRes: ', patchRes);
+						})
+						.catch((err) => {
+							//invalid given conv id
+							console.log('get message err: ', err);
+							window.alert('invalid conversation id');
+							router.push('/error');
+						});
+				}
+				//라우터에 없을 시
+				else {
+					const convId = userData.last_conv;
+					if (convId) {
+						axiosAPI({
+							method: 'GET',
+							url: `/message/v3?convId=${convId}`,
+						})
+							.then((messageRes) => {
+								dispatch(login(authRes.data));
+								setConversation(messageRes.data.conversation);
+								setQuestions(messageRes.data.questions);
+								setMessages(messageRes.data.messages);
+								setIsScroll(true);
+							})
+							.catch((err) => {
+								console.log('unexpected error: ', err);
+								router.push('/error');
+							});
+					} else {
+						//last conv가 없을 시 == 채팅방이 없을 시
+						window.alert(
+							'채팅 방이 없습니다. 먼저 채팅방을 생성해주세요.',
+						);
+						router.push('/');
+					}
+				}
 			} else {
-				window.alert('채팅방이 없습니다. 먼저 채팅방을 생성해주세요.');
-				window.location.href = '/';
+				window.alert('로그인이 필요한 서비스 입니다.');
+				router.push('/login');
 			}
-		},
-		() => {
-			window.alert('로그인이 필요한 서비스입니다.');
-			window.location.href = '/';
-		},
-	);
+		});
+	}, [router]);
+
 	useEffect(() => {
 		if (isScroll) {
 			scrollToBottom();
@@ -100,7 +159,7 @@ export default function useChatView() {
 	}
 
 	function handleSubmit(input: string) {
-		if (auth.isLoggedIn) {
+		if (auth?.isLoggedIn) {
 			//add my message
 			if (messages) {
 				setMessages((pre) => {
