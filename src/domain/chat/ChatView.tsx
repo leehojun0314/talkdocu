@@ -45,6 +45,9 @@ export const ChatView = () => {
 				setInput={setInput}
 			>
 				<div ref={messageBoxRef}>
+					{conversation?.salutation && (
+						<ChatFromAI textFromAI={conversation?.salutation} />
+					)}
 					<AIQuestion
 						questions={questions}
 						onQuestionClick={handleQuestionClick}
@@ -55,7 +58,7 @@ export const ChatView = () => {
 								<ChatFromMe
 									textFromMe={message.message}
 									key={message.message_id}
-									profileUrl={auth.userData?.profile_img}
+									profileUrl={auth?.userData?.profile_img}
 								/>
 							);
 						} else if (message.sender === 'assistant') {

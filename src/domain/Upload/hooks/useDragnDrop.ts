@@ -1,13 +1,16 @@
 import useAlert from '@/common/hooks/useAlert';
+import { TrootState } from '@/redux/reducers';
 import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
 import React, { useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useSelector } from 'react-redux';
 function useDragnDrop() {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const { open, toggleOpen, content, onClose } = useAlert();
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const inputRef = useRef<HTMLInputElement>(null);
+	const auth = useSelector((state: TrootState) => state);
 	const { getRootProps, isDragActive } = useDropzone({
 		onDrop: async (files) => {
 			console.log('files: ', files);
@@ -56,6 +59,13 @@ function useDragnDrop() {
 		event.preventDefault();
 		console.log('submit clicked');
 		setIsLoading(true);
+		if (!auth.isLoggedIn) {
+			toggleOpen('로그인이 필요한 서비스입니다.', true, () => {
+				toggleOpen('', false, () => {});
+				window.location.href = '/login';
+			});
+			return;
+		}
 		if (!selectedFile) {
 			window.alert('파일을 선택해주세요.');
 			return;
