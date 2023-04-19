@@ -7,16 +7,19 @@ import Image from 'next/image';
 import pdf from '@/assets/icons/pdf_white.png';
 import useDragnDrop from '../hooks/useDragnDrop';
 import AlertDialog from '../el/alertDialog';
+import { useRef } from 'react';
 
 export const MobileMainSection = () => {
 	const {
 		selectedFile,
-		getRootProps,
 		handleSubmit,
 		alertOpen,
 		alertContent,
 		isLoading,
 		onClose,
+		handleMobileClick,
+		handleInputChange,
+		inputRef,
 	} = useDragnDrop();
 	return (
 		<div css={sx.root}>
@@ -36,9 +39,24 @@ export const MobileMainSection = () => {
 							{'버튼을 클릭해 파일을 선택해 주세요.'}
 						</Typography>
 					</Stack>
-					<div {...getRootProps()}>
-						<Image src={add} alt='add' width={42} height={42} />
-					</div>
+					{/* <div {...getRootProps()}> */}
+					<Image
+						src={add}
+						alt='add'
+						width={42}
+						height={42}
+						onClick={handleMobileClick}
+					/>
+					<input
+						type='file'
+						accept='.pdf'
+						style={{
+							display: 'none',
+						}}
+						ref={inputRef}
+						onChange={handleInputChange}
+					></input>
+					{/* </div> */}
 				</Stack>
 				<Stack direction='row' gap='22px' css={sx.fileInput}>
 					<Image src={pdf} alt='pdf' width={24} height={24} />

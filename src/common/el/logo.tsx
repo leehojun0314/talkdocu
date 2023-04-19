@@ -40,7 +40,7 @@ export const PurpleLogo = () => {
 				<div css={sx.logo}>
 					<div css={ppl.logoImg}></div>
 					<Typography color={Color.BrandMain} variant='body1'>
-						DrawBy
+						TalkDocu
 					</Typography>
 				</div>
 			</Link>
