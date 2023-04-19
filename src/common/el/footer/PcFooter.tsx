@@ -36,7 +36,7 @@ export const PcFooter = ({ position }: PcFooterType) => {
 				color={Color.WhiteText}
 				variant='subtitle1'
 			>
-				Copyright Drawby
+				Copyright TalkDocu
 			</Typography>
 		</div>
 	);
