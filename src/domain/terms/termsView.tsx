@@ -20,7 +20,7 @@ export const TermsView = () => {
 					textAlign='center'
 					mb='20px'
 				>
-					{'Terms'}
+					{'Terms and Conditions'}
 				</Typography>
 				<List css={sx.terms}>{HTMLReactParser(termsHTMLString)}</List>
 			</Stack>
