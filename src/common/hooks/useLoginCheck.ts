@@ -11,9 +11,10 @@ export default function useLoginCheck(
 	function checkLoginStatus() {
 		axiosAPI({
 			method: 'GET',
-			url: '/auth/check',
+			url: '/auth/checkLogin',
 		})
 			.then((response) => {
+				// console.log('check2	 response:', response);
 				console.log('check login : ', response.data);
 				const data = response.data;
 				if (data.isLoggedIn) {

@@ -14,8 +14,8 @@ import ConfirmDialog from '@/common/el/Dialog/confirmDialog';
 export const ManageView = () => {
 	const {
 		open,
-		handleClickOpen,
-		handleClose,
+		handleDetailOpen,
+		handleDetailClose,
 		editOpen,
 		handleEditOpen,
 		handleEditClose,
@@ -26,6 +26,7 @@ export const ManageView = () => {
 		handleConfirmClose,
 		handleConfirmOpen,
 		confirmOpen,
+		selectedConv,
 	} = useManageView();
 	const title = {
 		main: 'PDF 파일 관리',
@@ -37,7 +38,7 @@ export const ManageView = () => {
 			<ManageHeaderView />
 			<DetailDialog
 				open={open}
-				onClose={handleClose}
+				onClose={handleDetailClose}
 				handleEditOpen={handleEditOpen}
 				handleDeleteOpen={handleDeleteOpen}
 			/>
@@ -50,7 +51,11 @@ export const ManageView = () => {
 				}}
 				content={'뭐뭐 하시겠습니까?'}
 			/>
-			<EditDialog open={editOpen} onClose={handleEditClose} />
+			<EditDialog
+				open={editOpen}
+				onClose={handleEditClose}
+				conversation={selectedConv}
+			/>
 			<DeleteDialog open={deleteOpen} onClose={handleDeleteClose} />
 			<Stack p={isSmall ? '0' : '60px'} css={sx.dialog}>
 				<Stack p={isSmall ? '40px' : '0'}>
@@ -79,7 +84,7 @@ export const ManageView = () => {
 							{isMedium ? (
 								<Button
 									css={sx.mbBtn}
-									onClick={handleClickOpen}
+									onClick={handleDetailOpen(conversation)}
 									key={index}
 								>
 									<Stack
@@ -114,7 +119,7 @@ export const ManageView = () => {
 								<Button
 									css={sx.button}
 									key={index}
-									onClick={handleClickOpen}
+									onClick={handleDetailOpen(conversation)}
 									sx={{ borderRadius: 0 }}
 								>
 									<Typography color={Color.BlackText} variant='body2'>
