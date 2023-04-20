@@ -147,7 +147,6 @@ const sx = {
 		margin: 0;
 		padding: 0;
 		min-width: 28px;
-		margin-top: 7px;
 		&:hover {
 			background-color: transparent;
 		}
