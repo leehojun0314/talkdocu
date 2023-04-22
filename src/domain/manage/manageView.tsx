@@ -56,7 +56,11 @@ export const ManageView = () => {
 				onClose={handleEditClose}
 				conversation={selectedConv}
 			/>
-			<DeleteDialog open={deleteOpen} onClose={handleDeleteClose} />
+			<DeleteDialog
+				open={deleteOpen}
+				onClose={handleDeleteClose}
+				selectedConv={selectedConv}
+			/>
 			<Stack p={isSmall ? '0' : '60px'} css={sx.dialog}>
 				<Stack p={isSmall ? '40px' : '0'}>
 					<Typography variant='h2' color={Color.BlackText}>

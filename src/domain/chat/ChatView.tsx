@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { QuestionModels } from './el/model';
 import useChatView, { Tquestion } from './hooks/useChatView';
 import { Button } from '@mui/material';
+import GoogleAd from '@/common/el/GoogleAds/GoogleAd';
 
 export const ChatView = () => {
 	const {
@@ -76,6 +77,7 @@ export const ChatView = () => {
 					{answer.isOpen && <ChatFromAI textFromAI={answer.content} />}
 				</div>
 			</ChatFrame>
+			<GoogleAd />
 		</div>
 	);
 };
