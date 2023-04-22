@@ -1,33 +1,28 @@
+import { Tconversation } from '@/domain/chat/hooks/useChatView';
 import axiosAPI from '@/utils/axiosAPI';
 import { useEffect, useState } from 'react';
 
 export const useManageView = () => {
 	const [open, setOpen] = useState(false);
-	const [conversations, setConversations] = useState<
-		{
-			conversation_id: number;
-			conversation_name: string;
-			end_time: number | null;
-			fileUrl: string | null;
-			salutation: string | null;
-			start_time: number | null;
-			user_id: number;
-		}[]
-	>([]);
+	const [conversations, setConversations] = useState<Tconversation[]>([]);
+	const [selectedConv, setSelectedConv] = useState<Tconversation>();
 	useEffect(() => {
 		axiosAPI({
 			method: 'GET',
 			url: '/conversation',
 		}).then((response) => {
-			console.log('conversations response: ', response.data);
 			setConversations(response.data);
 		});
 	}, []);
-	const handleClickOpen = () => {
-		setOpen(true);
+	const handleDetailOpen = (conversation: Tconversation) => {
+		return () => {
+			setOpen(true);
+			setSelectedConv(conversation);
+		};
 	};
-	const handleClose = () => {
+	const handleDetailClose = () => {
 		setOpen(false);
+		setSelectedConv(undefined);
 	};
 	const [editOpen, setEditOpen] = useState(false);
 	const handleEditOpen = () => {
@@ -58,8 +53,8 @@ export const useManageView = () => {
 	}
 	return {
 		open,
-		handleClickOpen,
-		handleClose,
+		handleDetailOpen,
+		handleDetailClose,
 		editOpen,
 		handleEditOpen,
 		handleEditClose,
@@ -70,5 +65,6 @@ export const useManageView = () => {
 		handleConfirmClose,
 		handleConfirmOpen,
 		confirmOpen,
+		selectedConv,
 	};
 };

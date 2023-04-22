@@ -17,9 +17,14 @@ export default function Document() {
 					name='keywords'
 					content='PDF, 대화, talkpdf, AI, GPT, CHATGPT, 인공지능, 파일 분석, 요약, Summary, 문서 이해, 질문 답변, AI 파일 도움, Openai, GPT-4, 채팅봇, chatting bot'
 				/>
-				<meta http-equiv='Content-Type' content='text/html;charset=UTF-8' />
-				<meta http-equiv='X-UA-Compatible' content='ie=edge' />
+				<meta httpEquiv='Content-Type' content='text/html;charset=UTF-8' />
+				<meta httpEquiv='X-UA-Compatible' content='ie=edge' />
 				<meta name='author' content='Leehojun' />
+				<script
+					async
+					src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7554551043921031'
+					crossOrigin='anonymous'
+				></script>
 			</Head>
 			<body>
 				<Main />
