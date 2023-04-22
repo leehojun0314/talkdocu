@@ -41,7 +41,7 @@ export const EditDialog = ({ open, onClose, conversation }: EditDialogType) => {
 
 					<TextField
 						variant='standard'
-						placeholder='FileName.pdf'
+						placeholder={conversation?.conversation_name}
 						InputProps={{
 							disableUnderline: true,
 						}}

@@ -11,7 +11,6 @@ export const useManageView = () => {
 			method: 'GET',
 			url: '/conversation',
 		}).then((response) => {
-			console.log('conversations response: ', response.data);
 			setConversations(response.data);
 		});
 	}, []);
