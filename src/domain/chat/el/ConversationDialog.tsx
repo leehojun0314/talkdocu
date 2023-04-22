@@ -15,7 +15,7 @@ import axiosAPI from '@/utils/axiosAPI';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import { changeConv } from '@/redux/reducers/actions';
-type Tconversation = {
+export type Tconversation = {
 	conversation_id: number;
 	conversation_name: string;
 	end_time: null;

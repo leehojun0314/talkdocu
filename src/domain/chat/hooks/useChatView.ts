@@ -63,7 +63,7 @@ export default function useChatView() {
 		console.log('router : ', router.query);
 		axiosAPI({
 			method: 'GET',
-			url: '/auth/check',
+			url: '/auth/checkLogin',
 		}).then((authRes) => {
 			console.log('auth res: ', authRes);
 			const userData = authRes.data.userData;
