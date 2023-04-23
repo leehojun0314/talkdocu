@@ -6,7 +6,7 @@ import add from '@/assets/icons/add.png';
 import Image from 'next/image';
 import pdf from '@/assets/icons/pdf_white.png';
 import useDragnDrop from '../hooks/useDragnDrop';
-import AlertDialog from '../el/alertDialog';
+import AlertDialog from '@/common/el/Dialog/alertDialog';
 import { useRef } from 'react';
 
 export const MobileMainSection = () => {

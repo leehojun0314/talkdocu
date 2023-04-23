@@ -49,30 +49,37 @@ export const ChatView = () => {
 					{conversation?.salutation && (
 						<ChatFromAI textFromAI={conversation?.salutation} />
 					)}
-					<AIQuestion
-						questions={questions}
-						onQuestionClick={handleQuestionClick}
-					/>
-					{messages?.map((message) => {
-						if (message.sender === 'user') {
-							return (
-								<ChatFromMe
-									textFromMe={message.message}
-									key={message.message_id}
-									profileUrl={auth?.userData?.profile_img}
-								/>
-							);
-						} else if (message.sender === 'assistant') {
-							return (
-								<ChatFromAI
-									textFromAI={message.message}
-									key={message.message_id}
-								/>
-							);
-						} else {
-							return <></>;
-						}
-					})}
+					{questions?.length ? (
+						<AIQuestion
+							questions={questions}
+							onQuestionClick={handleQuestionClick}
+						/>
+					) : (
+						''
+					)}
+
+					{messages?.length
+						? messages?.map((message) => {
+								if (message.sender === 'user') {
+									return (
+										<ChatFromMe
+											textFromMe={message.message}
+											key={message.message_id}
+											profileUrl={auth?.userData?.profile_img}
+										/>
+									);
+								} else if (message.sender === 'assistant') {
+									return (
+										<ChatFromAI
+											textFromAI={message.message}
+											key={message.message_id}
+										/>
+									);
+								} else {
+									return <></>;
+								}
+						  })
+						: ''}
 
 					{answer.isOpen && <ChatFromAI textFromAI={answer.content} />}
 				</div>

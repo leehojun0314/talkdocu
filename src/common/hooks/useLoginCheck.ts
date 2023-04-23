@@ -9,6 +9,7 @@ export default function useLoginCheck(
 ) {
 	const dispatch = useDispatch();
 	function checkLoginStatus() {
+		console.log('check login status');
 		axiosAPI({
 			method: 'GET',
 			url: '/auth/checkLogin',
@@ -37,11 +38,13 @@ export default function useLoginCheck(
 			})
 			.catch((err) => {
 				console.log('auth check err: ', err);
+				localStorage.setItem('token', '');
 				dispatch(logout());
 				typeof onLogout === 'function' && onLogout();
 			});
 	}
 	useEffect(() => {
+		console.log('token in localstorage : ', localStorage.getItem('token'));
 		if (localStorage.getItem('token')) {
 			checkLoginStatus();
 		}

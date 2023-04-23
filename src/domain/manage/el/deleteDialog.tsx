@@ -1,4 +1,10 @@
-import { Button, Dialog, Stack, Typography } from '@mui/material';
+import {
+	Button,
+	CircularProgress,
+	Dialog,
+	Stack,
+	Typography,
+} from '@mui/material';
 import Image from 'next/image';
 import closeIcon from '@/assets/icons/close.png';
 import check from '@/assets/icons/check.png';
@@ -9,11 +15,19 @@ type DeleteDialog = {
 	open: boolean;
 	onClose: () => void;
 	selectedConv: Tconversation | undefined;
+	handleDelete: () => void;
+	isLoading: boolean | undefined;
 };
 
-export const DeleteDialog = ({ open, onClose, selectedConv }: DeleteDialog) => {
+export const DeleteDialog = ({
+	open,
+	onClose,
+	selectedConv,
+	handleDelete,
+	isLoading,
+}: DeleteDialog) => {
 	const main = {
-		msg: 'FileName.pdf 을(를) 정말 삭제하시겠어요?\n삭제 이후에는 복구가 불가능해요.',
+		msg: `채팅방 ${selectedConv?.conversation_name}을(를) 정말 삭제하시겠습니까?\n삭제 이후에는 복구가 불가능합니다.`,
 	};
 	const { isSmall } = useCustomMediaQuery();
 	return (
@@ -25,7 +39,7 @@ export const DeleteDialog = ({ open, onClose, selectedConv }: DeleteDialog) => {
 					alignItems='center'
 				>
 					<Typography variant={isSmall ? 'h5' : 'h2'}>
-						{'파일 삭제'}
+						{'채팅 삭제'}
 					</Typography>
 					<Button onClick={onClose}>
 						<Image
@@ -39,18 +53,23 @@ export const DeleteDialog = ({ open, onClose, selectedConv }: DeleteDialog) => {
 				<Typography variant='body2' color={Color.GrayText} my='40px'>
 					{main.msg}
 				</Typography>
-				<Button
-					style={{
-						justifyContent: 'flex-end',
-					}}
-				>
-					<Stack direction='row' gap='10px' justifyContent='flex-end'>
-						<Image src={check} alt='check' width={24} height={24} />
-						<Typography variant='body2' color={Color.Navy}>
-							{'삭제하기'}
-						</Typography>
-					</Stack>
-				</Button>
+				<Stack direction='row' gap='10px' justifyContent='flex-end'>
+					{!isLoading ? (
+						<Button onClick={handleDelete}>
+							<Image src={check} alt='check' width={24} height={24} />
+							<Typography variant='body2' color={Color.Navy}>
+								{'삭제하기'}
+							</Typography>
+						</Button>
+					) : (
+						<Button disabled>
+							<CircularProgress />
+							<Typography variant='body2' color={Color.Navy}>
+								{'삭제하는 중'}
+							</Typography>
+						</Button>
+					)}
+				</Stack>
 			</Stack>
 		</Dialog>
 	);
