@@ -1,4 +1,10 @@
-import { Button, Stack, TextField, Typography } from '@mui/material';
+import {
+	Button,
+	CircularProgress,
+	Stack,
+	TextField,
+	Typography,
+} from '@mui/material';
 import Image from 'next/image';
 import { Color } from '@/common/theme/colors';
 import { css } from '@emotion/react';
@@ -6,7 +12,7 @@ import menu from '@/assets/icons/menu.png';
 import openIcon from '@/assets/icons/openFile.png';
 import send from '@/assets/icons/send.png';
 import { UploadDialog } from './uploadDialog';
-import { UIEvent, useCallback, useState } from 'react';
+import { RefObject, UIEvent, useCallback, useState } from 'react';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { Tconversation } from '../hooks/useChatView';
 import { ConversationDialog } from './ConversationDialog';
@@ -17,6 +23,9 @@ type ChatFrameType = {
 	input: string;
 	setInput: (content: string) => void;
 	handleSubmit: (input: string) => void;
+	isLoading: boolean;
+	handleScroll: (event: React.UIEvent<HTMLDivElement>) => void;
+	messageBoxRef: RefObject<HTMLDivElement>;
 };
 
 export const ChatFrame = ({
@@ -25,6 +34,9 @@ export const ChatFrame = ({
 	input,
 	setInput,
 	handleSubmit,
+	isLoading,
+	handleScroll,
+	messageBoxRef,
 }: ChatFrameType) => {
 	const [open, setOpen] = useState(false);
 	const handleClickOpen = () => {
@@ -48,23 +60,43 @@ export const ChatFrame = ({
 						{conversation?.conversation_name}
 					</Typography>
 				</Stack>
-				<Button css={sx.pdfButton}>
+
+				<Stack
+					style={{
+						display: 'flex',
+						flexDirection: 'row',
+					}}
+				>
 					<Stack
-						css={sx.openFile}
-						direction='row'
-						alignItems='center'
-						gap='12px'
+						alignItems={'center'}
+						justifyContent={'center'}
+						style={{
+							marginRight: '20px',
+						}}
 					>
-						{isSmall ? null : (
-							<Typography color={Color.WhiteText}>
-								{'PDF 파일보기'}
-							</Typography>
-						)}
-						<Image src={openIcon} alt='open' width={16} height={16} />
+						<Typography>ID : {conversation?.conversation_id}</Typography>
 					</Stack>
-				</Button>
+					<Button css={sx.pdfButton}>
+						<Stack
+							css={sx.openFile}
+							direction='row'
+							alignItems='center'
+							gap='12px'
+						>
+							{isSmall ? null : (
+								<Typography color={Color.WhiteText}>
+									{'PDF 파일보기'}
+								</Typography>
+							)}
+							<Image src={openIcon} alt='open' width={16} height={16} />
+						</Stack>
+					</Button>
+				</Stack>
 			</Stack>
-			<div css={sx.chatContent}>{children}</div>
+			<div css={sx.chatContent} onScroll={handleScroll} ref={messageBoxRef}>
+				{/* <div css={sx.chatContent} onScroll={handleScroll}> */}
+				{children}
+			</div>
 			<div css={sx.chatBottom}>
 				<TextField
 					css={sx.message}
@@ -78,25 +110,37 @@ export const ChatFrame = ({
 					value={input}
 					onKeyDown={(evt) => {
 						if (evt.key === 'Enter') {
-							handleSubmit(input);
-							setInput('');
+							if (!isLoading) {
+								handleSubmit(input);
+								setInput('');
+							}
 						}
 					}}
 					onChange={(evt) => {
-						const text = evt.currentTarget.value;
-						setInput(text);
+						if (!isLoading) {
+							const text = evt.currentTarget.value;
+							setInput(text);
+						}
 					}}
+					disabled={isLoading}
 				/>
 				<Button
 					css={sx.sendbtn}
 					onClick={() => {
-						handleSubmit(input);
-						setInput('');
+						if (!isLoading) {
+							handleSubmit(input);
+							setInput('');
+						}
 					}}
+					disabled={isLoading}
 				>
-					<div css={sx.send}>
-						<Image src={send} alt='send' width={24} height={24} />
-					</div>
+					{isLoading ? (
+						<CircularProgress size={20} />
+					) : (
+						<div css={sx.send}>
+							<Image src={send} alt='send' width={24} height={24} />
+						</div>
+					)}
 				</Button>
 			</div>
 		</Stack>

@@ -101,7 +101,7 @@ export const Pcheader = () => {
 						/>
 					</div>
 				) : (
-					<Button css={sx.nameBtn}>
+					<Button css={sx.loginBtn}>
 						<Link href={'/login'}>
 							<Typography
 								color={
@@ -171,12 +171,26 @@ const sx = {
 			cursor: pointer;
 		}
 	`,
+	loginBtn: css`
+		color: ${Color.BrandMain};
+		:hover {
+			background-color: ${Color.hoverDark};
+		}
+		&.scrolled {
+			color: ${Color.BlackText};
+			background-color: #fff;
+			:hover {
+				background-color: ${Color.lightPurple};
+			}
+		}
+	`,
 	nameBtn: css`
 		display: flex;
+		justify-content: space-between;
 		align-items: center;
 		gap: 11px;
 		height: 40px;
-		width: 100px;
+		width: 80px;
 		padding-left: 7px;
 		padding-right: 7px;
 		/* background-color: ${Color.BrandMain}; */

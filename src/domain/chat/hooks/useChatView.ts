@@ -3,14 +3,14 @@ import { TrootState } from '@/redux/reducers';
 import { login } from '@/redux/reducers/actions';
 import axiosAPI from '@/utils/axiosAPI';
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 export type Tconversation = {
 	conversation_id: number;
 	conversation_name: string;
 	end_time: number | null;
-	start_time: number | null;
+	created_at: string | null;
 	fileUrl: string;
 	salutation: string;
 	user_id: number;
@@ -53,6 +53,8 @@ export default function useChatView() {
 	});
 	const messageBoxRef = useRef<HTMLDivElement>(null);
 	const [isScroll, setIsScroll] = useState<boolean>(false);
+	const [isBottom, setIsBottom] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const router = useRouter();
 	//1. 로그인 체크
 	//2. 라우터 체크
@@ -133,30 +135,41 @@ export default function useChatView() {
 				router.push('/login');
 			}
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [router]);
+	const scrollToBottom = useCallback(() => {
+		if (messageBoxRef.current) {
+			messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
+		}
+	}, [messageBoxRef]);
+	const scrollToTop = useCallback(() => {
+		if (messageBoxRef.current) {
+			messageBoxRef.current.scrollTop = 0;
+		}
+	}, [messageBoxRef]);
+	const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+		const target = event.target as HTMLDivElement;
+		const isBottom =
+			target.scrollHeight - target.scrollTop === target.clientHeight;
 
+		if (isBottom) {
+			// 여기에 필요한 작업을 추가하세요.
+			setIsBottom(true);
+		} else {
+			setIsBottom(false);
+		}
+	}, []);
 	useEffect(() => {
 		if (isScroll) {
 			scrollToBottom();
 			setIsScroll(false);
 		}
-	}, [isScroll]);
-	function scrollToBottom() {
-		if (messageBoxRef.current) {
-			messageBoxRef.current.scrollIntoView({
-				behavior: 'auto',
-				block: 'end',
-			});
+	}, [isScroll, scrollToBottom]);
+	useEffect(() => {
+		if (isBottom && isLoading) {
+			scrollToBottom();
 		}
-	}
-	function scrollToTop() {
-		if (messageBoxRef.current) {
-			messageBoxRef.current.scrollIntoView({
-				behavior: 'smooth',
-				block: 'start',
-			});
-		}
-	}
+	}, [isBottom, answer, isLoading, scrollToBottom]);
 
 	function handleSubmit(input: string) {
 		if (auth?.isLoggedIn) {
@@ -177,7 +190,8 @@ export default function useChatView() {
 				isOpen: true,
 				content: '',
 			});
-			setIsScroll(true);
+			// setIsScroll(true);
+			setIsLoading(true);
 			axiosAPI({
 				method: 'POST',
 				url: '/message/v3',
@@ -215,6 +229,9 @@ export default function useChatView() {
 				.catch((err) => {
 					console.log('message err: ', err);
 					setAnswer({ isOpen: false, content: '' });
+				})
+				.finally(() => {
+					setIsLoading(false);
 				});
 		}
 	}
@@ -224,6 +241,7 @@ export default function useChatView() {
 			handleSubmit(question.question_content);
 		};
 	}
+
 	return {
 		auth,
 		conversation,
@@ -237,5 +255,7 @@ export default function useChatView() {
 		messageBoxRef,
 		scrollToBottom,
 		scrollToTop,
+		isLoading,
+		handleScroll,
 	};
 }
