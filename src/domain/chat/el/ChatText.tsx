@@ -93,9 +93,14 @@ type AIQuestionType = {
 	onQuestionClick: (
 		question: Tquestion,
 	) => (event: React.MouseEvent<HTMLButtonElement>) => void;
+	isLoading: boolean;
 };
 
-export const AIQuestion = ({ questions, onQuestionClick }: AIQuestionType) => {
+export const AIQuestion = ({
+	questions,
+	onQuestionClick,
+	isLoading,
+}: AIQuestionType) => {
 	return (
 		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
 			<Image src={profile} alt='profile' width={40} height={40} />
@@ -109,6 +114,7 @@ export const AIQuestion = ({ questions, onQuestionClick }: AIQuestionType) => {
 						key={question.question_id}
 						css={sx.questionBtn}
 						onClick={onQuestionClick(question)}
+						disabled={isLoading}
 					>
 						<Typography variant='h4' color={Color.WhiteText}>
 							{question.question_content}

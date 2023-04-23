@@ -2,7 +2,7 @@ import { Color } from '@/common/theme/colors';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { css } from '@emotion/react';
 import { Button, LinearProgress, Stack, Typography } from '@mui/material';
-import { DeleteDialog, DetailDialog, EditDialog, uploadModels } from './el';
+import { DeleteDialog, DetailDialog, EditDialog } from './el';
 import pdf from '@/assets/icons/pdf_black.png';
 import Image from 'next/image';
 import arrowRight from '@/assets/icons/arrowRight_gray.png';
@@ -10,6 +10,7 @@ import { ManageHeaderView } from '@/common/el/Header/manageHeaderView';
 import { useManageView } from './el/useManageView';
 import { PcFooter } from '@/common/el/footer/PcFooter';
 import AlertDialog from '@/common/el/Dialog/alertDialog';
+import formatDate from '@/utils/formatDate';
 export const ManageView = () => {
 	const {
 		open,
@@ -28,6 +29,7 @@ export const ManageView = () => {
 		isAlertOpen,
 		onCloseAlert,
 		alertContent,
+		handleEditChange,
 	} = useManageView();
 	const title = {
 		main: '채팅 관리',
@@ -42,6 +44,7 @@ export const ManageView = () => {
 				onClose={handleDetailClose}
 				handleEditOpen={handleEditOpen}
 				handleDeleteOpen={handleDeleteOpen}
+				conversation={selectedConv}
 			/>
 			<AlertDialog
 				open={isAlertOpen}
@@ -52,6 +55,7 @@ export const ManageView = () => {
 				open={editOpen}
 				onClose={handleEditClose}
 				conversation={selectedConv}
+				handleEditChange={handleEditChange}
 			/>
 			<DeleteDialog
 				open={deleteOpen}
@@ -78,7 +82,7 @@ export const ManageView = () => {
 					<div css={sx.menu}>
 						<span css={sx.menuTitle}>채팅명</span>
 						<span css={sx.menuTitle}>생성 일자</span>
-						<span css={sx.menuTitle}>채팅 ID</span>
+						<span css={sx.menuTitle}>ID</span>
 					</div>
 				)}
 				<Stack css={sx.content}>
@@ -136,7 +140,8 @@ export const ManageView = () => {
 											color={Color.GrayText3}
 											variant='body2'
 										>
-											{conversation.start_time}
+											{formatDate(conversation.created_at)}
+											{/* {conversation.created_at} */}
 										</Typography>
 										<Typography
 											color={Color.GrayText3}
@@ -245,7 +250,9 @@ const sx = {
 		}
 	`,
 	menu: css`
+		width: 100%;
 		padding: 10px 20px;
+		padding-right: 40px;
 		display: grid;
 		grid-template-columns: 1fr 1fr 1fr;
 		font-family: 'Pretendard-Regular';
@@ -258,6 +265,7 @@ const sx = {
 		overflow-y: scroll;
 		height: calc(100vh - 607px);
 		::-webkit-scrollbar {
+			position: absolute;
 			background-color: transparent;
 			width: 20px;
 		}
@@ -286,7 +294,7 @@ const sx = {
 		grid-template-columns: 1fr 1fr 1fr;
 		justify-content: flex-start;
 		width: 100%;
-		padding: 20px;
+		padding: 10px 20px;
 		border-top: solid 1px ${Color.LightGrayText};
 		p {
 			display: flex;

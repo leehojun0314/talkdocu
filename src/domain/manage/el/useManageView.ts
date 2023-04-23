@@ -59,6 +59,12 @@ export const useManageView = () => {
 		setEditOpen(false);
 		setOpen(true);
 	};
+	const handleEditChange = () => {
+		loadConversation(() => {
+			handleEditClose();
+			handleDetailClose();
+		});
+	};
 	const [deleteOpen, setDeleteOpen] = useState(false);
 	const handleDeleteOpen = () => {
 		setDeleteOpen(true);
@@ -112,5 +118,6 @@ export const useManageView = () => {
 		isAlertOpen,
 		onCloseAlert,
 		alertContent,
+		handleEditChange,
 	};
 };

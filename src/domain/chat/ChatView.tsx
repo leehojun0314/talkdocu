@@ -24,6 +24,8 @@ export const ChatView = () => {
 		setInput,
 		handleQuestionClick,
 		scrollToTop,
+		isLoading,
+		handleScroll,
 	} = useChatView();
 
 	return (
@@ -44,8 +46,11 @@ export const ChatView = () => {
 				input={input}
 				handleSubmit={handleSubmit}
 				setInput={setInput}
+				isLoading={isLoading}
+				handleScroll={handleScroll}
+				messageBoxRef={messageBoxRef}
 			>
-				<div ref={messageBoxRef}>
+				<>
 					{conversation?.salutation && (
 						<ChatFromAI textFromAI={conversation?.salutation} />
 					)}
@@ -53,6 +58,7 @@ export const ChatView = () => {
 						<AIQuestion
 							questions={questions}
 							onQuestionClick={handleQuestionClick}
+							isLoading={isLoading}
 						/>
 					) : (
 						''
@@ -82,7 +88,8 @@ export const ChatView = () => {
 						: ''}
 
 					{answer.isOpen && <ChatFromAI textFromAI={answer.content} />}
-				</div>
+					{/* </div> */}
+				</>
 			</ChatFrame>
 			<GoogleAd />
 		</div>
