@@ -20,10 +20,15 @@ export default function Document() {
 				<meta httpEquiv='Content-Type' content='text/html;charset=UTF-8' />
 				<meta httpEquiv='X-UA-Compatible' content='ie=edge' />
 				<meta name='author' content='Leehojun' />
-				<script
+				{/* <script
 					async
 					src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7554551043921031'
 					crossOrigin='anonymous'
+				></script> */}
+				<script
+					data-ad-client='ca-pub-7554551043921031'
+					async
+					src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
 				></script>
 			</Head>
 			<body>
