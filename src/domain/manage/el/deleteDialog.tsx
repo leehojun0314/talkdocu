@@ -39,12 +39,18 @@ export const DeleteDialog = ({ open, onClose, selectedConv }: DeleteDialog) => {
 				<Typography variant='body2' color={Color.GrayText} my='40px'>
 					{main.msg}
 				</Typography>
-				<Stack direction='row' gap='10px' justifyContent='flex-end'>
-					<Image src={check} alt='check' width={24} height={24} />
-					<Typography variant='body2' color={Color.Navy}>
-						{'삭제하기'}
-					</Typography>
-				</Stack>
+				<Button
+					style={{
+						justifyContent: 'flex-end',
+					}}
+				>
+					<Stack direction='row' gap='10px' justifyContent='flex-end'>
+						<Image src={check} alt='check' width={24} height={24} />
+						<Typography variant='body2' color={Color.Navy}>
+							{'삭제하기'}
+						</Typography>
+					</Stack>
+				</Button>
 			</Stack>
 		</Dialog>
 	);
