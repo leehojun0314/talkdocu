@@ -1,19 +1,45 @@
+import useAlert from '@/common/hooks/useAlert';
 import { Tconversation } from '@/domain/chat/hooks/useChatView';
 import axiosAPI from '@/utils/axiosAPI';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 export const useManageView = () => {
 	const [open, setOpen] = useState(false);
 	const [conversations, setConversations] = useState<Tconversation[]>([]);
 	const [selectedConv, setSelectedConv] = useState<Tconversation>();
+	const [isLoading, setIsLoading] = useState<boolean>();
+	const {
+		open: isAlertOpen,
+		toggleOpen: toggleOpenAlert,
+		content: alertContent,
+		onClose: onCloseAlert,
+	} = useAlert();
+	const router = useRouter();
 	useEffect(() => {
+		if (localStorage.getItem('token')) {
+			loadConversation();
+		} else {
+			window.alert('로그인이 필요한 서비스입니다.');
+			router.push('/login');
+		}
+	}, []);
+	function loadConversation(callback?: () => void) {
 		axiosAPI({
 			method: 'GET',
 			url: '/conversation',
-		}).then((response) => {
-			setConversations(response.data);
-		});
-	}, []);
+		})
+			.then((response) => {
+				setConversations(response.data);
+				if (callback) {
+					callback();
+				}
+			})
+			.catch((err) => {
+				console.log('use manage view effect err: ', err);
+				router.push('/');
+			});
+	}
 	const handleDetailOpen = (conversation: Tconversation) => {
 		return () => {
 			setOpen(true);
@@ -42,15 +68,32 @@ export const useManageView = () => {
 		setDeleteOpen(false);
 		setOpen(true);
 	};
-	const [confirmOpen, setConfirmOpen] = useState(false);
-	function handleConfirmClose() {
-		setConfirmOpen(false);
-		setOpen(true);
+
+	function handleDelete() {
+		setIsLoading(true);
+		axiosAPI({
+			method: 'DELETE',
+			url: `/conversation?convId=${selectedConv?.conversation_id}`,
+		})
+			.then((deleteRes) => {
+				console.log('delete res: ', deleteRes);
+				loadConversation(() => {
+					toggleOpenAlert('삭제 되었습니다.', true, () => {
+						handleDeleteClose();
+						handleDetailClose();
+						toggleOpenAlert('', false, () => {});
+					});
+				});
+			})
+			.catch((err) => {
+				console.log('delete err : ', err);
+			})
+			.finally(() => {
+				console.log('finally called: ');
+				setIsLoading(false);
+			});
 	}
-	function handleConfirmOpen() {
-		setConfirmOpen(true);
-		setOpen(false);
-	}
+
 	return {
 		open,
 		handleDetailOpen,
@@ -62,9 +105,12 @@ export const useManageView = () => {
 		handleDeleteOpen,
 		handleDeleteClose,
 		conversations,
-		handleConfirmClose,
-		handleConfirmOpen,
-		confirmOpen,
 		selectedConv,
+		handleDelete,
+		isLoading,
+		setIsLoading,
+		isAlertOpen,
+		onCloseAlert,
+		alertContent,
 	};
 };

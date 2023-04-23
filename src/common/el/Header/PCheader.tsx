@@ -14,6 +14,7 @@ import { TrootState } from '@/redux/reducers';
 import usePCheader from './hooks/usePCheader';
 import useAlert from '@/common/hooks/useAlert';
 import AlertDialog from '../Dialog/alertDialog';
+import { useRouter } from 'next/router';
 
 export const Pcheader = () => {
 	const {
@@ -27,6 +28,7 @@ export const Pcheader = () => {
 		handleLogout,
 	} = usePCheader();
 	const { open, toggleOpen, content, onClose } = useAlert();
+	const router = useRouter();
 	return (
 		<div css={sx.root} className={scrollPosition < 12 ? '' : 'headerBg'}>
 			<AlertDialog open={open} onClose={onClose} content={content} />
@@ -55,6 +57,9 @@ export const Pcheader = () => {
 												true,
 												() => {
 													toggleOpen('', false, () => {});
+													console.log('login clicked');
+													// window.location.href = '/login/';
+													router.push('/login');
 												},
 											);
 										}

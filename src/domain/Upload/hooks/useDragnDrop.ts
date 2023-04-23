@@ -2,6 +2,7 @@ import useAlert from '@/common/hooks/useAlert';
 import { TrootState } from '@/redux/reducers';
 import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
+import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useSelector } from 'react-redux';
@@ -11,6 +12,7 @@ function useDragnDrop() {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const auth = useSelector((state: TrootState) => state);
+	const router = useRouter();
 	const { getRootProps, isDragActive } = useDropzone({
 		onDrop: async (files) => {
 			console.log('files: ', files);
@@ -24,6 +26,9 @@ function useDragnDrop() {
 			// 	return;
 			// }
 			setSelectedFile(file);
+		},
+		onFileDialogOpen: () => {
+			console.log('on file dialog open called');
 		},
 		accept: {
 			'application/pdf': ['.pdf'],
@@ -68,6 +73,7 @@ function useDragnDrop() {
 		}
 		if (!selectedFile) {
 			window.alert('파일을 선택해주세요.');
+			setIsLoading(false);
 			return;
 		}
 		const formData = new FormData();
@@ -93,7 +99,8 @@ function useDragnDrop() {
 				setIsLoading(false);
 				toggleOpen('업로드가 완료되었습니다.', true, () => {
 					toggleOpen('', false, () => {});
-					window.location.href = '/chat';
+					// window.location.href = '/chat';
+					router.push('/chat');
 				});
 			})
 			.catch((err) => {

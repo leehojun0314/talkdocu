@@ -7,7 +7,7 @@ import pdf from '@/assets/icons/pdf.png';
 import Image from 'next/image';
 import { Mq } from '@/common/theme/screen';
 import useDragnDrop from '../hooks/useDragnDrop';
-import AlertDialog from '../el/alertDialog';
+import AlertDialog from '@/common/el/Dialog/alertDialog';
 
 export const MainSection = () => {
 	const text = {
@@ -26,6 +26,9 @@ export const MainSection = () => {
 		alertContent,
 		isLoading,
 		onClose,
+		inputRef,
+		handleInputChange,
+		handleMobileClick,
 	} = useDragnDrop();
 	return (
 		<div css={sx.root}>
@@ -46,9 +49,19 @@ export const MainSection = () => {
 						onClose={onClose}
 						content={alertContent}
 					/>
+					<input
+						type='file'
+						accept='.pdf'
+						style={{
+							display: 'none',
+						}}
+						ref={inputRef}
+						onChange={handleInputChange}
+					></input>
 					<Stack
 						css={isDragActive ? sx.dashedBoxActive : sx.dashedBox}
 						{...getRootProps({})}
+						onClick={handleMobileClick}
 					>
 						<Image src={file} alt='file' width={20} height={11} />
 						<Typography color={Color.BrandMain} css={sx.purpleText}>
@@ -65,7 +78,7 @@ export const MainSection = () => {
 						</Stack>
 						{isLoading ? (
 							<Button disabled={true} css={sx.button}>
-								<CircularProgress />
+								<CircularProgress size={25} />
 							</Button>
 						) : (
 							<Button css={sx.button} onClick={handleSubmit}>
@@ -141,6 +154,7 @@ const sx = {
 		color: #fff;
 		background-color: ${Color.BrandMain};
 		width: 128px;
+		height: 46px;
 		padding: 12px;
 		font-size: 15px;
 		border-radius: 10px;
