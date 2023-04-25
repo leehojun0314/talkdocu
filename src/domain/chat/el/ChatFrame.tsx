@@ -74,22 +74,31 @@ export const ChatFrame = ({
 							marginRight: '20px',
 						}}
 					>
-						<Typography>ID : {conversation?.conversation_id}</Typography>
+						<Typography color={Color.WhiteText}>
+							ID : {conversation?.conversation_id}
+						</Typography>
 					</Stack>
 					<Button css={sx.pdfButton}>
-						<Stack
-							css={sx.openFile}
-							direction='row'
-							alignItems='center'
-							gap='12px'
-						>
-							{isSmall ? null : (
-								<Typography color={Color.WhiteText}>
-									{'PDF 파일보기'}
-								</Typography>
-							)}
-							<Image src={openIcon} alt='open' width={16} height={16} />
-						</Stack>
+						<a href={conversation?.fileUrl} target={'_blank'}>
+							<Stack
+								css={sx.openFile}
+								direction='row'
+								alignItems='center'
+								gap='12px'
+							>
+								{isSmall ? null : (
+									<Typography color={Color.WhiteText}>
+										{'PDF 파일보기'}
+									</Typography>
+								)}
+								<Image
+									src={openIcon}
+									alt='open'
+									width={16}
+									height={16}
+								/>
+							</Stack>
+						</a>
 					</Button>
 				</Stack>
 			</Stack>

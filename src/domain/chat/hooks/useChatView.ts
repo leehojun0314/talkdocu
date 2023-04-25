@@ -190,9 +190,12 @@ export default function useChatView() {
 				isOpen: true,
 				content: '',
 			});
-			// setIsScroll(true);
-			scrollToBottom();
+			setIsScroll(true);
 			setIsLoading(true);
+			let receivedData = '';
+			let lastProcessedIndex = 0;
+			let result = '';
+			let pages: number[] = [];
 			axiosAPI({
 				method: 'POST',
 				url: '/message/v4',
@@ -201,20 +204,43 @@ export default function useChatView() {
 					conversationId: auth.userData?.last_conv,
 				},
 				onDownloadProgress: (progress) => {
-					console.log('progress response:', progress.event.currentTarget);
-					// const resJson = JSON.parse(
-					// 	progress.event.currentTarget.response,
-					// );
-					// const text = resJson.text;
-					const text = progress.event.currentTarget.response;
-					setAnswer({
-						isOpen: true,
-						content: text,
+					receivedData +=
+						progress.event.currentTarget.responseText.slice(
+							lastProcessedIndex,
+						);
+					lastProcessedIndex =
+						progress.event.currentTarget.responseText.length;
+					const rawDataArray = receivedData.split('\n');
+					let parsedText = '';
+					rawDataArray.forEach((rawData, index) => {
+						if (index === rawDataArray.length - 1) {
+							receivedData = rawData;
+						} else {
+							const parsedData = JSON.parse(rawData);
+
+							parsedText += parsedData.text;
+							pages = parsedData.pages;
+						}
 					});
+
+					setAnswer((pre) => {
+						return {
+							isOpen: true,
+							content: pre.content + parsedText,
+						};
+					});
+
+					// const text = progress.event.currentTarget.response;
+					// setAnswer({
+					// 	isOpen: true,
+					// 	content: text,
+					// });
+					result += parsedText;
 				},
 			})
 				.then((submitRes) => {
 					console.log('response: ', submitRes);
+					console.log('result: ', result);
 					// const resJson = JSON.parse(submitRes.data);
 					setAnswer({ isOpen: false, content: '' });
 					setMessages((pre) => {
@@ -222,7 +248,13 @@ export default function useChatView() {
 							return [
 								...pre,
 								{
-									message: submitRes.data,
+									message:
+										result +
+										(pages.length > 0
+											? `(참조 : ${pages
+													.map((page) => page + 1)
+													.join(', ')} page)`
+											: ''),
 									message_id: pre.length,
 									sender: 'assistant',
 								},
