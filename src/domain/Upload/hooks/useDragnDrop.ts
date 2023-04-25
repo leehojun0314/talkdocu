@@ -51,7 +51,7 @@ function useDragnDrop() {
 		if (evt.currentTarget.files) {
 			const file = evt.currentTarget.files[0];
 			console.log('file: ', file);
-			if (!checkFileExtension(file.name, ['pdf', 'txt'])) {
+			if (!checkFileExtension(file.name, ['pdf'])) {
 				toggleOpen('PDF, Text 파일만 업로드 할 수 있습니다.', true, () => {
 					toggleOpen('', false, () => {});
 				});
@@ -81,7 +81,7 @@ function useDragnDrop() {
 		formData.append('conversationName', selectedFile?.name);
 		axiosAPI({
 			method: 'POST',
-			url: '/conversation/v3',
+			url: '/conversation/v4',
 			data: formData,
 		})
 			.then((response) => {
