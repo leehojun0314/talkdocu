@@ -191,6 +191,7 @@ export default function useChatView() {
 				content: '',
 			});
 			// setIsScroll(true);
+			scrollToBottom();
 			setIsLoading(true);
 			axiosAPI({
 				method: 'POST',
@@ -200,8 +201,12 @@ export default function useChatView() {
 					conversationId: auth.userData?.last_conv,
 				},
 				onDownloadProgress: (progress) => {
+					console.log('progress response:', progress.event.currentTarget);
+					// const resJson = JSON.parse(
+					// 	progress.event.currentTarget.response,
+					// );
+					// const text = resJson.text;
 					const text = progress.event.currentTarget.response;
-
 					setAnswer({
 						isOpen: true,
 						content: text,
@@ -210,15 +215,14 @@ export default function useChatView() {
 			})
 				.then((submitRes) => {
 					console.log('response: ', submitRes);
+					// const resJson = JSON.parse(submitRes.data);
 					setAnswer({ isOpen: false, content: '' });
 					setMessages((pre) => {
 						if (pre) {
 							return [
 								...pre,
 								{
-									message:
-										submitRes.data.text +
-										`(참조 : ${submitRes.data.pages})`,
+									message: submitRes.data,
 									message_id: pre.length,
 									sender: 'assistant',
 								},
