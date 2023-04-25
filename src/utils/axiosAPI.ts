@@ -32,5 +32,6 @@ export default function axiosAPI(params: TaxiosAPIParams) {
 		},
 		withCredentials: true,
 		onDownloadProgress: params.onDownloadProgress,
+		timeout: 1000 * 60 * 5, //5분
 	});
 }
