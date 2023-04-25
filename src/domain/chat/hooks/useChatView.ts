@@ -194,7 +194,7 @@ export default function useChatView() {
 			setIsLoading(true);
 			axiosAPI({
 				method: 'POST',
-				url: '/message/v3',
+				url: '/message/v4',
 				data: {
 					text: input,
 					conversationId: auth.userData?.last_conv,
