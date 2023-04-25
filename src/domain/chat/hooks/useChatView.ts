@@ -200,7 +200,7 @@ export default function useChatView() {
 					conversationId: auth.userData?.last_conv,
 				},
 				onDownloadProgress: (progress) => {
-					const text = progress.event.currentTarget.response.text;
+					const text = progress.event.currentTarget.response;
 
 					setAnswer({
 						isOpen: true,
