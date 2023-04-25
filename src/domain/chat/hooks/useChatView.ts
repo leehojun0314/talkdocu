@@ -200,7 +200,7 @@ export default function useChatView() {
 					conversationId: auth.userData?.last_conv,
 				},
 				onDownloadProgress: (progress) => {
-					const text = progress.event.currentTarget.response;
+					const text = progress.event.currentTarget.response.text;
 
 					setAnswer({
 						isOpen: true,
@@ -216,7 +216,9 @@ export default function useChatView() {
 							return [
 								...pre,
 								{
-									message: submitRes.data,
+									message:
+										submitRes.data.text +
+										`(참조 : ${submitRes.data.pages})`,
 									message_id: pre.length,
 									sender: 'assistant',
 								},
