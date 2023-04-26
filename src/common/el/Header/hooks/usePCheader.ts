@@ -34,8 +34,8 @@ export default function usePCheader() {
 	}, []);
 	const navModels = [
 		{ link: '/', title: 'Upload' },
-		{ link: '/chat', title: 'Chat' },
-		{ link: '/manage', title: 'Manage' },
+		{ link: '/manage', title: 'Chats' },
+		// { link: '/manage', title: 'Manage' },
 		// { link: '/plan', title: '요금제' },
 	];
 	return {

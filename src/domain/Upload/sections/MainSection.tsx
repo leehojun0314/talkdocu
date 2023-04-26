@@ -20,7 +20,7 @@ export const MainSection = () => {
 	const text = {
 		title: 'Chat with PDF file',
 		upload: 'Upload File',
-		desc: 'You can upload a file by dragging and dropping it, or by clicking on the space below to select a file.',
+		desc: 'If a PDF file has a lot of content on one page, the accuracy may decrease. To optimize the results, please distribute the content across multiple pages.',
 		drag: 'Please drag and drop your PDF file here or click here to upload your file.',
 		submit: 'Submit PDF',
 	};

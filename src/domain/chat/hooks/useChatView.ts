@@ -90,6 +90,7 @@ export default function useChatView() {
 									url: `/message/v3?convId=${router.query.convId}`,
 								});
 							} else {
+								window.alert('invalid conversation');
 								return Promise.reject('invalid conversation');
 							}
 						})
@@ -272,7 +273,7 @@ export default function useChatView() {
 					const message =
 						result +
 						(pages.length > 0
-							? `\n(참조 : ${pages
+							? `\n(ref : ${pages
 									.map((page) => page + 1)
 									.join(', ')} page)`
 							: '');

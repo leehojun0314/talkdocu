@@ -25,8 +25,8 @@ export const MobileMenu = ({
 	} = useAlert();
 	const MenuModels = [
 		{ name: 'Upload', href: '/' },
-		{ name: 'Chat', href: '/chat' },
-		{ name: 'Manage', href: '/manage' },
+		{ name: 'Chats', href: '/manage' },
+		// { name: 'Manage', href: '/manage' },
 		// { name: '요금제', href: '/plan' },
 	];
 	return (

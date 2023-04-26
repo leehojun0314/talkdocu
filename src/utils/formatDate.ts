@@ -4,7 +4,7 @@ function formatDate(dateStr: string | null | undefined): string {
 		const year: number = dateObj.getFullYear();
 		const month: string = ('0' + (dateObj.getMonth() + 1)).slice(-2);
 		const day: string = ('0' + dateObj.getDate()).slice(-2);
-		return year + '년 ' + month + '월 ' + day + '일';
+		return year + '/ ' + month + '/ ' + day + '';
 	} else {
 		return '';
 	}
