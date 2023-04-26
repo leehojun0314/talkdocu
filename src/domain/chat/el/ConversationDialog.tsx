@@ -15,15 +15,16 @@ import axiosAPI from '@/utils/axiosAPI';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import { changeConv } from '@/redux/reducers/actions';
-export type Tconversation = {
-	conversation_id: number;
-	conversation_name: string;
-	end_time: null;
-	fileUrl: string;
-	salutation: string;
-	start_time: null;
-	user_id: number;
-};
+import { Tconversation } from '../hooks/useChatView';
+// export type Tconversation = {
+// 	conversation_id: number;
+// 	conversation_name: string;
+// 	end_time: null;
+// 	fileUrl: string;
+// 	salutation: string;
+// 	start_time: null;
+// 	user_id: number;
+// };
 export const ConversationDialog = ({
 	open,
 	onClose,
@@ -44,7 +45,11 @@ export const ConversationDialog = ({
 			})
 				.then((response) => {
 					console.log('conversations res:', response);
-					setConversations(response.data);
+					setConversations(
+						response.data.filter(
+							(conv: Tconversation) => conv.status === 'created',
+						),
+					);
 				})
 				.catch((err) => {
 					console.log('err : ', err);

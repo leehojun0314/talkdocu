@@ -9,7 +9,7 @@ import {
 	SecondSection,
 	ThirdSection,
 } from './sections';
-import texts from './model/texts';
+import { texts, enTexts } from './model/texts';
 export type Ttext = {
 	bigTitle: string;
 	rightText: string;
@@ -21,9 +21,9 @@ export const UploadView = () => {
 	return (
 		<div css={sx.root}>
 			{isSmall ? <MobileMainSection /> : <MainSection />}
-			<FirstSection text={texts[0]} />
-			<SecondSection text={texts[1]} />
-			<ThirdSection text={texts[2]} />
+			<FirstSection text={enTexts[0]} />
+			<SecondSection text={enTexts[1]} />
+			<ThirdSection text={enTexts[2]} />
 			<PcFooter position='relative' />
 		</div>
 	);

@@ -88,7 +88,7 @@ export const ChatFrame = ({
 							>
 								{isSmall ? null : (
 									<Typography color={Color.WhiteText}>
-										{'PDF 파일보기'}
+										{'PDF Viewer'}
 									</Typography>
 								)}
 								<Image

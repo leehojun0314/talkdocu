@@ -64,7 +64,7 @@ export const EditDialog = ({
 					alignItems='center'
 				>
 					<Typography variant={isSmall ? 'h5' : 'h2'}>
-						{'채팅명 수정'}
+						{'Edit chat name'}
 					</Typography>
 					<Button onClick={onClose}>
 						<Image
@@ -77,7 +77,7 @@ export const EditDialog = ({
 				</Stack>
 				<Stack my='40px' css={sx.fileName} gap='6px'>
 					<Typography color={Color.GrayText} variant='body2'>
-						{'신규 채팅명'}
+						{'New chat name'}
 					</Typography>
 
 					<TextField
@@ -103,7 +103,7 @@ export const EditDialog = ({
 					<Button onClick={handleSubmit}>
 						<Image src={check} alt='check' width={24} height={24} />
 						<Typography variant='body2' color={Color.Navy}>
-							수정하기
+							Edit
 						</Typography>
 					</Button>
 				</div>

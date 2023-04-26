@@ -5,12 +5,8 @@ import arrowDown from '@/assets/icons/arrow_down.png';
 import Image from 'next/image';
 import { Logo, PurpleLogo } from '../logo';
 import { Mq } from '../../theme/screen';
-import { useEffect, useRef, useState } from 'react';
 import arrowDown_black from '@/assets/icons/arrowDown_black.png';
 import Link from 'next/link';
-import axiosAPI from '@/utils/axiosAPI';
-import { useSelector } from 'react-redux';
-import { TrootState } from '@/redux/reducers';
 import usePCheader from './hooks/usePCheader';
 import useAlert from '@/common/hooks/useAlert';
 import AlertDialog from '../Dialog/alertDialog';
@@ -53,7 +49,7 @@ export const Pcheader = () => {
 											it.link === '/manage'
 										) {
 											toggleOpen(
-												'로그인이 필요한 서비스입니다.',
+												'You need to sign in first',
 												true,
 												() => {
 													toggleOpen('', false, () => {});
@@ -110,7 +106,7 @@ export const Pcheader = () => {
 										: Color.BlackText
 								}
 							>
-								로그인
+								Sign in
 							</Typography>
 						</Link>
 					</Button>
@@ -131,7 +127,7 @@ export const Pcheader = () => {
 					onClose={handleProfilePopClose}
 				>
 					<Button css={sx.popover} onClick={handleLogout}>
-						로그아웃
+						Sign out
 					</Button>
 				</Popover>
 			</div>

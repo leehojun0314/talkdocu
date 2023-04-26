@@ -24,9 +24,9 @@ export const MobileMenu = ({
 		content,
 	} = useAlert();
 	const MenuModels = [
-		{ name: '업로드', href: '/' },
-		{ name: '채팅', href: '/chat' },
-		{ name: 'PDF관리', href: '/manage' },
+		{ name: 'Upload', href: '/' },
+		{ name: 'Chat', href: '/chat' },
+		{ name: 'Manage', href: '/manage' },
 		// { name: '요금제', href: '/plan' },
 	];
 	return (
@@ -57,7 +57,7 @@ export const MobileMenu = ({
 								} else {
 									if (it.href === '/chat' || it.href === '/manage') {
 										toggleOpen(
-											'로그인이 필요한 서비스입니다.',
+											'You need to sign in first.',
 											true,
 											() => {
 												onClose();

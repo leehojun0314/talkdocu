@@ -2,7 +2,7 @@ import useAlert from '@/common/hooks/useAlert';
 import { Tconversation } from '@/domain/chat/hooks/useChatView';
 import axiosAPI from '@/utils/axiosAPI';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const useManageView = () => {
 	const [open, setOpen] = useState(false);
@@ -16,14 +16,24 @@ export const useManageView = () => {
 		onClose: onCloseAlert,
 	} = useAlert();
 	const router = useRouter();
+	const scrollRef = useRef<HTMLDivElement>(null);
 	useEffect(() => {
 		if (localStorage.getItem('token')) {
 			loadConversation();
 		} else {
-			window.alert('로그인이 필요한 서비스입니다.');
+			window.alert('You need to sign in first');
 			router.push('/login');
 		}
 	}, []);
+	useEffect(() => {
+		if (scrollRef) {
+			console.log('scroll ref: ', scrollRef);
+			scrollRef.current?.scrollIntoView({
+				behavior: 'smooth',
+				block: 'end',
+			});
+		}
+	}, [conversations]);
 	function loadConversation(callback?: () => void) {
 		axiosAPI({
 			method: 'GET',
@@ -119,5 +129,6 @@ export const useManageView = () => {
 		onCloseAlert,
 		alertContent,
 		handleEditChange,
+		scrollRef,
 	};
 };

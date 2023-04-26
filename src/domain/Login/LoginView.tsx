@@ -10,8 +10,9 @@ import { PcFooter } from '@/common/el/footer/PcFooter';
 
 export const LoginView = () => {
 	const title = {
-		main: '로그인',
-		desc: '소셜 계정으로 로그인 후\n이용해 주세요.',
+		main: 'Sign in',
+		// desc: '소셜 계정으로 로그인 후\n이용해 주세요.',
+		desc: 'Please uses it after loggin in with your social account',
 	};
 	const { isExtraSmall, isSmall } = useCustomMediaQuery();
 	return (

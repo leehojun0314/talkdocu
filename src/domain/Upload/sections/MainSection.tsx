@@ -10,12 +10,19 @@ import useDragnDrop from '../hooks/useDragnDrop';
 import AlertDialog from '@/common/el/Dialog/alertDialog';
 
 export const MainSection = () => {
+	// const text = {
+	// 	title: 'AI 채팅과 함께 작업을 해보세요.',
+	// 	upload: '파일 업로드',
+	// 	desc: '파일을 드래그하여 업로드하거나, 아래 공간을 클릭해 파일을 선택해 주세요.',
+	// 	drag: 'PDF 파일을 여기로 드래그하거나\n여기를 클릭해서 파일을 업로드해 주세요.',
+	// 	filename: 'filename.pdf',
+	// };
 	const text = {
-		title: 'AI 채팅과 함께 작업을 해보세요.',
-		upload: '파일 업로드',
-		desc: '파일을 드래그하여 업로드하거나, 아래 공간을 클릭해 파일을 선택해 주세요.',
-		drag: 'PDF 파일을 여기로 드래그하거나\n여기를 클릭해서 파일을 업로드해 주세요.',
-		filename: 'filename.pdf',
+		title: 'Chat with PDF file',
+		upload: 'Upload File',
+		desc: 'You can upload a file by dragging and dropping it, or by clicking on the space below to select a file.',
+		drag: 'Please drag and drop your PDF file here or click here to upload your file.',
+		submit: 'Submit PDF',
 	};
 	const {
 		selectedFile,
@@ -82,7 +89,7 @@ export const MainSection = () => {
 							</Button>
 						) : (
 							<Button css={sx.button} onClick={handleSubmit}>
-								PDF 생성하기
+								{text.submit}
 							</Button>
 						)}
 					</Stack>

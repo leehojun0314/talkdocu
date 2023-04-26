@@ -1,4 +1,4 @@
-const texts = [
+export const texts = [
 	{
 		bigTitle: '나만의 위한 AI 채팅 봇을 설정해보세요.',
 		rightText: `논문이 읽기가 힘들고 에세이 작성이 힘드신가요?
@@ -24,4 +24,26 @@ const texts = [
 			'TalkDocu는 정보를 수집하고 분석하는 데에 큰 역할을 합니다. AI를 활용하면 대량의 정보를 빠르게 처리하고 분류할 수 있습니다. 이를 통해 정보의 트렌드나 패턴을 파악하고, 더욱 정확한 예측을 수행할 수 있습니다. 또한 AI를 활용하면 보안과 프라이버시를 보호하면서 정보를 분석할 수 있습니다.',
 	},
 ];
-export default texts;
+export const enTexts = [
+	{
+		bigTitle: 'Create your own AI',
+		rightText: `Do you find it difficult to read academic papers and write essays? Feel free to ask AI chatbot for assistance.`,
+		leftTitle: 'For student:',
+		leftText:
+			'TalkDocu helps students learn more effectively. By utilizing AI, personalized learning plans can be provided to fit individual learning styles, and learning content can be evaluated and improved upon. Additionally, AI can assist students in searching for and understanding information more easily.',
+	},
+	{
+		bigTitle: 'From small business to large community',
+		rightText: `This is an AI chatbot that can be utilized in the workspace as well.`,
+		leftTitle: 'For Workspace: ',
+		leftText:
+			'TalkDocu plays a crucial role in increasing work efficiency in the workspace. By utilizing AI, work automation can reduce the amount of time spent on tasks and prevent errors in the process. Additionally, AI can provide more accurate analysis of work, assisting in decision-making.',
+	},
+	{
+		bigTitle: 'For Anybody seeking knowledge',
+		rightText: `The AI chatbot can assist with any questions or files you may have. Feel free to ask and upload anything you need help with!`,
+		leftTitle: 'For Information:        ',
+		leftText:
+			'TalkDocu plays an important role in collecting and analyzing information. By utilizing AI, large amounts of information can be processed and classified quickly. This allows for the identification of trends and patterns, leading to more accurate predictions. Additionally, AI can protect security and privacy while analyzing information.',
+	},
+];

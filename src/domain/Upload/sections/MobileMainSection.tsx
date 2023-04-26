@@ -21,6 +21,13 @@ export const MobileMainSection = () => {
 		handleInputChange,
 		inputRef,
 	} = useDragnDrop();
+	const text = {
+		title: 'Chat with PDF file',
+		upload: 'Upload File',
+		click: 'Please click the button to select a file.',
+
+		submit: 'Submit PDF',
+	};
 	return (
 		<div css={sx.root}>
 			<AlertDialog
@@ -33,10 +40,10 @@ export const MobileMainSection = () => {
 				<Stack direction='row' css={sx.uploadWrap}>
 					<Stack gap='10px'>
 						<Typography variant='h5' color={Color.GrayText2}>
-							{'파일 업로드'}
+							{text.upload}
 						</Typography>
 						<Typography css={sx.desc} color={Color.GrayText2}>
-							{'버튼을 클릭해 파일을 선택해 주세요.'}
+							{text.click}
 						</Typography>
 					</Stack>
 					{/* <div {...getRootProps()}> */}
@@ -70,7 +77,7 @@ export const MobileMainSection = () => {
 					</Button>
 				) : (
 					<Button css={sx.button} onClick={handleSubmit}>
-						PDF 생성하기
+						{text.submit}
 					</Button>
 				)}
 			</Stack>

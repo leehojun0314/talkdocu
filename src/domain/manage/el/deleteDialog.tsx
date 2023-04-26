@@ -39,7 +39,7 @@ export const DeleteDialog = ({
 					alignItems='center'
 				>
 					<Typography variant={isSmall ? 'h5' : 'h2'}>
-						{'채팅 삭제'}
+						{'Delete Chat'}
 					</Typography>
 					<Button onClick={onClose}>
 						<Image
@@ -58,14 +58,14 @@ export const DeleteDialog = ({
 						<Button onClick={handleDelete}>
 							<Image src={check} alt='check' width={24} height={24} />
 							<Typography variant='body2' color={Color.Navy}>
-								{'삭제하기'}
+								{'Delete'}
 							</Typography>
 						</Button>
 					) : (
 						<Button disabled>
 							<CircularProgress />
 							<Typography variant='body2' color={Color.Navy}>
-								{'삭제하는 중'}
+								{'Deleting...'}
 							</Typography>
 						</Button>
 					)}

@@ -33,9 +33,9 @@ export default function usePCheader() {
 		window.addEventListener('scroll', updateScroll);
 	}, []);
 	const navModels = [
-		{ link: '/', title: '업로드' },
-		{ link: '/chat', title: '채팅' },
-		{ link: '/manage', title: 'PDF관리' },
+		{ link: '/', title: 'Upload' },
+		{ link: '/chat', title: 'Chat' },
+		{ link: '/manage', title: 'Manage' },
 		// { link: '/plan', title: '요금제' },
 	];
 	return {

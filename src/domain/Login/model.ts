@@ -12,7 +12,7 @@ const { publicRuntimeConfig } = getConfig();
 export const SNSModels = [
 	{
 		logo: naver,
-		text: '네이버로 계속하기',
+		text: 'Sign in with Naver',
 		bgColor: '#03C75A',
 		textColor: Color.WhiteText,
 		hoverColor: ' #059b48',
@@ -25,7 +25,7 @@ export const SNSModels = [
 	},
 	{
 		logo: kakao,
-		text: '카카오로 계속하기',
+		text: 'Sign in with Kakao',
 		bgColor: '#FEE500',
 		textColor: Color.BlackText,
 		hoverColor: '#e6cf00',
@@ -38,7 +38,7 @@ export const SNSModels = [
 	},
 	{
 		logo: google,
-		text: 'Google로 계속하기',
+		text: 'Sign in with google',
 		bgColor: '#fff',
 		textColor: Color.BlackText,
 		border: 'solid 1px #eee',
@@ -68,16 +68,18 @@ export const SNSModels = [
 	// },
 	{
 		logo: apple,
-		text: 'Apple로 계속하기',
+		text: 'Sign in with apple',
 		bgColor: 'black',
 		textColor: Color.WhiteText,
 		hoverColor: '#1b1b1b',
 		onclick: () => {
-			const clientId = process.env.APPLE_CLIENT_ID;
-			const redirectUrl = `${window.location.origin}/loginCallback`;
-			const state = 'apple';
-			const scope = 'email name';
-			const authUrl = `https://appleid.apple.com/auth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=${state}&scope=${scope}`;
+			const clientId = publicRuntimeConfig.APPLE_CLIENT_ID;
+			console.log('client id : ', clientId);
+			const redirectUrl = `${window.location.origin}/callback/apple`;
+			const responseType = 'code';
+			const scope = 'name email';
+			const state = 'random_string'; // 간단한 랜덤 문자열 생성
+			const authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUrl}&scope=${scope}&state=${state}`;
 			window.location.href = authUrl;
 		},
 	},
