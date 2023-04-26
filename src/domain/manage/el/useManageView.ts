@@ -34,6 +34,11 @@ export const useManageView = () => {
 			});
 		}
 	}, [conversations]);
+	function handleClickChat(conversation: Tconversation) {
+		return () => {
+			router.push(`/chat?convId=${conversation.conversation_id}`);
+		};
+	}
 	function loadConversation(callback?: () => void) {
 		axiosAPI({
 			method: 'GET',
@@ -130,5 +135,6 @@ export const useManageView = () => {
 		alertContent,
 		handleEditChange,
 		scrollRef,
+		handleClickChat,
 	};
 };

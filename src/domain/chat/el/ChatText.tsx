@@ -112,7 +112,7 @@ export const AIQuestion = ({
 			<Stack css={sx.textFromAI}>
 				<Typography variant='body2' color={Color.WhiteText}>
 					{/* {textFromAI} */}
-					{questions?.length && '질문해보세요 :'}
+					{questions?.length && 'Related questions :'}
 				</Typography>
 				{questions?.map((question) => (
 					<Button

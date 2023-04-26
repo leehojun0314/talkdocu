@@ -74,7 +74,7 @@ export const ConversationDialog = ({
 					justifyContent='space-between'
 					alignItems='center'
 				>
-					<Typography variant='h2'>{'채팅방 목록'}</Typography>
+					<Typography variant='h2'>{'Chat list'}</Typography>
 					<Button onClick={onClose}>
 						<Image
 							src={closeIcon}
