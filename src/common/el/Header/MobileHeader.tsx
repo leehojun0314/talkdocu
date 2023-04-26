@@ -6,9 +6,7 @@ import { useEffect, useState } from 'react';
 import menu_black from '@/assets/icons/menu_black.png';
 import { Button, Popover, Typography } from '@mui/material';
 import { MobileMenu } from '../mobileMenu';
-import close from '@/assets/icons/close.png';
 import Link from 'next/link';
-import { Dialog, DialogTitle } from '@mui/material';
 import { Color } from '@/common/theme/colors';
 import { useSelector } from 'react-redux';
 import { TrootState } from '@/redux/reducers';
@@ -93,7 +91,7 @@ export const MobileHeader = () => {
 							window.location.href = '/login';
 						}}
 					>
-						로그인
+						Sign in
 					</Button>
 				)}
 				<Popover
@@ -112,7 +110,7 @@ export const MobileHeader = () => {
 					onClose={handleProfilePopClose}
 				>
 					<Button css={sx.popover} onClick={handleLogout}>
-						로그아웃
+						Sign out
 					</Button>
 				</Popover>
 				<Button css={sx.button} onClick={handleClickOpen}>

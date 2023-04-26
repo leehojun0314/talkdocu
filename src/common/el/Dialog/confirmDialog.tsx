@@ -30,10 +30,10 @@ export default function ConfirmDialog({
 				</Stack>
 				<Stack direction='row' gap='10px' justifyContent='center'>
 					<Button css={sx.cancel} onClick={onClose}>
-						취소
+						Cancel
 					</Button>
 					<Button css={sx.confirm} onClick={onConfirm}>
-						확인
+						Ok
 					</Button>
 				</Stack>
 			</Stack>

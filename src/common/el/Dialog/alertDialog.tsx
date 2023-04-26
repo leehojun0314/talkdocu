@@ -30,7 +30,7 @@ export default function AlertDialog({
 				</Stack>
 				<Stack direction='row' gap='10px' justifyContent='center'>
 					<Button css={sx.button} onClick={onClose}>
-						확인
+						Ok
 					</Button>
 				</Stack>
 			</Stack>

@@ -14,6 +14,7 @@ export type Tconversation = {
 	fileUrl: string;
 	salutation: string;
 	user_id: number;
+	status: 'created' | 'analyzing' | 'error';
 };
 
 export type Tquestion = {
@@ -37,6 +38,9 @@ export type Tmessage =
 			message_id: number;
 			sender: 'assistant' | 'user';
 	  };
+// function convertNewlinesToHTML(text: string) {
+// 	return text.replace(/\n/g, '<br />');
+// }
 export default function useChatView() {
 	const auth = useSelector((state: TrootState) => state);
 	const dispatch = useDispatch();
@@ -73,10 +77,22 @@ export default function useChatView() {
 			if (isLoggedIn) {
 				//라우터 체크
 				if (router.query.convId) {
+					//check conversation status
 					axiosAPI({
 						method: 'GET',
-						url: `/message/v3?convId=${router.query.convId}`,
+						url: `/conversation/check?convId=${router.query.convId}`,
 					})
+						.then((checkRes) => {
+							console.log('checkRes:', checkRes);
+							if (checkRes.data.status === 'created') {
+								return axiosAPI({
+									method: 'GET',
+									url: `/message/v3?convId=${router.query.convId}`,
+								});
+							} else {
+								return Promise.reject('invalid conversation');
+							}
+						})
 						.then((messageRes) => {
 							authRes.data.userData.last_conv = router.query.convId;
 							dispatch(login(authRes.data));
@@ -107,10 +123,22 @@ export default function useChatView() {
 				else {
 					const convId = userData.last_conv;
 					if (convId) {
+						//check conversation
 						axiosAPI({
 							method: 'GET',
-							url: `/message/v3?convId=${convId}`,
+							url: `/conversation/check?convId=${convId}`,
 						})
+							.then((checkRes) => {
+								console.log('checkRes: ', checkRes);
+								if (checkRes.data.status === 'created') {
+									return axiosAPI({
+										method: 'GET',
+										url: `/message/v3?convId=${convId}`,
+									});
+								} else {
+									return Promise.reject();
+								}
+							})
 							.then((messageRes) => {
 								dispatch(login(authRes.data));
 								setConversation(messageRes.data.conversation);
@@ -125,13 +153,13 @@ export default function useChatView() {
 					} else {
 						//last conv가 없을 시 == 채팅방이 없을 시
 						window.alert(
-							'채팅 방이 없습니다. 먼저 채팅방을 생성해주세요.',
+							'There is no chat room available. Please upload a file on the homepage and create a chat room.',
 						);
 						router.push('/');
 					}
 				}
 			} else {
-				window.alert('로그인이 필요한 서비스 입니다.');
+				window.alert('You need to login first');
 				router.push('/login');
 			}
 		});
@@ -241,6 +269,14 @@ export default function useChatView() {
 				.then((submitRes) => {
 					console.log('response: ', submitRes);
 					console.log('result: ', result);
+					const message =
+						result +
+						(pages.length > 0
+							? `\n(참조 : ${pages
+									.map((page) => page + 1)
+									.join(', ')} page)`
+							: '');
+
 					// const resJson = JSON.parse(submitRes.data);
 					setAnswer({ isOpen: false, content: '' });
 					setMessages((pre) => {
@@ -248,13 +284,7 @@ export default function useChatView() {
 							return [
 								...pre,
 								{
-									message:
-										result +
-										(pages.length > 0
-											? `(참조 : ${pages
-													.map((page) => page + 1)
-													.join(', ')} page)`
-											: ''),
+									message: message,
 									message_id: pre.length,
 									sender: 'assistant',
 								},

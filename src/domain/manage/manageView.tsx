@@ -30,10 +30,11 @@ export const ManageView = () => {
 		onCloseAlert,
 		alertContent,
 		handleEditChange,
+		scrollRef,
 	} = useManageView();
 	const title = {
-		main: '채팅 관리',
-		desc: '채팅을 클릭하시면, 채팅방의 이름을 수정하거나, 삭제할 수 있습니다.',
+		main: 'Manage chat',
+		desc: 'Click to modify or delete the name of the chat',
 	};
 	const { isSmall, isMedium } = useCustomMediaQuery();
 	return (
@@ -80,106 +81,115 @@ export const ManageView = () => {
 				</Stack>
 				{isMedium ? null : (
 					<div css={sx.menu}>
-						<span css={sx.menuTitle}>채팅명</span>
-						<span css={sx.menuTitle}>생성 일자</span>
+						<span css={sx.menuTitle}>Chat name</span>
+						<span css={sx.menuTitle}>Created at</span>
 						<span css={sx.menuTitle}>ID</span>
+						<span css={sx.menuTitle}>status</span>
 					</div>
 				)}
 				<Stack css={sx.content}>
-					{conversations.length ? (
-						conversations.map((conversation, index) => (
-							<>
-								{isMedium ? (
-									<Button
-										css={sx.mbBtn}
-										onClick={handleDetailOpen(conversation)}
-										key={index}
-									>
-										<Stack
-											direction='row'
-											alignItems='center'
-											css={sx.btnInner}
+					<div ref={scrollRef}>
+						{conversations.length ? (
+							conversations.map((conversation, index) => (
+								<>
+									{isMedium ? (
+										<Button
+											css={sx.mbBtn}
+											onClick={handleDetailOpen(conversation)}
+											key={index}
 										>
 											<Stack
 												direction='row'
 												alignItems='center'
-												gap='12px'
+												css={sx.btnInner}
 											>
+												<Stack
+													direction='row'
+													alignItems='center'
+													gap='12px'
+												>
+													<Image
+														src={pdf}
+														alt='pdf'
+														width={24}
+														height={24}
+													/>
+													<Typography>
+														{conversation.conversation_name}
+													</Typography>
+												</Stack>
 												<Image
-													src={pdf}
-													alt='pdf'
+													src={arrowRight}
+													alt='arrow'
 													width={24}
 													height={24}
 												/>
-												<Typography>
-													{conversation.conversation_name}
-												</Typography>
 											</Stack>
-											<Image
-												src={arrowRight}
-												alt='arrow'
-												width={24}
-												height={24}
-											/>
-										</Stack>
-									</Button>
-								) : (
-									<Button
-										css={sx.button}
-										key={index}
-										onClick={handleDetailOpen(conversation)}
-										sx={{ borderRadius: 0 }}
-									>
-										<Typography
-											color={Color.BlackText}
-											variant='body2'
+										</Button>
+									) : (
+										<Button
+											css={sx.button}
+											key={index}
+											onClick={handleDetailOpen(conversation)}
+											sx={{ borderRadius: 0 }}
 										>
-											{conversation.conversation_name}
-										</Typography>
-										<Typography
-											color={Color.GrayText3}
-											variant='body2'
-										>
-											{formatDate(conversation.created_at)}
-											{/* {conversation.created_at} */}
-										</Typography>
-										<Typography
-											color={Color.GrayText3}
-											variant='body2'
-										>
-											{conversation.conversation_id}
-										</Typography>
-									</Button>
-								)}
-							</>
-						))
-					) : (
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'center',
-								alignItems: 'center',
-								height: '100%',
-							}}
-						>
-							<Typography
+											<Typography
+												color={Color.BlackText}
+												variant='body2'
+											>
+												{conversation.conversation_name}
+											</Typography>
+											<Typography
+												color={Color.GrayText3}
+												variant='body2'
+											>
+												{formatDate(conversation.created_at)}
+												{/* {conversation.created_at} */}
+											</Typography>
+											<Typography
+												color={Color.GrayText3}
+												variant='body2'
+											>
+												{conversation.conversation_id}
+											</Typography>
+											<Typography
+												color={Color.GrayText3}
+												variant='body2'
+											>
+												{conversation.status}
+											</Typography>
+										</Button>
+									)}
+								</>
+							))
+						) : (
+							<div
 								style={{
-									textAlign: 'center',
-									color: Color.GrayText,
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									height: '100%',
 								}}
 							>
-								채팅방이 없습니다. <br /> 홈페이지에서 파일을 업로드하고
-								채팅방을 생성해보세요!
-							</Typography>
-						</div>
-					)}
+								<Typography
+									style={{
+										textAlign: 'center',
+										color: Color.GrayText,
+									}}
+								>
+									There is no chat room available. <br /> Please upload
+									a file on the homepage and create a chat.
+								</Typography>
+							</div>
+						)}
+					</div>
 				</Stack>
 				<Stack direction='row' p='20px' justifyContent='space-between'>
 					<Typography
 						variant={isSmall ? 'subtitle1' : 'body1'}
 						color={Color.BlackText}
 					>
-						{'스토리지 사용량'}
+						{'Storage usage'}
 					</Typography>
 					<Stack direction='row'>
 						<Typography
@@ -192,13 +202,13 @@ export const ManageView = () => {
 							variant={isSmall ? 'subtitle1' : 'body1'}
 							color={Color.BlackText}
 						>
-							{'사용중'}
+							{/* {'using'} */}
 						</Typography>
 						<Typography
 							variant={isSmall ? 'subtitle1' : 'body1'}
 							color={Color.GrayText}
 						>
-							{' / 총 1,000MB'}
+							{' /  1,000MB'}
 						</Typography>
 					</Stack>
 				</Stack>
@@ -254,7 +264,7 @@ const sx = {
 		padding: 10px 20px;
 		padding-right: 40px;
 		display: grid;
-		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
 		font-family: 'Pretendard-Regular';
 	`,
 	menuTitle: css`
@@ -291,7 +301,7 @@ const sx = {
 	`,
 	button: css`
 		display: grid !important;
-		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
 		justify-content: flex-start;
 		width: 100%;
 		padding: 10px 20px;

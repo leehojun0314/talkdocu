@@ -5,6 +5,7 @@ import Image from 'next/image';
 import profile from '@/assets/images/ai.png';
 import { Mq } from '@/common/theme/screen';
 import { Tquestion } from '../hooks/useChatView';
+import parser from 'html-react-parser';
 type chatFromMeType = {
 	textFromMe: string;
 	profileUrl?: string | null;
@@ -73,6 +74,9 @@ const sx = {
 type ChatFromAIType = {
 	textFromAI: string;
 };
+function convertNewlinesToHTML(text: string) {
+	return text.replace(/\n/g, '<br />');
+}
 export const ChatFromAI = ({ textFromAI }: ChatFromAIType) => {
 	return (
 		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
@@ -82,7 +86,8 @@ export const ChatFromAI = ({ textFromAI }: ChatFromAIType) => {
 				color={Color.WhiteText}
 				css={sx.textFromAI}
 			>
-				{textFromAI}
+				{parser(convertNewlinesToHTML(textFromAI))}
+				{/* {textFromAI} */}
 			</Typography>
 		</Stack>
 	);
