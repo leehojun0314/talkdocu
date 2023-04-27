@@ -1,4 +1,4 @@
-import { Button, Stack, Typography } from '@mui/material';
+import { Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { css } from '@emotion/react';
 import { Color } from '@/common/theme/colors';
 import Image from 'next/image';
@@ -88,6 +88,25 @@ export const ChatFromAI = ({ textFromAI }: ChatFromAIType) => {
 			>
 				{parser(convertNewlinesToHTML(textFromAI))}
 				{/* {textFromAI} */}
+			</Typography>
+		</Stack>
+	);
+};
+export const AnswerFromAI = ({ textFromAI }: ChatFromAIType) => {
+	const message = parser(convertNewlinesToHTML(textFromAI));
+	return (
+		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
+			<Image src={profile} alt='profile' width={40} height={40} />
+			<Typography
+				variant='body2'
+				color={Color.WhiteText}
+				css={sx.textFromAI}
+			>
+				{typeof message === 'object' ? (
+					<CircularProgress size={30} />
+				) : (
+					message
+				)}
 			</Typography>
 		</Stack>
 	);

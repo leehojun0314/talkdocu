@@ -1,6 +1,6 @@
 import { css } from '@emotion/react';
 import { Color } from '@/common/theme/colors';
-import { AIQuestion, ChatFromMe } from './el/ChatText';
+import { AIQuestion, AnswerFromAI, ChatFromMe } from './el/ChatText';
 import { ChatFromAI } from './el/ChatText';
 import { ChatFrame } from './el/ChatFrame';
 import { HeaderView } from '@/common/el/Header/HeaderView';
@@ -87,7 +87,7 @@ export const ChatView = () => {
 						  })
 						: ''}
 
-					{answer.isOpen && <ChatFromAI textFromAI={answer.content} />}
+					{answer.isOpen && <AnswerFromAI textFromAI={answer.content} />}
 					{/* </div> */}
 				</>
 			</ChatFrame>

@@ -66,16 +66,17 @@ export default function useChatView() {
 	//2.2 라우터에 conv 있으면 해당 conv 로드 후 로그인 정보 변경
 
 	useEffect(() => {
-		console.log('router : ', router.query);
 		axiosAPI({
 			method: 'GET',
 			url: '/auth/checkLogin',
 		}).then((authRes) => {
-			console.log('auth res: ', authRes);
-			const userData = authRes.data.userData;
+			// const userData = authRes.data.userData;
 			const isLoggedIn = authRes.data.isLoggedIn;
 			if (isLoggedIn) {
 				//라우터 체크
+				if (!router.isReady) {
+					return;
+				}
 				if (router.query.convId) {
 					//check conversation status
 					axiosAPI({
@@ -83,7 +84,6 @@ export default function useChatView() {
 						url: `/conversation/check?convId=${router.query.convId}`,
 					})
 						.then((checkRes) => {
-							console.log('checkRes:', checkRes);
 							if (checkRes.data.status === 'created') {
 								return axiosAPI({
 									method: 'GET',
@@ -95,24 +95,24 @@ export default function useChatView() {
 							}
 						})
 						.then((messageRes) => {
-							authRes.data.userData.last_conv = router.query.convId;
+							// authRes.data.userData.last_conv = router.query.convId;
 							dispatch(login(authRes.data));
 							setConversation(messageRes.data.conversation);
 							setQuestions(messageRes.data.questions);
 							setMessages(messageRes.data.messages);
 							setIsScroll(true);
 							//need to update last convid
-							return axiosAPI({
-								method: 'PATCH',
-								url: '/conversation/last',
-								data: {
-									convId: router.query.convId,
-								},
-							});
+							// return axiosAPI({
+							// 	method: 'PATCH',
+							// 	url: '/conversation/last',
+							// 	data: {
+							// 		convId: router.query.convId,
+							// 	},
+							// });
 						})
-						.then((patchRes) => {
-							console.log('patchRes: ', patchRes);
-						})
+						// .then((patchRes) => {
+						// 	console.log('patchRes: ', patchRes);
+						// })
 						.catch((err) => {
 							//invalid given conv id
 							console.log('get message err: ', err);
@@ -122,42 +122,45 @@ export default function useChatView() {
 				}
 				//라우터에 없을 시
 				else {
-					const convId = userData.last_conv;
-					if (convId) {
-						//check conversation
-						axiosAPI({
-							method: 'GET',
-							url: `/conversation/check?convId=${convId}`,
-						})
-							.then((checkRes) => {
-								console.log('checkRes: ', checkRes);
-								if (checkRes.data.status === 'created') {
-									return axiosAPI({
-										method: 'GET',
-										url: `/message/v3?convId=${convId}`,
-									});
-								} else {
-									return Promise.reject();
-								}
-							})
-							.then((messageRes) => {
-								dispatch(login(authRes.data));
-								setConversation(messageRes.data.conversation);
-								setQuestions(messageRes.data.questions);
-								setMessages(messageRes.data.messages);
-								setIsScroll(true);
-							})
-							.catch((err) => {
-								console.log('unexpected error: ', err);
-								router.push('/error');
-							});
-					} else {
-						//last conv가 없을 시 == 채팅방이 없을 시
-						window.alert(
-							'There is no chat room available. Please upload a file on the homepage and create a chat room.',
-						);
-						router.push('/');
-					}
+					window.alert('Bad request');
+					router.push('/');
+
+					// const convId = userData.last_conv;
+					// if (convId) {
+					// 	//check conversation
+					// 	axiosAPI({
+					// 		method: 'GET',
+					// 		url: `/conversation/check?convId=${convId}`,
+					// 	})
+					// 		.then((checkRes) => {
+					// 			console.log('checkRes: ', checkRes);
+					// 			if (checkRes.data.status === 'created') {
+					// 				return axiosAPI({
+					// 					method: 'GET',
+					// 					url: `/message/v3?convId=${convId}`,
+					// 				});
+					// 			} else {
+					// 				return Promise.reject();
+					// 			}
+					// 		})
+					// 		.then((messageRes) => {
+					// 			dispatch(login(authRes.data));
+					// 			setConversation(messageRes.data.conversation);
+					// 			setQuestions(messageRes.data.questions);
+					// 			setMessages(messageRes.data.messages);
+					// 			setIsScroll(true);
+					// 		})
+					// 		.catch((err) => {
+					// 			console.log('unexpected error: ', err);
+					// 			router.push('/error');
+					// 		});
+					// } else {
+					// 	//last conv가 없을 시 == 채팅방이 없을 시
+					// 	window.alert(
+					// 		'There is no chat room available. Please upload a file on the homepage and create a chat room.',
+					// 	);
+					// 	router.push('/');
+					// }
 				}
 			} else {
 				window.alert('You need to login first');
@@ -193,7 +196,7 @@ export default function useChatView() {
 			scrollToBottom();
 			setIsScroll(false);
 		}
-	}, [isScroll, scrollToBottom]);
+	}, [isScroll, isBottom, scrollToBottom]);
 	useEffect(() => {
 		if (isBottom && isLoading) {
 			scrollToBottom();
@@ -230,7 +233,7 @@ export default function useChatView() {
 				url: '/message/v4',
 				data: {
 					text: input,
-					conversationId: auth.userData?.last_conv,
+					conversationId: router.query.convId,
 				},
 				onDownloadProgress: (progress) => {
 					receivedData +=
@@ -268,8 +271,6 @@ export default function useChatView() {
 				},
 			})
 				.then((submitRes) => {
-					console.log('response: ', submitRes);
-					console.log('result: ', result);
 					const message =
 						result +
 						(pages.length > 0
@@ -296,8 +297,10 @@ export default function useChatView() {
 					});
 				})
 				.catch((err) => {
-					console.log('message err: ', err);
-					setAnswer({ isOpen: false, content: '' });
+					if (err.response?.status === 401) {
+						router.reload();
+					}
+					setAnswer({ isOpen: true, content: 'error occured' });
 				})
 				.finally(() => {
 					setIsLoading(false);
