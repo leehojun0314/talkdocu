@@ -67,7 +67,8 @@ function useDragnDrop() {
 		if (!auth.isLoggedIn) {
 			toggleOpen('로그인이 필요한 서비스입니다.', true, () => {
 				toggleOpen('', false, () => {});
-				window.location.href = '/login';
+				// window.location.href = '/login';
+				router.push('/login');
 			});
 			return;
 		}

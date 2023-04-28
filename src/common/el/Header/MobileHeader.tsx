@@ -14,12 +14,14 @@ import arrowDown from '@/assets/icons/arrow_down.png';
 import arrowDown_black from '@/assets/icons/arrowDown_black.png';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/redux/reducers/actions';
+import { useRouter } from 'next/router';
 export const MobileHeader = () => {
 	const auth = useSelector((state: TrootState) => state);
 	const dispatch = useDispatch();
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [popoverEl, setPopoverEl] = useState<HTMLElement | null>(null);
 	const profilePopover = Boolean(popoverEl);
+	const router = useRouter();
 	function handleProfilePopOpen(event: React.MouseEvent<HTMLElement>) {
 		setPopoverEl(event.currentTarget);
 	}
@@ -32,7 +34,8 @@ export const MobileHeader = () => {
 		dispatch(logout());
 		const pathname = window.location.pathname;
 		if (pathname.includes('chat') || pathname.includes('manage')) {
-			window.location.href = '/';
+			// window.location.href = '/';
+			router.push('/');
 		}
 	}
 	const handleClickOpen = () => {
@@ -88,7 +91,8 @@ export const MobileHeader = () => {
 					<Button
 						css={sx.loginBtn}
 						onClick={() => {
-							window.location.href = '/login';
+							// window.location.href = '/login';
+							router.push('/login');
 						}}
 					>
 						Sign in
