@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { TrootState } from '@/redux/reducers';
 import AlertDialog from './Dialog/alertDialog';
 import useAlert from '../hooks/useAlert';
+import { useRouter } from 'next/router';
 export const MobileMenu = ({
 	open,
 	onClose,
@@ -29,6 +30,7 @@ export const MobileMenu = ({
 		// { name: 'Manage', href: '/manage' },
 		// { name: '요금제', href: '/plan' },
 	];
+	const router = useRouter();
 	return (
 		<Dialog open={open} fullScreen disableScrollLock>
 			<div css={sx.root}>
@@ -53,7 +55,8 @@ export const MobileMenu = ({
 							onClick={() => {
 								if (auth?.isLoggedIn) {
 									onClose();
-									window.location.href = it.href;
+									// window.location.href = it.href;
+									router.push(it.href);
 								} else {
 									if (it.href === '/chat' || it.href === '/manage') {
 										toggleOpen(
@@ -66,7 +69,8 @@ export const MobileMenu = ({
 										);
 									} else {
 										onClose();
-										window.location.href = it.href;
+										// window.location.href = it.href;
+										router.push(it.href);
 									}
 								}
 							}}
