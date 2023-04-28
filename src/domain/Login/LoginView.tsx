@@ -94,7 +94,7 @@ const sx = {
 	dialog: css`
 		background-color: #fff;
 		width: 408px;
-		height: 532px;
+		height: fit-content;
 		border-radius: 20px;
 		padding: 40px;
 		@media ${Mq.xs} {
