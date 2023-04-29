@@ -10,11 +10,11 @@ type PcFooterType = {
 
 export const PcFooter = ({ position }: PcFooterType) => {
 	const navModels = [
-		{ name: 'My Account', link: '/' },
-		{ name: 'Contact', link: '/' },
+		// { name: 'My Account', link: '/' },
+		{ name: 'Contact', link: 'mailto:lhj66601234@gmail.com' },
 		{ name: 'Terms', link: '/terms' },
-		{ name: 'Twitter', link: '/' },
-		{ name: 'Pricing', link: '/' },
+		{ name: 'Discord', link: 'https://discord.gg/5NYQMrDf5K' },
+		// { name: 'Pricing', link: '/' },
 	];
 
 	return (

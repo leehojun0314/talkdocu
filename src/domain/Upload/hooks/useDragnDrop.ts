@@ -21,14 +21,7 @@ function useDragnDrop() {
 			if (!file?.name) {
 				return false;
 			}
-			// if (!checkFileExtension(file.name, ['pdf', 'txt'])) {
-			// 	toggleOpen('PDF, Text 파일만 업로드 할 수 있습니다.');
-			// 	return;
-			// }
 			setSelectedFile(file);
-		},
-		onFileDialogOpen: () => {
-			console.log('on file dialog open called');
 		},
 		accept: {
 			'application/pdf': ['.pdf'],
@@ -65,7 +58,8 @@ function useDragnDrop() {
 		console.log('submit clicked');
 		setIsLoading(true);
 		if (!auth.isLoggedIn) {
-			toggleOpen('로그인이 필요한 서비스입니다.', true, () => {
+			toggleOpen('You need to login first.', true, () => {
+				setIsLoading(false);
 				toggleOpen('', false, () => {});
 				// window.location.href = '/login';
 				router.push('/login');
@@ -97,7 +91,6 @@ function useDragnDrop() {
 			// })
 			.then((response) => {
 				console.log('patch response : ', response);
-				setIsLoading(false);
 				toggleOpen(
 					'Upload complete. The time it takes for AI to learn may take longer depending on the size of the file.',
 					true,
@@ -110,6 +103,8 @@ function useDragnDrop() {
 			})
 			.catch((err) => {
 				console.log('err: ', err);
+			})
+			.finally(() => {
 				setIsLoading(false);
 			});
 	}
