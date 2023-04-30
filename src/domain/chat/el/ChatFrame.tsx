@@ -67,7 +67,7 @@ export const ChatFrame = ({
 						flexDirection: 'row',
 					}}
 				>
-					<Stack
+					{/* <Stack
 						alignItems={'center'}
 						justifyContent={'center'}
 						style={{
@@ -77,8 +77,8 @@ export const ChatFrame = ({
 						<Typography color={Color.WhiteText}>
 							ID : {conversation?.conversation_id}
 						</Typography>
-					</Stack>
-					<Button css={sx.pdfButton}>
+					</Stack> */}
+					{/* <Button css={sx.pdfButton}>
 						<a href={conversation?.fileUrl} target={'_blank'}>
 							<Stack
 								css={sx.openFile}
@@ -99,7 +99,7 @@ export const ChatFrame = ({
 								/>
 							</Stack>
 						</a>
-					</Button>
+					</Button> */}
 				</Stack>
 			</Stack>
 			<div css={sx.chatContent} onScroll={handleScroll} ref={messageBoxRef}>
@@ -165,6 +165,7 @@ const sx = {
 	topChat: css`
 		border: solid 1px #fff;
 		padding-left: 23px;
+		height: 64px;
 	`,
 	menuBtn: css`
 		min-width: 0;

@@ -42,7 +42,7 @@ export const useManageView = () => {
 		if (isAnalyzing) {
 			setTimeout(() => {
 				loadConversation();
-			}, 5000);
+			}, 10000);
 		}
 	}, [isAnalyzing, conversations]);
 	function handleClickChat(conversation: Tconversation) {
@@ -56,6 +56,7 @@ export const useManageView = () => {
 			url: '/conversation',
 		})
 			.then((response) => {
+				console.log('get conversation res: ', response);
 				const tempConversations: Tconversation[] = response.data;
 				setConversations(tempConversations);
 				if (callback) {

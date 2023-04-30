@@ -206,7 +206,7 @@ export const ManageView = () => {
 						)}
 					</div>
 				</Stack>
-				<Stack direction='row' p='20px' justifyContent='space-between'>
+				{/* <Stack direction='row' p='20px' justifyContent='space-between'>
 					<Typography
 						variant={isSmall ? 'subtitle1' : 'body1'}
 						color={Color.BlackText}
@@ -224,7 +224,6 @@ export const ManageView = () => {
 							variant={isSmall ? 'subtitle1' : 'body1'}
 							color={Color.BlackText}
 						>
-							{/* {'using'} */}
 						</Typography>
 						<Typography
 							variant={isSmall ? 'subtitle1' : 'body1'}
@@ -233,7 +232,7 @@ export const ManageView = () => {
 							{' /  1,000MB'}
 						</Typography>
 					</Stack>
-				</Stack>
+				</Stack> */}
 				<LinearProgress
 					variant='determinate'
 					value={35}
@@ -286,7 +285,7 @@ const sx = {
 		padding: 10px 20px;
 		padding-right: 40px;
 		display: grid;
-		grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
 		font-family: 'Pretendard-Regular';
 	`,
 	menuTitle: css`
@@ -324,13 +323,14 @@ const sx = {
 	`,
 	button: css`
 		display: grid !important;
-		grid-template-columns: 1fr 1fr 1fr 1fr 0.5fr 0.5fr;
+		grid-template-columns: 1fr 1fr 2fr 1fr 0.5fr 0.5fr;
 		justify-content: flex-start;
 		width: 100%;
 		padding: 10px 10px;
 		border-top: solid 1px ${Color.LightGrayText};
 		p {
 			display: flex;
+			margin: auto 0;
 		}
 	`,
 };

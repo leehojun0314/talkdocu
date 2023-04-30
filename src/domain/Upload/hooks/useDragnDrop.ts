@@ -41,7 +41,7 @@ function useDragnDrop() {
 	}
 	function handleInputChange(evt: React.ChangeEvent<HTMLInputElement>) {
 		console.log('input changed: ', evt);
-		if (evt.currentTarget.files) {
+		if (evt.currentTarget.files?.length) {
 			const file = evt.currentTarget.files[0];
 			console.log('file: ', file);
 			if (!checkFileExtension(file.name, ['pdf'])) {
@@ -76,7 +76,7 @@ function useDragnDrop() {
 		formData.append('conversationName', selectedFile?.name);
 		axiosAPI({
 			method: 'POST',
-			url: '/conversation/v5',
+			url: '/conversation/v6',
 			data: formData,
 		})
 			// .then((response) => {

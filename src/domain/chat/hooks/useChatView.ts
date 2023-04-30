@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 export type Tconversation = {
-	conversation_id: number;
+	id: number;
 	conversation_name: string;
 	end_time: number | null;
 	created_at: string | null;
@@ -15,6 +15,7 @@ export type Tconversation = {
 	salutation: string;
 	user_id: number;
 	status: 'created' | 'analyzing' | 'error';
+	conversation_id: string;
 };
 
 export type Tquestion = {
@@ -87,7 +88,7 @@ export default function useChatView() {
 							if (checkRes.data.status === 'created') {
 								return axiosAPI({
 									method: 'GET',
-									url: `/message/v3?convId=${router.query.convId}`,
+									url: `/message/v4?convId=${router.query.convId}`,
 								});
 							} else {
 								window.alert('invalid conversation');
