@@ -57,10 +57,10 @@ export const ConversationDialog = ({
 		}
 		console.log('conversation dialog useEffect');
 	}, [auth]);
-	function handleClickConv(convId: number) {
+	function handleClickConv(convId: string) {
 		return () => {
 			onClose();
-			dispatch(changeConv(convId));
+			// dispatch(changeConv(convId));
 			router.push(`/chat?convId=${convId}`);
 		};
 	}
