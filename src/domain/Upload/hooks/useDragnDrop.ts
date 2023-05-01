@@ -6,6 +6,19 @@ import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useSelector } from 'react-redux';
+const fileSizes = {
+	'1gb': 1024 * 1024 * 1024,
+	'1mb': 1024 * 1024,
+	'1kb': 1024,
+	'1byte': 1,
+};
+function checkFileSize(fileSize: number, limit: number) {
+	if (fileSize < limit) {
+		return true;
+	} else {
+		return false;
+	}
+}
 function useDragnDrop() {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const { open, toggleOpen, content, onClose } = useAlert();
@@ -21,6 +34,12 @@ function useDragnDrop() {
 			if (!file?.name) {
 				return false;
 			}
+			if (!checkFileSize(file.size, fileSizes['1mb'] * 10)) {
+				toggleOpen('The limit of file size is under 10mb', true, () => {
+					toggleOpen('', false, () => {});
+				});
+				return;
+			}
 			setSelectedFile(file);
 		},
 		accept: {
@@ -28,7 +47,7 @@ function useDragnDrop() {
 		},
 		onDropRejected: (files) => {
 			console.log('drop rejected : ', files);
-			toggleOpen('PDF, Text 파일만 업로드 할 수 있습니다.', true, () => {
+			toggleOpen('You can only upload PDF files.', true, () => {
 				toggleOpen('', false, () => {});
 			});
 		},
@@ -45,7 +64,11 @@ function useDragnDrop() {
 			const file = evt.currentTarget.files[0];
 			console.log('file: ', file);
 			if (!checkFileExtension(file.name, ['pdf'])) {
-				toggleOpen('PDF, Text 파일만 업로드 할 수 있습니다.', true, () => {
+				toggleOpen('You can only upload PDF files.', true, () => {
+					toggleOpen('', false, () => {});
+				});
+			} else if (!checkFileSize(file.size, fileSizes['1mb'] * 10)) {
+				toggleOpen('The limit of file size is under 10mb', true, () => {
 					toggleOpen('', false, () => {});
 				});
 			} else {
@@ -92,7 +115,7 @@ function useDragnDrop() {
 			.then((response) => {
 				console.log('patch response : ', response);
 				toggleOpen(
-					'Upload complete. The time it takes for AI to learn may take longer depending on the size of the file.',
+					'Upload complete. Please wait until it finishes analyzing.',
 					true,
 					() => {
 						toggleOpen('', false, () => {});
@@ -103,6 +126,11 @@ function useDragnDrop() {
 			})
 			.catch((err) => {
 				console.log('err: ', err);
+				const text = err.response.data;
+
+				toggleOpen(text ? text : 'Unexpected Error occured.', true, () => {
+					toggleOpen('', false, () => {});
+				});
 			})
 			.finally(() => {
 				setIsLoading(false);
