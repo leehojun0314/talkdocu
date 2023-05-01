@@ -1,7 +1,13 @@
 import { Color } from '@/common/theme/colors';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { css } from '@emotion/react';
-import { Button, LinearProgress, Stack, Typography } from '@mui/material';
+import {
+	Button,
+	CircularProgress,
+	LinearProgress,
+	Stack,
+	Typography,
+} from '@mui/material';
 import { DeleteDialog, DetailDialog, EditDialog } from './el';
 import pdf from '@/assets/icons/pdf_black.png';
 import Image from 'next/image';
@@ -164,6 +170,14 @@ export const ManageView = () => {
 											variant='body2'
 										>
 											{conversation.status}
+											{conversation.status === 'analyzing' && (
+												<CircularProgress
+													size={20}
+													style={{
+														marginLeft: '5px',
+													}}
+												/>
+											)}
 										</Typography>
 										{conversation.status === 'created' ? (
 											<>
@@ -233,7 +247,7 @@ export const ManageView = () => {
 						</Typography>
 					</Stack>
 				</Stack> */}
-				<LinearProgress
+				{/* <LinearProgress
 					variant='determinate'
 					value={35}
 					color='secondary'
@@ -248,7 +262,7 @@ export const ManageView = () => {
 							overflow: 'hidden',
 						},
 					}}
-				/>
+				/> */}
 			</Stack>
 			<PcFooter position={isSmall ? 'relative' : 'fixed'} />
 		</div>
@@ -294,7 +308,7 @@ const sx = {
 	`,
 	content: css`
 		overflow-y: scroll;
-		height: calc(100vh - 607px);
+		height: calc(100vh - 530px);
 		::-webkit-scrollbar {
 			position: absolute;
 			background-color: transparent;
