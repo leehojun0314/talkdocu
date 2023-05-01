@@ -114,7 +114,7 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
                 class="block-component"
             ></bdt
             >"<strong>you</strong>"<bdt class="statement-end-if-in-editor"></bdt
-            >), and <bdt class="question">zzalgang</bdt>, concerning your access
+            >), and <bdt class="question">Talkdocu</bdt>, concerning your access
             to and use of the Services. You agree that by accessing the
             Services, you have read, understood, and agreed to be bound by all
             of these Legal Terms. IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL
@@ -4107,7 +4107,7 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
                 color: rgb(89, 89, 89);
             "
             ><bdt class="block-component"></bdt
-            ><bdt class="question">South Korea</bdt
+            ><bdt class="question">Australia</bdt
             ><bdt class="statement-end-if-in-editor"></bdt></span
         ><bdt class="block-component"></bdt>. If you access the Services from
         any other region of the world with laws or other requirements governing
@@ -4120,7 +4120,7 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
                 color: rgb(89, 89, 89);
             "
             ><bdt class="block-component"></bdt
-            ><bdt class="question">South Korea</bdt
+            ><bdt class="question">Australia</bdt
             ><bdt class="statement-end-if-in-editor"></bdt></span
         ><bdt class="block-component"></bdt>, then through your continued use
         of the Services, you are transferring your data to
@@ -4131,7 +4131,7 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
                 color: rgb(89, 89, 89);
             "
             ><bdt class="block-component"></bdt
-            ><bdt class="question">South Korea</bdt
+            ><bdt class="question">Australia</bdt
             ><bdt class="statement-end-if-in-editor"></bdt></span
         ><bdt class="block-component"></bdt>, and you expressly consent to have
         your data transferred to and processed in
@@ -4142,7 +4142,7 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
                 color: rgb(89, 89, 89);
             "
             ><bdt class="block-component"></bdt
-            ><bdt class="question">South Korea</bdt
+            ><bdt class="question">Australia</bdt
             ><bdt class="statement-end-if-in-editor"></bdt></span
         ><bdt class="block-component"></bdt>.<bdt
             class="block-container if"
@@ -4608,7 +4608,7 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
         style="font-size: 11pt; line-height: 16.8667px; color: rgb(89, 89, 89)"
         >These Legal Terms shall be governed by and defined following the laws
         of <bdt class="block-component"></bdt
-        ><bdt class="question">South Korea</bdt
+        ><bdt class="question">Australia</bdt
         ><span
             style="
                 font-size: 11pt;
@@ -4616,7 +4616,7 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
                 color: rgb(89, 89, 89);
             "
             ><bdt class="statement-end-if-in-editor"></bdt></span
-        >. <bdt class="question">zzalgang</bdt> and yourself irrevocably
+        >. <bdt class="question">Talkdocu</bdt> and yourself irrevocably
         consent that the courts of
         <span
             style="
@@ -4625,7 +4625,7 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
                 color: rgb(89, 89, 89);
             "
             ><bdt class="block-component"></bdt
-            ><bdt class="question">South Korea</bdt
+            ><bdt class="question">Australia</bdt
             ><span
                 style="
                     font-size: 11pt;
@@ -4753,12 +4753,12 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
     The number of arbitrators shall be <bdt class="question">three (3)</bdt>.
     The seat, or legal place, or arbitration shall be
     <bdt class="block-component"></bdt><bdt class="question">seoul</bdt>,
-    <bdt class="block-component"></bdt><bdt class="question">South Korea</bdt
+    <bdt class="block-component"></bdt><bdt class="question">Australia</bdt
     ><bdt class="statement-end-if-in-editor"></bdt
     ><bdt class="else-block"></bdt>. The language of the proceedings shall be
     <bdt class="question">English</bdt>. The governing law of these Legal
     Terms shall be substantive law of <bdt class="block-component"></bdt
-    ><bdt class="block-component"></bdt><bdt class="question">South Korea</bdt
+    ><bdt class="block-component"></bdt><bdt class="question">Australia</bdt
     ><bdt class="statement-end-if-in-editor"
         ><bdt class="statement-end-if-in-editor"></bdt></bdt
     >.<bdt class="statement-end-if-in-editor"
@@ -5523,7 +5523,7 @@ Calibri;color:#595959;mso-themecolor:text1;mso-themetint:166;"
 >
     <span style="font-size: 15px"
         ><span style="color: rgb(89, 89, 89)"
-            ><bdt class="question"><strong>zzalgang</strong></bdt
+            ><bdt class="question"><strong>Talkdocu</strong></bdt
             ><strong><bdt class="block-component"></bdt></strong></span
     ></span>
 </div>
