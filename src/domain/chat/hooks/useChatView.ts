@@ -48,7 +48,9 @@ export default function useChatView() {
 	const [conversation, setConversation] = useState<Tconversation>();
 	const [messages, setMessages] = useState<Tmessage[]>();
 	const [questions, setQuestions] = useState<Tquestion[]>();
+	const [isLoadingQuestion, setIsLoadingQuestion] = useState<boolean>(false);
 	const [input, setInput] = useState<string>('');
+	const [salutation, setSalutation] = useState<string>();
 	const [answer, setAnswer] = useState<{
 		isOpen: boolean;
 		content: string;
@@ -56,6 +58,7 @@ export default function useChatView() {
 		isOpen: false,
 		content: '',
 	});
+	const [isQuestionBtn, setQuestionBtn] = useState<boolean>(false);
 	const messageBoxRef = useRef<HTMLDivElement>(null);
 	const [isScroll, setIsScroll] = useState<boolean>(false);
 	const [isBottom, setIsBottom] = useState<boolean>(false);
@@ -86,34 +89,59 @@ export default function useChatView() {
 					})
 						.then((checkRes) => {
 							if (checkRes.data.status === 'created') {
-								return axiosAPI({
-									method: 'GET',
-									url: `/message/v4?convId=${router.query.convId}`,
-								});
+								if (checkRes.data.salutation) {
+									axiosAPI({
+										method: 'GET',
+										url: `/message/v4?convId=${router.query.convId}`,
+									})
+										.then((messageRes) => {
+											dispatch(login(authRes.data));
+											setConversation(messageRes.data.conversation);
+											setSalutation(
+												messageRes.data.conversation.salutation,
+											);
+											if (!messageRes.data.questions?.length) {
+												setQuestionBtn(true);
+											} else {
+												setQuestions(messageRes.data.questions);
+											}
+											setMessages(messageRes.data.messages);
+											setIsScroll(true);
+										})
+										.catch((error) => {
+											console.log('fetch message error: ', error);
+										});
+								} else {
+									setIsLoading(true);
+									axiosAPI({
+										method: 'GET',
+										url: `/message/salutation?convStringId=${router.query.convId}`,
+										onDownloadProgress: (progress) => {
+											const text =
+												progress.event.currentTarget.response;
+											console.log('salutation text:', text);
+											setSalutation(text);
+										},
+									})
+										.then((salutationRes) => {
+											console.log('salutation res:', salutationRes);
+											if (!questions?.length) {
+												setQuestionBtn(true);
+											}
+										})
+										.catch((error) => {
+											console.log('salutation error:', error);
+										})
+										.finally(() => {
+											setIsLoading(false);
+										});
+								}
 							} else {
 								window.alert('invalid conversation');
 								return Promise.reject('invalid conversation');
 							}
 						})
-						.then((messageRes) => {
-							// authRes.data.userData.last_conv = router.query.convId;
-							dispatch(login(authRes.data));
-							setConversation(messageRes.data.conversation);
-							setQuestions(messageRes.data.questions);
-							setMessages(messageRes.data.messages);
-							setIsScroll(true);
-							//need to update last convid
-							// return axiosAPI({
-							// 	method: 'PATCH',
-							// 	url: '/conversation/last',
-							// 	data: {
-							// 		convId: router.query.convId,
-							// 	},
-							// });
-						})
-						// .then((patchRes) => {
-						// 	console.log('patchRes: ', patchRes);
-						// })
+
 						.catch((err) => {
 							//invalid given conv id
 							console.log('get message err: ', err);
@@ -203,7 +231,24 @@ export default function useChatView() {
 			scrollToBottom();
 		}
 	}, [isBottom, answer, isLoading, scrollToBottom]);
-
+	function handleGenerateQuestion(event: React.MouseEvent<HTMLButtonElement>) {
+		setQuestionBtn(false);
+		setIsLoadingQuestion(true);
+		axiosAPI({
+			method: 'GET',
+			url: `/message/questions?convStringId=${router.query.convId}`,
+		})
+			.then((questionRes) => {
+				console.log('questionRes:', questionRes);
+				setQuestions(questionRes.data.questions);
+			})
+			.catch((err) => {
+				console.log('get question error: ', err);
+			})
+			.finally(() => {
+				setIsLoadingQuestion(false);
+			});
+	}
 	function handleSubmit(input: string) {
 		if (auth?.isLoggedIn) {
 			//add my message
@@ -330,5 +375,9 @@ export default function useChatView() {
 		scrollToTop,
 		isLoading,
 		handleScroll,
+		salutation,
+		isQuestionBtn,
+		isLoadingQuestion,
+		handleGenerateQuestion,
 	};
 }

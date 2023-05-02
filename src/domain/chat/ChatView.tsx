@@ -1,6 +1,11 @@
 import { css } from '@emotion/react';
 import { Color } from '@/common/theme/colors';
-import { AIQuestion, AnswerFromAI, ChatFromMe } from './el/ChatText';
+import {
+	AILoadingQuestion,
+	AIQuestion,
+	AnswerFromAI,
+	ChatFromMe,
+} from './el/ChatText';
 import { ChatFromAI } from './el/ChatText';
 import { ChatFrame } from './el/ChatFrame';
 import { HeaderView } from '@/common/el/Header/HeaderView';
@@ -26,6 +31,10 @@ export const ChatView = () => {
 		scrollToTop,
 		isLoading,
 		handleScroll,
+		salutation,
+		isQuestionBtn,
+		isLoadingQuestion,
+		handleGenerateQuestion,
 	} = useChatView();
 
 	return (
@@ -51,12 +60,23 @@ export const ChatView = () => {
 				messageBoxRef={messageBoxRef}
 			>
 				<>
-					{conversation?.salutation && (
-						<ChatFromAI textFromAI={conversation?.salutation} />
+					{salutation && <ChatFromAI textFromAI={salutation} />}
+					{isQuestionBtn && (
+						<Button
+							onClick={handleGenerateQuestion}
+							style={{
+								color: Color.BrandMain,
+								backgroundColor: Color.chatBackground,
+								marginLeft: '50px',
+							}}
+						>
+							Create Related Question
+						</Button>
 					)}
+					{isLoadingQuestion && <AILoadingQuestion />}
 					{questions?.length ? (
 						<AIQuestion
-							questions={questions}
+							questionsArr={questions}
 							onQuestionClick={handleQuestionClick}
 							isLoading={isLoading}
 						/>
