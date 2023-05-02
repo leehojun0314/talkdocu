@@ -56,7 +56,6 @@ export const useManageView = () => {
 			url: '/conversation',
 		})
 			.then((response) => {
-				console.log('get conversation res: ', response);
 				const tempConversations: Tconversation[] = response.data;
 				setConversations(tempConversations);
 				if (callback) {
@@ -73,7 +72,6 @@ export const useManageView = () => {
 				}
 			})
 			.catch((err) => {
-				console.log('use manage view effect err: ', err);
 				// window.alert('error occured');
 				router.push('/');
 			});
@@ -120,20 +118,22 @@ export const useManageView = () => {
 			url: `/conversation?convId=${selectedConv?.conversation_id}`,
 		})
 			.then((deleteRes) => {
-				console.log('delete res: ', deleteRes);
 				loadConversation(() => {
-					toggleOpenAlert('삭제 되었습니다.', true, () => {
-						handleDeleteClose();
-						handleDetailClose();
-						toggleOpenAlert('', false, () => {});
-					});
+					toggleOpenAlert(
+						'The conversation has been deleted.',
+						true,
+						() => {
+							handleDeleteClose();
+							handleDetailClose();
+							toggleOpenAlert('', false, () => {});
+						},
+					);
 				});
 			})
 			.catch((err) => {
 				console.log('delete err : ', err);
 			})
 			.finally(() => {
-				console.log('finally called: ');
 				setIsLoading(false);
 			});
 	}

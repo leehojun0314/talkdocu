@@ -27,7 +27,9 @@ export const DeleteDialog = ({
 	isLoading,
 }: DeleteDialog) => {
 	const main = {
-		msg: `채팅방 ${selectedConv?.conversation_name}을(를) 정말 삭제하시겠습니까?\n삭제 이후에는 복구가 불가능합니다.`,
+		// msg: `채팅방 ${selectedConv?.conversation_name}을(를) 정말 삭제하시겠습니까?\n삭제 이후에는 복구가 불가능합니다.`,
+		msg: `Are you sure you want to delete ${selectedConv?.conversation_name}?`,
+		msg2: 'Recovery is not possible after deletion',
 	};
 	const { isSmall } = useCustomMediaQuery();
 	return (
@@ -39,7 +41,7 @@ export const DeleteDialog = ({
 					alignItems='center'
 				>
 					<Typography variant={isSmall ? 'h5' : 'h2'}>
-						{'Delete Chat'}
+						{`Delete ${selectedConv?.conversation_name}`}
 					</Typography>
 					<Button onClick={onClose}>
 						<Image
@@ -52,6 +54,8 @@ export const DeleteDialog = ({
 				</Stack>
 				<Typography variant='body2' color={Color.GrayText} my='40px'>
 					{main.msg}
+					<br />
+					{main.msg2}
 				</Typography>
 				<Stack direction='row' gap='10px' justifyContent='flex-end'>
 					{!isLoading ? (

@@ -35,7 +35,7 @@ export const DetailDialog = ({
 					mb='40px'
 				>
 					<Typography variant={isSmall ? 'h5' : 'h2'}>
-						{'채팅 상세'}
+						{'Chat details'}
 					</Typography>
 					<Button onClick={onClose} css={sx.closeIcon}>
 						<Image
@@ -49,7 +49,7 @@ export const DetailDialog = ({
 				<ul>
 					<li css={sx.list}>
 						<Typography variant='body2' color={Color.GrayText}>
-							채팅명
+							Chat name
 						</Typography>
 						<Typography variant='body2' color={Color.BlackText}>
 							{conversation?.conversation_name}
@@ -57,7 +57,7 @@ export const DetailDialog = ({
 					</li>
 					<li css={sx.list}>
 						<Typography variant='body2' color={Color.GrayText}>
-							생성 일자
+							Created at
 						</Typography>
 						<Typography variant='body2' color={Color.BlackText}>
 							{formatDate(conversation?.created_at)}
@@ -89,7 +89,7 @@ export const DetailDialog = ({
 								color={Color.Navy}
 								variant={isSmall ? 'body2' : 'body1'}
 							>
-								{isSmall ? '' : '수정하기'}
+								{isSmall ? '' : 'Edit'}
 							</Typography>
 						</Stack>
 					</Button>
@@ -104,7 +104,7 @@ export const DetailDialog = ({
 								color={Color.BrandMain}
 								variant={isSmall ? 'body2' : 'body1'}
 							>
-								{isSmall ? '' : '삭제하기'}
+								{isSmall ? '' : 'Delete'}
 							</Typography>
 						</Stack>
 					</Button>
