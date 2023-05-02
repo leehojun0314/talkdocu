@@ -111,9 +111,21 @@ export const AnswerFromAI = ({ textFromAI }: ChatFromAIType) => {
 		</Stack>
 	);
 };
-
+export const AILoadingQuestion = () => {
+	return (
+		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
+			<Image src={profile} alt='profile' width={40} height={40} />
+			<Stack css={sx.textFromAI}>
+				<Typography variant='body2' color={Color.WhiteText}>
+					Generating questions...
+					<CircularProgress size={18} />
+				</Typography>
+			</Stack>
+		</Stack>
+	);
+};
 type AIQuestionType = {
-	questions: Tquestion[] | undefined;
+	questionsArr: Tquestion[] | undefined;
 	onQuestionClick: (
 		question: Tquestion,
 	) => (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -121,7 +133,7 @@ type AIQuestionType = {
 };
 
 export const AIQuestion = ({
-	questions,
+	questionsArr,
 	onQuestionClick,
 	isLoading,
 }: AIQuestionType) => {
@@ -131,9 +143,9 @@ export const AIQuestion = ({
 			<Stack css={sx.textFromAI}>
 				<Typography variant='body2' color={Color.WhiteText}>
 					{/* {textFromAI} */}
-					{questions?.length && 'Related questions :'}
+					{questionsArr?.length && 'Related questions :'}
 				</Typography>
-				{questions?.map((question) => (
+				{questionsArr?.map((question) => (
 					<Button
 						key={question.question_id}
 						css={sx.questionBtn}

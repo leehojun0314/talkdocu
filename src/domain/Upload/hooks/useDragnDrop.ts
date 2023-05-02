@@ -99,7 +99,7 @@ function useDragnDrop() {
 		formData.append('conversationName', selectedFile?.name);
 		axiosAPI({
 			method: 'POST',
-			url: '/conversation/v6',
+			url: '/conversation/v7',
 			data: formData,
 		})
 			// .then((response) => {
@@ -114,15 +114,11 @@ function useDragnDrop() {
 			// })
 			.then((response) => {
 				console.log('patch response : ', response);
-				toggleOpen(
-					'Upload complete. Please wait until it finishes analyzing.',
-					true,
-					() => {
-						toggleOpen('', false, () => {});
-						// window.location.href = '/chat';
-						router.push('/manage');
-					},
-				);
+				toggleOpen('Upload complete.', true, () => {
+					toggleOpen('', false, () => {});
+					// window.location.href = '/chat';
+					router.push('/manage');
+				});
 			})
 			.catch((err) => {
 				console.log('err: ', err);
