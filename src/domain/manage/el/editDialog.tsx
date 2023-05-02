@@ -23,23 +23,26 @@ function useEditDialog(
 	const [isLoading, setIsLoading] = useState<boolean>();
 
 	function handleSubmit() {
-		axiosAPI({
-			method: 'PATCH',
-			url: '/conversation/name',
-			data: {
-				convId: conversation?.conversation_id,
-				newName: input,
-			},
-		})
-			.then((patchNameRes) => {
-				console.log('patch name res: ', patchNameRes);
-				loadConversation(() => {
-					onClose();
-				});
+		if (input?.length) {
+			axiosAPI({
+				method: 'PATCH',
+				url: '/conversation/name',
+				data: {
+					convId: conversation?.conversation_id,
+					newName: input,
+				},
 			})
-			.catch((err) => {
-				console.log('patch name err : ', err);
-			});
+				.then((patchNameRes) => {
+					loadConversation(() => {
+						onClose();
+					});
+				})
+				.catch((err) => {
+					console.log('patch name err : ', err);
+				});
+		} else {
+			window.alert('The name must be more than one character');
+		}
 	}
 	return { input, setInput, isLoading, setIsLoading, handleSubmit };
 }

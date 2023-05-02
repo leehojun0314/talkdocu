@@ -17,6 +17,7 @@ import { useManageView } from './el/useManageView';
 import { PcFooter } from '@/common/el/footer/PcFooter';
 import AlertDialog from '@/common/el/Dialog/alertDialog';
 import formatDate from '@/utils/formatDate';
+import { Tconversation } from '../chat/hooks/useChatView';
 export const ManageView = () => {
 	const {
 		open,
@@ -44,6 +45,29 @@ export const ManageView = () => {
 		desc: 'Click to modify or delete the name of the chat',
 	};
 	const { isSmall, isMedium } = useCustomMediaQuery();
+	function SetButtons(conversation: Tconversation) {
+		switch (conversation.status) {
+			case 'created': {
+				return (
+					<>
+						<Button onClick={handleClickChat(conversation)}>Chat</Button>
+						<Button onClick={handleDetailOpen(conversation)}>Edit</Button>
+					</>
+				);
+			}
+			case 'analyzing': {
+				return '';
+			}
+			case 'error': {
+				return (
+					<Button onClick={handleDetailOpen(conversation)}>Edit</Button>
+				);
+			}
+			default: {
+				return '';
+			}
+		}
+	}
 	return (
 		<div css={sx.root}>
 			<ManageHeaderView />
@@ -179,7 +203,7 @@ export const ManageView = () => {
 												/>
 											)}
 										</Typography>
-										{conversation.status === 'created' ? (
+										{/* {conversation.status === 'created' ? (
 											<>
 												<Button
 													onClick={handleClickChat(conversation)}
@@ -194,7 +218,8 @@ export const ManageView = () => {
 											</>
 										) : (
 											''
-										)}
+										)} */}
+										{SetButtons(conversation)}
 									</Stack>
 								);
 							})
