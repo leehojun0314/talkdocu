@@ -99,7 +99,7 @@ function useDragnDrop() {
 		formData.append('conversationName', selectedFile?.name);
 		axiosAPI({
 			method: 'POST',
-			url: '/conversation/v7',
+			url: '/conversation/v8',
 			data: formData,
 		})
 			// .then((response) => {
