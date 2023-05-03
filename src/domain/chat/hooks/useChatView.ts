@@ -265,7 +265,7 @@ export default function useChatView() {
 					}
 				});
 			} else {
-				return [{ message: input, message_id: 0, sender: 'user' }];
+				setMessages([{ message: input, message_id: 0, sender: 'user' }]);
 			}
 			setAnswer({
 				isOpen: true,
