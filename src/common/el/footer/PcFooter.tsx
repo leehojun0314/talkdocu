@@ -11,7 +11,7 @@ type PcFooterType = {
 export const PcFooter = ({ position }: PcFooterType) => {
 	const navModels = [
 		// { name: 'My Account', link: '/' },
-		{ name: 'Contact', link: 'mailto:lhj66601234@gmail.com' },
+		{ name: 'Contact', link: 'mailto:info@talkdocu.com' },
 		{ name: 'Terms', link: '/terms' },
 		{ name: 'Discord', link: 'https://discord.gg/5NYQMrDf5K' },
 		// { name: 'Pricing', link: '/' },

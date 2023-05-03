@@ -75,9 +75,11 @@ export default function useChatView() {
 			url: '/auth/checkLogin',
 		}).then((authRes) => {
 			// const userData = authRes.data.userData;
+			console.log('userData: ', authRes.data);
 			const isLoggedIn = authRes.data.isLoggedIn;
 			if (isLoggedIn) {
 				//라우터 체크
+				dispatch(login(authRes.data));
 				if (!router.isReady) {
 					return;
 				}
@@ -95,7 +97,7 @@ export default function useChatView() {
 										url: `/message/v4?convId=${router.query.convId}`,
 									})
 										.then((messageRes) => {
-											dispatch(login(authRes.data));
+											console.log('message res: ', messageRes);
 											setConversation(messageRes.data.conversation);
 											setSalutation(
 												messageRes.data.conversation.salutation,
@@ -250,6 +252,7 @@ export default function useChatView() {
 			});
 	}
 	function handleSubmit(input: string) {
+		console.log('input : ', input);
 		if (auth?.isLoggedIn) {
 			//add my message
 			if (messages) {
@@ -260,7 +263,7 @@ export default function useChatView() {
 							{ message: input, message_id: pre.length, sender: 'user' },
 						];
 					} else {
-						return [];
+						return [{ message: input, message_id: 0, sender: 'user' }];
 					}
 				});
 			}
@@ -276,7 +279,7 @@ export default function useChatView() {
 			let pages: number[] = [];
 			axiosAPI({
 				method: 'POST',
-				url: '/message/v4',
+				url: '/message/v5',
 				data: {
 					text: input,
 					conversationId: router.query.convId,
@@ -320,11 +323,8 @@ export default function useChatView() {
 					const message =
 						result +
 						(pages.length > 0
-							? `\n(ref : ${pages
-									.map((page) => page + 1)
-									.join(', ')} page)`
+							? `\n(ref : ${pages.join(', ')} page)`
 							: '');
-
 					// const resJson = JSON.parse(submitRes.data);
 					setAnswer({ isOpen: false, content: '' });
 					setMessages((pre) => {
@@ -338,11 +338,18 @@ export default function useChatView() {
 								},
 							];
 						} else {
-							return [];
+							return [
+								{
+									message: message,
+									message_id: 1,
+									sender: 'assistant',
+								},
+							];
 						}
 					});
 				})
 				.catch((err) => {
+					console.log('err:', err);
 					if (err.response?.status === 401) {
 						router.reload();
 					}
@@ -351,6 +358,9 @@ export default function useChatView() {
 				.finally(() => {
 					setIsLoading(false);
 				});
+		} else {
+			console.log('you are not logged in');
+			console.log('auth : ', auth);
 		}
 	}
 	// const [questions, setQuestions] = useState<
