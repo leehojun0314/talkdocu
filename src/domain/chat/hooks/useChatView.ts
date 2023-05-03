@@ -262,10 +262,10 @@ export default function useChatView() {
 							...pre,
 							{ message: input, message_id: pre.length, sender: 'user' },
 						];
-					} else {
-						return [{ message: input, message_id: 0, sender: 'user' }];
 					}
 				});
+			} else {
+				return [{ message: input, message_id: 0, sender: 'user' }];
 			}
 			setAnswer({
 				isOpen: true,
