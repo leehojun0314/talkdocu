@@ -279,7 +279,7 @@ export default function useChatView() {
 			let pages: number[] = [];
 			axiosAPI({
 				method: 'POST',
-				url: '/message/v5',
+				url: '/message/v4',
 				data: {
 					text: input,
 					conversationId: router.query.convId,
