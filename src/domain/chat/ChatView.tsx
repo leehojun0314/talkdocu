@@ -111,7 +111,7 @@ export const ChatView = () => {
 					{/* </div> */}
 				</>
 			</ChatFrame>
-			<GoogleAd />
+			{/* <GoogleAd /> */}
 		</div>
 	);
 };

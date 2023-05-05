@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { login, logout } from '@/redux/reducers/actions';
-const GoogleCallbackPage: NextPage = () => {
+const KakaoCallbackPage: NextPage = () => {
 	const router = useRouter();
 	const dispatch = useDispatch();
 	useEffect(() => {
@@ -12,7 +12,7 @@ const GoogleCallbackPage: NextPage = () => {
 		console.log('code : ', code);
 		axiosAPI({
 			method: 'GET',
-			url: `/auth/google?code=${code}&redirect_uri=${window.location.origin}/callback/google`,
+			url: `/auth/kakao?code=${code}&redirect_uri=${window.location.origin}/callback/kakao`,
 		})
 			.then((response) => {
 				console.log('response: ', response);
@@ -33,4 +33,4 @@ const GoogleCallbackPage: NextPage = () => {
 	}, []);
 	return <div></div>;
 };
-export default GoogleCallbackPage;
+export default KakaoCallbackPage;
