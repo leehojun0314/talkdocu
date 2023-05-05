@@ -1,14 +1,23 @@
 import { Color } from '@/common/theme/colors';
 import { Mq } from '@/common/theme/screen';
 import { css } from '@emotion/react';
-import { Typography } from '@mui/material';
+import { Dialog, Typography } from '@mui/material';
 import Link from 'next/link';
-
+import { useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { TrootState } from '@/redux/reducers';
 type PcFooterType = {
 	position: string;
 };
 
 export const PcFooter = ({ position }: PcFooterType) => {
+	const [isMyaccOpen, setIsMyaccOpen] = useState<boolean>(false);
+	const auth = useSelector((state: TrootState) => state);
+	console.log('auth : ', auth);
 	const navModels = [
 		// { name: 'My Account', link: '/' },
 		{ name: 'Contact', link: 'mailto:info@talkdocu.com' },
@@ -16,7 +25,9 @@ export const PcFooter = ({ position }: PcFooterType) => {
 		{ name: 'Discord', link: 'https://discord.gg/5NYQMrDf5K' },
 		// { name: 'Pricing', link: '/' },
 	];
-
+	const handleClose = useCallback(() => {
+		setIsMyaccOpen(false);
+	}, []);
 	return (
 		<div css={sx.root(position)}>
 			<ul css={sx.inner}>
@@ -29,6 +40,20 @@ export const PcFooter = ({ position }: PcFooterType) => {
 						</Link>
 					</li>
 				))}
+				<li>
+					<Typography
+						color={Color.WhiteText}
+						variant='subtitle1'
+						style={{
+							cursor: 'pointer',
+						}}
+						onClick={() => {
+							setIsMyaccOpen(true);
+						}}
+					>
+						{'My Account'}
+					</Typography>
+				</li>
 			</ul>
 			<Typography
 				textAlign='center'
@@ -38,6 +63,15 @@ export const PcFooter = ({ position }: PcFooterType) => {
 			>
 				Copyright TalkDocu
 			</Typography>
+			<Dialog open={isMyaccOpen} css={sx.myAccount} onClose={handleClose}>
+				<DialogTitle>My Account</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						<Typography>Name : {auth.userData?.user_name}</Typography>
+						<Typography>Email : {auth.userData?.user_email}</Typography>
+					</DialogContentText>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 };
@@ -79,4 +113,5 @@ const sx = {
 			align-items: center;
 		}
 	`,
+	myAccount: css``,
 };

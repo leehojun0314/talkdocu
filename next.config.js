@@ -13,8 +13,11 @@ const nextConfig = {
 	},
 	trailingSlash: true,
 	publicRuntimeConfig: {
-		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 		API_ENDPOINT: process.env.API_ENDPOINT,
+		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+		KAKAO_CLIENT_ID: process.env.KAKAO_CLIENT_ID,
+		NAVER_CLIENT_ID: process.env.NAVER_CLIENT_ID,
+		APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID,
 	},
 };
 
