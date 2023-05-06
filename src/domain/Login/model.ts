@@ -67,20 +67,20 @@ export const SNSModels = [
 	// 		window.location.href = authUrl;
 	// 	},
 	// },
-	// {
-	// 	logo: apple,
-	// 	text: 'Sign in with apple',
-	// 	bgColor: 'black',
-	// 	textColor: Color.WhiteText,
-	// 	hoverColor: '#1b1b1b',
-	// 	onclick: () => {
-	// 		const clientId = publicRuntimeConfig.APPLE_CLIENT_ID;
-	// 		const redirectUrl = `${window.location.origin}/callback/apple`;
-	// 		const responseType = 'code';
-	// 		const scope = 'name email';
-	// 		const state = generateRandomString(16); // 간단한 랜덤 문자열 생성
-	// 		const authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUrl}&scope=${scope}&state=${state}`;
-	// 		window.location.href = authUrl;
-	// 	},
-	// },
+	{
+		logo: apple,
+		text: 'Sign in with apple',
+		bgColor: 'black',
+		textColor: Color.WhiteText,
+		hoverColor: '#1b1b1b',
+		onclick: () => {
+			const clientId = publicRuntimeConfig.APPLE_CLIENT_ID;
+			const redirectUrl = `${window.location.origin}/callback/apple`;
+			const responseType = 'code';
+			const scope = 'name email';
+			const state = generateRandomString(16); // 간단한 랜덤 문자열 생성
+			const authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUrl}&scope=${scope}&state=${state}`;
+			window.location.href = authUrl;
+		},
+	},
 ];
