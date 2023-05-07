@@ -77,10 +77,8 @@ export const SNSModels = [
 			const clientId = publicRuntimeConfig.APPLE_CLIENT_ID;
 			const redirectUrl = `${window.location.origin}/callback/apple`;
 			const responseType = 'code';
-			const responseMode = 'form_get';
-			const scope = 'name email';
 			const state = generateRandomString(16); // 간단한 랜덤 문자열 생성
-			const authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUrl}&scope=${scope}&state=${state}&response_mode=${responseMode}`;
+			const authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUrl}&state=${state}`;
 			window.location.href = authUrl;
 		},
 	},
