@@ -12,6 +12,37 @@ const { publicRuntimeConfig } = getConfig();
 
 export const SNSModels = [
 	{
+		logo: apple,
+		text: 'Sign in with apple',
+		bgColor: 'black',
+		textColor: Color.WhiteText,
+		hoverColor: '#1b1b1b',
+		onclick: () => {
+			const clientId = publicRuntimeConfig.APPLE_CLIENT_ID;
+			const redirectUrl = `${window.location.origin}/callback/apple`;
+			const responseType = 'code';
+			const state = generateRandomString(16); // 간단한 랜덤 문자열 생성
+			const authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUrl}&state=${state}`;
+			window.location.href = authUrl;
+		},
+	},
+	{
+		logo: google,
+		text: 'Sign in with google',
+		bgColor: '#fff',
+		textColor: Color.BlackText,
+		border: 'solid 1px #eee',
+		hoverColor: '#f5f5f5',
+		onclick: () => {
+			const clientId = publicRuntimeConfig.GOOGLE_CLIENT_ID;
+			const redirectUrl = `${window.location.origin}/callback/google`;
+			const responseType = 'code';
+			const scope = 'openid email profile';
+			const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=${responseType}&scope=${scope}`;
+			window.location.href = authUrl;
+		},
+	},
+	{
 		logo: naver,
 		text: 'Sign in with Naver',
 		bgColor: '#03C75A',
@@ -38,22 +69,7 @@ export const SNSModels = [
 			window.location.href = authUrl;
 		},
 	},
-	{
-		logo: google,
-		text: 'Sign in with google',
-		bgColor: '#fff',
-		textColor: Color.BlackText,
-		border: 'solid 1px #eee',
-		hoverColor: '#f5f5f5',
-		onclick: () => {
-			const clientId = publicRuntimeConfig.GOOGLE_CLIENT_ID;
-			const redirectUrl = `${window.location.origin}/callback/google`;
-			const responseType = 'code';
-			const scope = 'openid email profile';
-			const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=${responseType}&scope=${scope}`;
-			window.location.href = authUrl;
-		},
-	},
+
 	// {
 	// 	logo: facebook,
 	// 	text: 'Facebook으로 계속하기',
@@ -67,19 +83,4 @@ export const SNSModels = [
 	// 		window.location.href = authUrl;
 	// 	},
 	// },
-	{
-		logo: apple,
-		text: 'Sign in with apple',
-		bgColor: 'black',
-		textColor: Color.WhiteText,
-		hoverColor: '#1b1b1b',
-		onclick: () => {
-			const clientId = publicRuntimeConfig.APPLE_CLIENT_ID;
-			const redirectUrl = `${window.location.origin}/callback/apple`;
-			const responseType = 'code';
-			const state = generateRandomString(16); // 간단한 랜덤 문자열 생성
-			const authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${redirectUrl}&state=${state}`;
-			window.location.href = authUrl;
-		},
-	},
 ];
