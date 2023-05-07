@@ -28,7 +28,7 @@ const AppleCallbackPage: NextPage = () => {
 			})
 			.catch((err) => {
 				console.log('err : ', err.response);
-				router.push('/error');
+				// router.push('/error');
 			});
 	}, []);
 	return <div></div>;
