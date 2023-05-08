@@ -43,6 +43,19 @@ export const SNSModels = [
 		},
 	},
 	{
+		logo: facebook,
+		text: 'Sign in with Facebook',
+		bgColor: '#2374F2',
+		textColor: Color.WhiteText,
+		hoverColor: '#2064d1',
+		onclick: () => {
+			const clientId = process.env.FACEBOOK_CLIENT_ID;
+			const redirectUrl = `${window.location.origin}/callback/facebook`;
+			const authUrl = `https://www.facebook.com/v11.0/dialog/oauth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}`;
+			window.location.href = authUrl;
+		},
+	},
+	{
 		logo: naver,
 		text: 'Sign in with Naver',
 		bgColor: '#03C75A',
@@ -52,7 +65,8 @@ export const SNSModels = [
 			const clientId = publicRuntimeConfig.NAVER_CLIENT_ID;
 			const state = generateRandomString(16);
 			const redirectUrl = `${window.location.origin}/callback/naver`;
-			const authUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=${state}`;
+			const auth_type = 'reprompt';
+			const authUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=${state}&auth_type=${auth_type}`;
 			window.location.href = authUrl;
 		},
 	},
@@ -69,18 +83,4 @@ export const SNSModels = [
 			window.location.href = authUrl;
 		},
 	},
-
-	// {
-	// 	logo: facebook,
-	// 	text: 'Facebook으로 계속하기',
-	// 	bgColor: '#2374F2',
-	// 	textColor: Color.WhiteText,
-	// 	hoverColor: '#2064d1',
-	// 	onclick: () => {
-	// 		const clientId = process.env.FACEBOOK_CLIENT_ID;
-	// 		const redirectUrl = `${window.location.origin}/loginCallback`;
-	// 		const authUrl = `https://www.facebook.com/v11.0/dialog/oauth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}`;
-	// 		window.location.href = authUrl;
-	// 	},
-	// },
 ];
