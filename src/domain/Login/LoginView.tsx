@@ -5,9 +5,7 @@ import Image from 'next/image';
 import { SNSModels } from './model';
 import { Stack } from '@mui/system';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
-import Link from 'next/link';
 import { PcFooter } from '@/common/el/footer/PcFooter';
-
 export const LoginView = () => {
 	const title = {
 		main: 'Sign in',

@@ -18,6 +18,7 @@ const nextConfig = {
 		KAKAO_CLIENT_ID: process.env.KAKAO_CLIENT_ID,
 		NAVER_CLIENT_ID: process.env.NAVER_CLIENT_ID,
 		APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID,
+		FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID,
 	},
 };
 

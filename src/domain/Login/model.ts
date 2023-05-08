@@ -49,7 +49,7 @@ export const SNSModels = [
 		textColor: Color.WhiteText,
 		hoverColor: '#2064d1',
 		onclick: () => {
-			const clientId = process.env.FACEBOOK_CLIENT_ID;
+			const clientId = publicRuntimeConfig.FACEBOOK_CLIENT_ID;
 			const redirectUrl = `${window.location.origin}/callback/facebook`;
 			const authUrl = `https://www.facebook.com/v11.0/dialog/oauth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}`;
 			window.location.href = authUrl;
