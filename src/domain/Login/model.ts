@@ -51,7 +51,9 @@ export const SNSModels = [
 		onclick: () => {
 			const clientId = publicRuntimeConfig.FACEBOOK_CLIENT_ID;
 			const redirectUrl = `${window.location.origin}/callback/facebook`;
-			const authUrl = `https://www.facebook.com/v11.0/dialog/oauth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}`;
+			const state = generateRandomString(8);
+			const scope = 'email';
+			const authUrl = `https://www.facebook.com/v16.0/dialog/oauth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=${state}&scope=${scope}`;
 			window.location.href = authUrl;
 		},
 	},

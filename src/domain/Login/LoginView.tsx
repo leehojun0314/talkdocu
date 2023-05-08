@@ -6,6 +6,7 @@ import { SNSModels } from './model';
 import { Stack } from '@mui/system';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { PcFooter } from '@/common/el/footer/PcFooter';
+import facebook from '@/assets/logos/facebook.png';
 export const LoginView = () => {
 	const title = {
 		main: 'Sign in',
@@ -100,7 +101,7 @@ const sx = {
 		}
 	`,
 	desc: css`
-		margin: 20px 0 60px 0;
+		margin: 20px 0 20px 0;
 	`,
 	snsWrap: css`
 		gap: 20px;
