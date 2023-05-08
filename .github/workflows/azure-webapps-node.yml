@@ -22,6 +22,7 @@ jobs:
               KAKAO_CLIENT_ID: d178be7325e38f0545b134fae4e38cfc
               NAVER_CLIENT_ID: vSZhUBrETdcnS2U1hAmS
               APPLE_CLIENT_ID: com.talkdocu.service
+              FACEBOOK_CLIENT_ID: 625046362996233
          - name: Log in to Azure
            uses: azure/login@v1
            with:

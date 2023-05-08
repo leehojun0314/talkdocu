@@ -73,131 +73,142 @@ export default function useChatView() {
 		axiosAPI({
 			method: 'GET',
 			url: '/auth/checkLogin',
-		}).then((authRes) => {
-			// const userData = authRes.data.userData;
-			console.log('userData: ', authRes.data);
-			const isLoggedIn = authRes.data.isLoggedIn;
-			if (isLoggedIn) {
-				//라우터 체크
-				dispatch(login(authRes.data));
-				if (!router.isReady) {
-					return;
-				}
-				if (router.query.convId) {
-					//check conversation status
-					axiosAPI({
-						method: 'GET',
-						url: `/conversation/check?convId=${router.query.convId}`,
-					})
-						.then((checkRes) => {
-							if (checkRes.data.status === 'created') {
-								if (checkRes.data.salutation) {
-									axiosAPI({
-										method: 'GET',
-										url: `/message/v4?convId=${router.query.convId}`,
-									})
-										.then((messageRes) => {
-											console.log('message res: ', messageRes);
-											setConversation(messageRes.data.conversation);
-											setSalutation(
-												messageRes.data.conversation.salutation,
-											);
-											if (!messageRes.data.questions?.length) {
-												setQuestionBtn(true);
-											} else {
-												setQuestions(messageRes.data.questions);
-											}
-											setMessages(messageRes.data.messages);
-											setIsScroll(true);
-										})
-										.catch((error) => {
-											console.log('fetch message error: ', error);
-										});
-								} else {
-									setIsLoading(true);
-									axiosAPI({
-										method: 'GET',
-										url: `/message/salutation?convStringId=${router.query.convId}`,
-										onDownloadProgress: (progress) => {
-											const text =
-												progress.event.currentTarget.response;
-											console.log('salutation text:', text);
-											setSalutation(text);
-										},
-									})
-										.then((salutationRes) => {
-											console.log('salutation res:', salutationRes);
-											if (!questions?.length) {
-												setQuestionBtn(true);
-											}
-										})
-										.catch((error) => {
-											console.log('salutation error:', error);
-										})
-										.finally(() => {
-											setIsLoading(false);
-										});
-								}
-							} else {
-								window.alert('invalid conversation');
-								return Promise.reject('invalid conversation');
-							}
+		})
+			.then((authRes) => {
+				// const userData = authRes.data.userData;
+				console.log('userData: ', authRes.data);
+				const isLoggedIn = authRes.data.isLoggedIn;
+				if (isLoggedIn) {
+					//라우터 체크
+					dispatch(login(authRes.data));
+					if (!router.isReady) {
+						return;
+					}
+					if (router.query.convId) {
+						//check conversation status
+						axiosAPI({
+							method: 'GET',
+							url: `/conversation/check?convId=${router.query.convId}`,
 						})
+							.then((checkRes) => {
+								if (checkRes.data.status === 'created') {
+									if (checkRes.data.salutation) {
+										axiosAPI({
+											method: 'GET',
+											url: `/message/v4?convId=${router.query.convId}`,
+										})
+											.then((messageRes) => {
+												console.log('message res: ', messageRes);
+												setConversation(
+													messageRes.data.conversation,
+												);
+												setSalutation(
+													messageRes.data.conversation.salutation,
+												);
+												if (!messageRes.data.questions?.length) {
+													setQuestionBtn(true);
+												} else {
+													setQuestions(messageRes.data.questions);
+												}
+												setMessages(messageRes.data.messages);
+												setIsScroll(true);
+											})
+											.catch((error) => {
+												console.log('fetch message error: ', error);
+											});
+									} else {
+										setIsLoading(true);
+										axiosAPI({
+											method: 'GET',
+											url: `/message/salutation?convStringId=${router.query.convId}`,
+											onDownloadProgress: (progress) => {
+												const text =
+													progress.event.currentTarget.response;
+												console.log('salutation text:', text);
+												setSalutation(text);
+											},
+										})
+											.then((salutationRes) => {
+												console.log(
+													'salutation res:',
+													salutationRes,
+												);
+												if (!questions?.length) {
+													setQuestionBtn(true);
+												}
+											})
+											.catch((error) => {
+												console.log('salutation error:', error);
+											})
+											.finally(() => {
+												setIsLoading(false);
+											});
+									}
+								} else {
+									window.alert('invalid conversation');
+									return Promise.reject('invalid conversation');
+								}
+							})
 
-						.catch((err) => {
-							//invalid given conv id
-							console.log('get message err: ', err);
-							window.alert('invalid conversation id');
-							router.push('/error');
-						});
-				}
-				//라우터에 없을 시
-				else {
-					window.alert('Bad request');
-					router.push('/');
+							.catch((err) => {
+								//invalid given conv id
+								console.log('get message err: ', err);
+								window.alert('invalid conversation id');
+								router.push('/error');
+							});
+					}
+					//라우터에 없을 시
+					else {
+						window.alert('Bad request');
+						router.push('/');
 
-					// const convId = userData.last_conv;
-					// if (convId) {
-					// 	//check conversation
-					// 	axiosAPI({
-					// 		method: 'GET',
-					// 		url: `/conversation/check?convId=${convId}`,
-					// 	})
-					// 		.then((checkRes) => {
-					// 			console.log('checkRes: ', checkRes);
-					// 			if (checkRes.data.status === 'created') {
-					// 				return axiosAPI({
-					// 					method: 'GET',
-					// 					url: `/message/v3?convId=${convId}`,
-					// 				});
-					// 			} else {
-					// 				return Promise.reject();
-					// 			}
-					// 		})
-					// 		.then((messageRes) => {
-					// 			dispatch(login(authRes.data));
-					// 			setConversation(messageRes.data.conversation);
-					// 			setQuestions(messageRes.data.questions);
-					// 			setMessages(messageRes.data.messages);
-					// 			setIsScroll(true);
-					// 		})
-					// 		.catch((err) => {
-					// 			console.log('unexpected error: ', err);
-					// 			router.push('/error');
-					// 		});
-					// } else {
-					// 	//last conv가 없을 시 == 채팅방이 없을 시
-					// 	window.alert(
-					// 		'There is no chat room available. Please upload a file on the homepage and create a chat room.',
-					// 	);
-					// 	router.push('/');
-					// }
+						// const convId = userData.last_conv;
+						// if (convId) {
+						// 	//check conversation
+						// 	axiosAPI({
+						// 		method: 'GET',
+						// 		url: `/conversation/check?convId=${convId}`,
+						// 	})
+						// 		.then((checkRes) => {
+						// 			console.log('checkRes: ', checkRes);
+						// 			if (checkRes.data.status === 'created') {
+						// 				return axiosAPI({
+						// 					method: 'GET',
+						// 					url: `/message/v3?convId=${convId}`,
+						// 				});
+						// 			} else {
+						// 				return Promise.reject();
+						// 			}
+						// 		})
+						// 		.then((messageRes) => {
+						// 			dispatch(login(authRes.data));
+						// 			setConversation(messageRes.data.conversation);
+						// 			setQuestions(messageRes.data.questions);
+						// 			setMessages(messageRes.data.messages);
+						// 			setIsScroll(true);
+						// 		})
+						// 		.catch((err) => {
+						// 			console.log('unexpected error: ', err);
+						// 			router.push('/error');
+						// 		});
+						// } else {
+						// 	//last conv가 없을 시 == 채팅방이 없을 시
+						// 	window.alert(
+						// 		'There is no chat room available. Please upload a file on the homepage and create a chat room.',
+						// 	);
+						// 	router.push('/');
+						// }
+					}
+				} else {
+					window.alert('You need to login first');
+					router.push('/login');
 				}
-			} else {
-				window.alert('You need to login first');
+			})
+			.catch((err) => {
+				console.log('login check err: ', err);
+				window.alert('You need to login first.');
 				router.push('/login');
-			}
-		});
+			});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [router]);
 	const scrollToBottom = useCallback(() => {
