@@ -5,6 +5,7 @@ import { Typography } from '@mui/material';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { PcFooter } from '@/common/el/footer/PcFooter';
 import Link from 'next/link';
+import Head from 'next/head';
 const ErrorPage: NextPage = () => {
 	const { isExtraSmall, isSmall } = useCustomMediaQuery();
 	const title = {
@@ -12,32 +13,37 @@ const ErrorPage: NextPage = () => {
 		desc: 'Something went wrong',
 	};
 	return (
-		<div css={sx.mbRoot}>
-			<div css={sx.root}>
-				<div css={sx.dialog}>
-					<Typography
-						color={isExtraSmall ? Color.WhiteText : Color.BlackText}
-						textAlign='center'
-						variant='h1'
-					>
-						{title.main}
-					</Typography>
-					<Typography
-						css={sx.desc}
-						textAlign='center'
-						color={isExtraSmall ? Color.LightGrayText : Color.GrayText}
-						variant={isExtraSmall ? 'body2' : 'body1'}
-					>
-						{title.desc}
-						<div>
-							<Link href={'/'}>Back to home</Link>
-						</div>
-					</Typography>
+		<>
+			<Head>
+				<title>Error</title>
+			</Head>
+			<div css={sx.mbRoot}>
+				<div css={sx.root}>
+					<div css={sx.dialog}>
+						<Typography
+							color={isExtraSmall ? Color.WhiteText : Color.BlackText}
+							textAlign='center'
+							variant='h1'
+						>
+							{title.main}
+						</Typography>
+						<Typography
+							css={sx.desc}
+							textAlign='center'
+							color={isExtraSmall ? Color.LightGrayText : Color.GrayText}
+							variant={isExtraSmall ? 'body2' : 'body1'}
+						>
+							{title.desc}
+							<div>
+								<Link href={'/'}>Back to home</Link>
+							</div>
+						</Typography>
+					</div>
+					{isSmall ? null : <PcFooter position='fixed' />}
 				</div>
-				{isSmall ? null : <PcFooter position='fixed' />}
+				{isSmall ? <PcFooter position='relative' /> : null}
 			</div>
-			{isSmall ? <PcFooter position='relative' /> : null}
-		</div>
+		</>
 	);
 };
 const sx = {

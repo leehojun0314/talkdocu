@@ -1,6 +1,7 @@
 import useLoginCheck from '@/common/hooks/useLoginCheck';
 import { ManageView } from '@/domain/manage/manageView';
 import { NextPage } from 'next';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 const ManagePage: NextPage = () => {
@@ -11,6 +12,13 @@ const ManagePage: NextPage = () => {
 
 		router.push('/login');
 	});
-	return <ManageView />;
+	return (
+		<>
+			<Head>
+				<title>Manage</title>
+			</Head>
+			<ManageView />
+		</>
+	);
 };
 export default ManagePage;
