@@ -35,7 +35,7 @@ export const MobileMenu = ({
 		<Dialog open={open} fullScreen disableScrollLock>
 			<div css={sx.root}>
 				<Stack direction='row' justifyContent='space-between'>
-					<Link href='/upload'>
+					<Link href='/'>
 						<Logo />
 					</Link>
 					<Button onClick={onClose} css={sx.button}>

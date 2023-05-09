@@ -15,7 +15,7 @@ export default function Document() {
 				/>
 				<meta
 					name='keywords'
-					content='PDF, 대화, talkpdf, AI, GPT, CHATGPT, 인공지능, 파일 분석, 요약, Summary, 문서 이해, 질문 답변, AI 파일 도움, Openai, GPT-4, 채팅봇, chatting bot, chatpdf, talkdocu'
+					content='PDF, 대화, talkpdf, AI, GPT, CHATGPT, 인공지능, 파일 분석, 요약, Summary, 문서 이해, 질문 답변, AI 파일 도움, Openai, GPT-4, 채팅봇, chatting bot, chatpdf, talkdocu, talk docu, chat with pdf, chat with document'
 				/>
 				<meta httpEquiv='Content-Type' content='text/html;charset=UTF-8' />
 				<meta httpEquiv='X-UA-Compatible' content='ie=edge' />
