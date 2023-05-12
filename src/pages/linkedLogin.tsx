@@ -28,8 +28,11 @@ const LinkedLoginPage: NextPage = () => {
 				url: '/auth/dtizenCheckLogin',
 			})
 				.then((res) => {
-					console.log('res: ', res);
-					localStorage.setItem('token', stringjwt);
+					const { jwt: newJwt, isLoggedIn } = res.data;
+					if (!isLoggedIn) {
+						return;
+					}
+					localStorage.setItem('token', newJwt);
 					router.push('/');
 				})
 				.catch((err) => {
