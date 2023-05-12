@@ -10,9 +10,17 @@ const LinkedLoginPage: NextPage = () => {
 	useEffect(() => {
 		if (router.isReady) {
 			const jwt = router.query.jwt;
+			let stringjwt = '';
+			if (!jwt) {
+				console.log('jwt is required');
+				return;
+			}
 			console.log('jwt : ', jwt);
 			if (typeof jwt === 'string') {
-				localStorage.setItem('token', jwt);
+				stringjwt = jwt;
+				localStorage.setItem('token', stringjwt);
+			} else {
+				return;
 			}
 			console.log('localstorage jwt : ', localStorage.getItem('token'));
 			axiosAPI({
@@ -21,6 +29,7 @@ const LinkedLoginPage: NextPage = () => {
 			})
 				.then((res) => {
 					console.log('res: ', res);
+					localStorage.setItem('token', stringjwt);
 					router.push('/');
 				})
 				.catch((err) => {
