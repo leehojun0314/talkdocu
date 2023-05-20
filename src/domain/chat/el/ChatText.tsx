@@ -125,17 +125,19 @@ export const AILoadingQuestion = () => {
 	);
 };
 type AIQuestionType = {
-	questionsArr: Tquestion[] | undefined;
+	questionsArr: string[] | undefined;
 	onQuestionClick: (
-		question: Tquestion,
+		question: string,
 	) => (event: React.MouseEvent<HTMLButtonElement>) => void;
 	isLoading: boolean;
+	questionDocName: string | null;
 };
 
 export const AIQuestion = ({
 	questionsArr,
 	onQuestionClick,
 	isLoading,
+	questionDocName,
 }: AIQuestionType) => {
 	return (
 		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
@@ -143,17 +145,20 @@ export const AIQuestion = ({
 			<Stack css={sx.textFromAI}>
 				<Typography variant='body2' color={Color.WhiteText}>
 					{/* {textFromAI} */}
-					{questionsArr?.length && 'Related questions :'}
+					{questionsArr?.length &&
+						`Related questions for ${
+							questionDocName && questionDocName
+						}:`}
 				</Typography>
-				{questionsArr?.map((question) => (
+				{questionsArr?.map((question, index) => (
 					<Button
-						key={question.question_id}
+						key={index}
 						css={sx.questionBtn}
 						onClick={onQuestionClick(question)}
 						disabled={isLoading}
 					>
 						<Typography variant='h4' color={Color.WhiteText}>
-							{question.question_content}
+							{question}
 						</Typography>
 					</Button>
 				))}

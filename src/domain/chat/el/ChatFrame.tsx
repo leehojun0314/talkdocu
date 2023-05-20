@@ -50,7 +50,10 @@ export const ChatFrame = ({
 	return (
 		<Stack css={sx.chat}>
 			{/* <UploadDialog open={open} onClose={handleClose}></UploadDialog> */}
-			<ConversationDialog open={open} onClose={handleClose} />
+			{!isLoading && (
+				<ConversationDialog open={open} onClose={handleClose} />
+			)}
+
 			<Stack css={sx.topChat} direction='row' justifyContent='space-between'>
 				<Stack direction='row' alignItems='center' gap='13px'>
 					<Button css={sx.menuBtn} onClick={handleClickOpen}>
@@ -111,7 +114,7 @@ export const ChatFrame = ({
 					css={sx.message}
 					multiline
 					variant='standard'
-					placeholder='메시지를 입력하세요.'
+					placeholder='Please input your question here'
 					InputProps={{
 						disableUnderline: true,
 						style: { color: 'white' },

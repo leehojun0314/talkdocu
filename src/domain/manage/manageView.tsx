@@ -39,10 +39,12 @@ export const ManageView = () => {
 		handleEditChange,
 		scrollRef,
 		handleClickChat,
+		isLoadingConv,
 	} = useManageView();
 	const title = {
-		main: 'Manage chat',
-		desc: 'Click to modify or delete the name of the chat',
+		main: 'Chat List',
+		// desc: 'Click to modify or delete the name of the chat',
+		desc: '',
 	};
 	const { isSmall, isMedium } = useCustomMediaQuery();
 	function SetButtons(conversation: Tconversation) {
@@ -118,92 +120,97 @@ export const ManageView = () => {
 						<span css={sx.menuTitle}>status</span>
 					</div>
 				)}
-				<Stack css={sx.content}>
-					<div ref={scrollRef}>
-						{conversations.length ? (
-							conversations.map((conversation, index) => {
-								return isMedium ? (
-									<Button
-										css={sx.mbBtn}
-										onClick={
-											conversation.status === 'created'
-												? handleClickChat(conversation)
-												: undefined
-										}
-										key={index}
-									>
-										<Stack
-											direction='row'
-											alignItems='center'
-											css={sx.btnInner}
+				{isLoadingConv ? (
+					<div css={sx.loadingConv}>
+						<CircularProgress />
+					</div>
+				) : (
+					<Stack css={sx.content}>
+						<div ref={scrollRef}>
+							{conversations.length ? (
+								conversations.map((conversation, index) => {
+									return isMedium ? (
+										<Button
+											css={sx.mbBtn}
+											onClick={
+												conversation.status === 'created'
+													? handleClickChat(conversation)
+													: undefined
+											}
+											key={index}
 										>
 											<Stack
 												direction='row'
 												alignItems='center'
-												gap='12px'
+												css={sx.btnInner}
 											>
+												<Stack
+													direction='row'
+													alignItems='center'
+													gap='12px'
+												>
+													<Image
+														src={pdf}
+														alt='pdf'
+														width={24}
+														height={24}
+													/>
+													<Typography>
+														{conversation.conversation_name}
+													</Typography>
+													<Typography color={Color.GrayText}>
+														{conversation.status}
+													</Typography>
+												</Stack>
+
 												<Image
-													src={pdf}
-													alt='pdf'
+													src={arrowRight}
+													alt='arrow'
 													width={24}
 													height={24}
 												/>
-												<Typography>
-													{conversation.conversation_name}
-												</Typography>
-												<Typography color={Color.GrayText}>
-													{conversation.status}
-												</Typography>
 											</Stack>
-
-											<Image
-												src={arrowRight}
-												alt='arrow'
-												width={24}
-												height={24}
-											/>
-										</Stack>
-									</Button>
-								) : (
-									<Stack
-										css={sx.button}
-										key={index}
-										sx={{ borderRadius: 0 }}
-									>
-										<Typography
-											color={Color.BlackText}
-											variant='body2'
+										</Button>
+									) : (
+										<Stack
+											css={sx.button}
+											key={index}
+											sx={{ borderRadius: 0 }}
 										>
-											{conversation.conversation_name}
-										</Typography>
-										<Typography
-											color={Color.BlackText}
-											variant='body2'
-										>
-											{formatDate(conversation.created_at)}
-											{/* {conversation.created_at} */}
-										</Typography>
-										<Typography
-											color={Color.BlackText}
-											variant='body2'
-										>
-											{conversation.conversation_id}
-										</Typography>
-										<Typography
-											color={Color.BlackText}
-											variant='body2'
-										>
-											{conversation.status}
-											{conversation.status === 'analyzing' && (
-												<CircularProgress
-													size={20}
-													style={{
-														marginLeft: '5px',
-													}}
-												/>
-											)}
-										</Typography>
-										{/* {conversation.status === 'created' ? (
+											<Typography
+												color={Color.BlackText}
+												variant='body2'
+											>
+												{conversation.conversation_name}
+											</Typography>
+											<Typography
+												color={Color.BlackText}
+												variant='body2'
+											>
+												{formatDate(conversation.created_at)}
+												{/* {conversation.created_at} */}
+											</Typography>
+											<Typography
+												color={Color.BlackText}
+												variant='body2'
+											>
+												{conversation.conversation_id}
+											</Typography>
+											<Typography
+												color={Color.BlackText}
+												variant='body2'
+											>
+												{conversation.status}
+												{conversation.status === 'analyzing' && (
+													<CircularProgress
+														size={20}
+														style={{
+															marginLeft: '5px',
+														}}
+													/>
+												)}
+											</Typography>
+											{/* {conversation.status === 'created' ? (
 											<>
 												<Button
 													onClick={handleClickChat(conversation)}
@@ -219,32 +226,34 @@ export const ManageView = () => {
 										) : (
 											''
 										)} */}
-										{SetButtons(conversation)}
-									</Stack>
-								);
-							})
-						) : (
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'center',
-									alignItems: 'center',
-									height: '100%',
-								}}
-							>
-								<Typography
+											{SetButtons(conversation)}
+										</Stack>
+									);
+								})
+							) : (
+								<div
 									style={{
-										textAlign: 'center',
-										color: Color.GrayText,
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										height: '100%',
 									}}
 								>
-									There is no chat room available. <br /> Please upload
-									a file on the homepage and create a chat.
-								</Typography>
-							</div>
-						)}
-					</div>
-				</Stack>
+									<Typography
+										style={{
+											textAlign: 'center',
+											color: Color.GrayText,
+										}}
+									>
+										There is no chat room available. <br /> Please
+										upload a file on the homepage and create a chat.
+									</Typography>
+								</div>
+							)}
+						</div>
+					</Stack>
+				)}
+
 				{/* <Stack direction='row' p='20px' justifyContent='space-between'>
 					<Typography
 						variant={isSmall ? 'subtitle1' : 'body1'}
@@ -321,10 +330,10 @@ const sx = {
 	`,
 	menu: css`
 		width: 100%;
-		padding: 10px 20px;
+		padding: 10px 10px;
 		padding-right: 40px;
 		display: grid;
-		grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
+		grid-template-columns: 1fr 1fr 2.5fr 1fr 1fr;
 		font-family: 'Pretendard-Regular';
 	`,
 	menuTitle: css`
@@ -362,7 +371,7 @@ const sx = {
 	`,
 	button: css`
 		display: grid !important;
-		grid-template-columns: 1fr 1fr 2fr 1fr 0.5fr 0.5fr;
+		grid-template-columns: 1fr 1fr 2.5fr 1fr 0.5fr 0.5fr;
 		justify-content: flex-start;
 		width: 100%;
 		padding: 10px 10px;
@@ -371,5 +380,10 @@ const sx = {
 			display: flex;
 			margin: auto 0;
 		}
+	`,
+	loadingConv: css`
+		margin: 0 auto;
+		padding-top: 50px;
+		height: 100px;
 	`,
 };

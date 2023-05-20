@@ -33,22 +33,62 @@ export type Tmessage =
 			message_order: number;
 			sender: 'assistant' | 'user';
 			user_id: number;
+			is_question: 0 | 1;
+			question_doc_name: string | null;
 	  }
 	| {
 			message: string;
 			message_id: number;
 			sender: 'assistant' | 'user';
+			is_question: 0 | 1;
+			question_doc_name: string | null;
 	  };
 // function convertNewlinesToHTML(text: string) {
 // 	return text.replace(/\n/g, '<br />');
 // }
-export default function useChatView() {
+export type Tdocument = {
+	conversation_id: number;
+	document_id: number;
+	document_name: string;
+	document_size: string;
+	document_url: string;
+};
+
+export type TreferenceDoc = {
+	page: number;
+	documentName: string;
+};
+
+function referenceDocsToString(docs: TreferenceDoc[]): string {
+	let result: string = 'Refered : ';
+
+	// group by documentName
+	const grouped = docs.reduce((groupedDocs, doc) => {
+		if (!groupedDocs[doc.documentName]) {
+			groupedDocs[doc.documentName] = [];
+		}
+		groupedDocs[doc.documentName].push(doc.page);
+		return groupedDocs;
+	}, {} as { [key: string]: number[] });
+
+	// convert to string
+	for (const [docName, pages] of Object.entries(grouped)) {
+		const sortedPages = pages.sort((a, b) => a - b);
+		result += `\n ${docName} (${sortedPages.join(', ')} page)`;
+	}
+
+	return result;
+}
+
+export default function useChatViewV2() {
 	const auth = useSelector((state: TrootState) => state);
 	const dispatch = useDispatch();
 	const [conversation, setConversation] = useState<Tconversation>();
-	const [messages, setMessages] = useState<Tmessage[]>();
-	const [questions, setQuestions] = useState<Tquestion[]>();
+	const [messages, setMessages] = useState<Tmessage[]>([]);
+	// const [questions, setQuestions] = useState<Tquestion[]>();
 	const [isLoadingQuestion, setIsLoadingQuestion] = useState<boolean>(false);
+	const [documents, setDocuments] = useState<Tdocument[]>([]);
+	const [docuForQuestion, setDocuForQuestion] = useState<number>();
 	const [input, setInput] = useState<string>('');
 	const [salutation, setSalutation] = useState<string>();
 	const [answer, setAnswer] = useState<{
@@ -58,11 +98,11 @@ export default function useChatView() {
 		isOpen: false,
 		content: '',
 	});
-	const [isQuestionBtn, setQuestionBtn] = useState<boolean>(false);
+	// const [isQuestionBtn, setQuestionBtn] = useState<boolean>(false);
 	const messageBoxRef = useRef<HTMLDivElement>(null);
 	const [isScroll, setIsScroll] = useState<boolean>(false);
 	const [isBottom, setIsBottom] = useState<boolean>(false);
-	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const router = useRouter();
 	//1. 로그인 체크
 	//2. 라우터 체크
@@ -70,6 +110,10 @@ export default function useChatView() {
 	//2.2 라우터에 conv 있으면 해당 conv 로드 후 로그인 정보 변경
 
 	useEffect(() => {
+		setIsLoading(true);
+		if (!router.isReady) {
+			return;
+		}
 		axiosAPI({
 			method: 'GET',
 			url: '/auth/checkLogin',
@@ -81,69 +125,40 @@ export default function useChatView() {
 				if (isLoggedIn) {
 					//라우터 체크
 					dispatch(login(authRes.data));
-					if (!router.isReady) {
-						return;
-					}
+
 					if (router.query.convId) {
 						//check conversation status
 						axiosAPI({
 							method: 'GET',
-							url: `/conversation/check?convId=${router.query.convId}`,
+							url: `/conversation/check/v2?convId=${router.query.convId}`,
 						})
 							.then((checkRes) => {
-								if (checkRes.data.status === 'created') {
-									if (checkRes.data.salutation) {
-										axiosAPI({
-											method: 'GET',
-											url: `/message/v4?convId=${router.query.convId}`,
+								console.log('check res: ', checkRes.data);
+								const checkConv: Tconversation =
+									checkRes.data.selectedConv;
+								const documents: Tdocument[] = checkRes.data.documents;
+								if (checkConv.status === 'created') {
+									axiosAPI({
+										method: 'GET',
+										url: `/message/v4?convId=${router.query.convId}`,
+									})
+										.then((messageRes) => {
+											console.log('message res: ', messageRes);
+											setConversation(messageRes.data.conversation);
+											setSalutation(
+												messageRes.data.conversation.salutation,
+											);
+											// setQuestionBtn(true);
+											// setQuestions(messageRes.data.questions);
+											setMessages(messageRes.data.messages);
+											setDocuments(documents);
+											setDocuForQuestion(documents[0].document_id);
+											setIsScroll(true);
+											setIsLoading(false);
 										})
-											.then((messageRes) => {
-												console.log('message res: ', messageRes);
-												setConversation(
-													messageRes.data.conversation,
-												);
-												setSalutation(
-													messageRes.data.conversation.salutation,
-												);
-												if (!messageRes.data.questions?.length) {
-													setQuestionBtn(true);
-												} else {
-													setQuestions(messageRes.data.questions);
-												}
-												setMessages(messageRes.data.messages);
-												setIsScroll(true);
-											})
-											.catch((error) => {
-												console.log('fetch message error: ', error);
-											});
-									} else {
-										setIsLoading(true);
-										axiosAPI({
-											method: 'GET',
-											url: `/message/salutation?convStringId=${router.query.convId}`,
-											onDownloadProgress: (progress) => {
-												const text =
-													progress.event.currentTarget.response;
-												console.log('salutation text:', text);
-												setSalutation(text);
-											},
-										})
-											.then((salutationRes) => {
-												console.log(
-													'salutation res:',
-													salutationRes,
-												);
-												if (!questions?.length) {
-													setQuestionBtn(true);
-												}
-											})
-											.catch((error) => {
-												console.log('salutation error:', error);
-											})
-											.finally(() => {
-												setIsLoading(false);
-											});
-									}
+										.catch((error) => {
+											console.log('fetch message error: ', error);
+										});
 								} else {
 									window.alert('invalid conversation');
 									return Promise.reject('invalid conversation');
@@ -207,22 +222,53 @@ export default function useChatView() {
 			scrollToBottom();
 		}
 	}, [isBottom, answer, isLoading, scrollToBottom]);
+	function handleChangeDocuSelect(evt: React.ChangeEvent<HTMLSelectElement>) {
+		console.log('select changed: ', evt.currentTarget.value);
+		setDocuForQuestion(Number(evt.currentTarget.value));
+	}
 	function handleGenerateQuestion(event: React.MouseEvent<HTMLButtonElement>) {
-		setQuestionBtn(false);
-		setIsLoadingQuestion(true);
+		event.preventDefault();
+		event.stopPropagation();
+		console.log('clicked generate question');
+		console.log('docu id for question : ', docuForQuestion);
+		// setQuestionBtn(false);
+		// setIsLoadingQuestion(true);
+		setAnswer({
+			isOpen: true,
+			content: '',
+		});
+		setIsScroll(true);
+		setIsLoading(true);
 		axiosAPI({
 			method: 'GET',
-			url: `/message/questions?convStringId=${router.query.convId}`,
+			url: `/message/questions/v2?convStringId=${router.query.convId}&docuId=${docuForQuestion}`,
 		})
 			.then((questionRes) => {
+				setAnswer({ isOpen: false, content: '' });
+
 				console.log('questionRes:', questionRes);
-				setQuestions(questionRes.data.questions);
+				// setQuestions(questionRes.data.questions);
+				const questionsStr = questionRes.data.questions;
+				const documentForQuestion = questionRes.data.documentName;
+				setMessages((pre) => {
+					return [
+						...pre,
+						{
+							message: questionsStr,
+							message_id: pre.length,
+							sender: 'assistant',
+							is_question: 1,
+							question_doc_name: documentForQuestion,
+						},
+					];
+				});
 			})
 			.catch((err) => {
 				console.log('get question error: ', err);
 			})
 			.finally(() => {
-				setIsLoadingQuestion(false);
+				setIsLoading(false);
+				// setIsLoadingQuestion(false);
 			});
 	}
 	function handleSubmit(input: string) {
@@ -234,12 +280,28 @@ export default function useChatView() {
 					if (pre) {
 						return [
 							...pre,
-							{ message: input, message_id: pre.length, sender: 'user' },
+							{
+								message: input,
+								message_id: pre.length,
+								sender: 'user',
+								is_question: 0,
+								question_doc_name: null,
+							},
 						];
+					} else {
+						return pre;
 					}
 				});
 			} else {
-				setMessages([{ message: input, message_id: 0, sender: 'user' }]);
+				setMessages([
+					{
+						message: input,
+						message_id: 0,
+						sender: 'user',
+						is_question: 0,
+						question_doc_name: null,
+					},
+				]);
 			}
 			setAnswer({
 				isOpen: true,
@@ -250,7 +312,7 @@ export default function useChatView() {
 			let receivedData = '';
 			let lastProcessedIndex = 0;
 			let result = '';
-			let pages: number[] = [];
+			let referenceDocs: TreferenceDoc[] = [];
 			axiosAPI({
 				method: 'POST',
 				url: '/message/v5',
@@ -274,7 +336,7 @@ export default function useChatView() {
 							const parsedData = JSON.parse(rawData);
 
 							parsedText += parsedData.text;
-							pages = parsedData.pages;
+							referenceDocs = parsedData.referenceDocs;
 						}
 					});
 
@@ -296,8 +358,8 @@ export default function useChatView() {
 				.then((submitRes) => {
 					const message =
 						result +
-						(pages.length > 0
-							? `\n(ref : ${pages.join(', ')} page)`
+						(referenceDocs.length > 0
+							? '\n' + referenceDocsToString(referenceDocs)
 							: '');
 					// const resJson = JSON.parse(submitRes.data);
 					setAnswer({ isOpen: false, content: '' });
@@ -309,6 +371,8 @@ export default function useChatView() {
 									message: message,
 									message_id: pre.length,
 									sender: 'assistant',
+									is_question: 0,
+									question_doc_name: null,
 								},
 							];
 						} else {
@@ -317,6 +381,8 @@ export default function useChatView() {
 									message: message,
 									message_id: 1,
 									sender: 'assistant',
+									is_question: 0,
+									question_doc_name: null,
 								},
 							];
 						}
@@ -338,9 +404,9 @@ export default function useChatView() {
 		}
 	}
 	// const [questions, setQuestions] = useState<
-	function handleQuestionClick(question: Tquestion) {
+	function handleQuestionClick(question: string) {
 		return (event: React.MouseEvent<HTMLButtonElement>) => {
-			handleSubmit(question.question_content);
+			handleSubmit(question);
 		};
 	}
 
@@ -348,7 +414,7 @@ export default function useChatView() {
 		auth,
 		conversation,
 		messages,
-		questions,
+		// questions,
 		handleSubmit,
 		input,
 		setInput,
@@ -360,8 +426,11 @@ export default function useChatView() {
 		isLoading,
 		handleScroll,
 		salutation,
-		isQuestionBtn,
+		// isQuestionBtn,
 		isLoadingQuestion,
 		handleGenerateQuestion,
+		documents,
+		docuForQuestion,
+		handleChangeDocuSelect,
 	};
 }

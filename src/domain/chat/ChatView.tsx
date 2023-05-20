@@ -13,15 +13,22 @@ import character from '@/assets/images/chat_chr.png';
 import Image from 'next/image';
 import { QuestionModels } from './el/model';
 import useChatView, { Tquestion } from './hooks/useChatView';
-import { Button } from '@mui/material';
+import {
+	Button,
+	FormControl,
+	InputLabel,
+	MenuItem,
+	Select,
+} from '@mui/material';
 import GoogleAd from '@/common/el/GoogleAds/GoogleAd';
+import useChatViewV2 from './hooks/useChatView_v2';
 
 export const ChatView = () => {
 	const {
 		auth,
 		conversation,
 		messages,
-		questions,
+		// questions,
 		answer,
 		input,
 		messageBoxRef,
@@ -32,10 +39,13 @@ export const ChatView = () => {
 		isLoading,
 		handleScroll,
 		salutation,
-		isQuestionBtn,
+		// isQuestionBtn,
 		isLoadingQuestion,
 		handleGenerateQuestion,
-	} = useChatView();
+		documents,
+		docuForQuestion,
+		handleChangeDocuSelect,
+	} = useChatViewV2();
 
 	return (
 		<div css={sx.root}>
@@ -61,7 +71,7 @@ export const ChatView = () => {
 			>
 				<>
 					{salutation && <ChatFromAI textFromAI={salutation} />}
-					{isQuestionBtn && (
+					{/* {isQuestionBtn && (
 						<Button
 							onClick={handleGenerateQuestion}
 							style={{
@@ -71,10 +81,38 @@ export const ChatView = () => {
 							}}
 						>
 							Create Related Question
+							<Select>
+								
+							</Select>
 						</Button>
+					)} */}
+					{documents.length > 0 && (
+						<button
+							onClick={handleGenerateQuestion}
+							css={sx.createQuestionBtn}
+						>
+							Create related question for: &nbsp;
+							<select
+								onClick={(evt) => {
+									evt.preventDefault();
+									evt.stopPropagation();
+								}}
+								value={docuForQuestion}
+								onChange={handleChangeDocuSelect}
+							>
+								{documents.map((document, index) => {
+									return (
+										<option key={index} value={document.document_id}>
+											{document.document_name}
+										</option>
+									);
+								})}
+							</select>
+						</button>
 					)}
-					{isLoadingQuestion && <AILoadingQuestion />}
-					{questions?.length ? (
+
+					{/* {isLoadingQuestion && <AILoadingQuestion />} */}
+					{/* {questions?.length ? (
 						<AIQuestion
 							questionsArr={questions}
 							onQuestionClick={handleQuestionClick}
@@ -82,7 +120,7 @@ export const ChatView = () => {
 						/>
 					) : (
 						''
-					)}
+					)} */}
 
 					{messages?.length
 						? messages?.map((message) => {
@@ -95,12 +133,24 @@ export const ChatView = () => {
 										/>
 									);
 								} else if (message.sender === 'assistant') {
-									return (
-										<ChatFromAI
-											textFromAI={message.message}
-											key={message.message_id}
-										/>
-									);
+									if (message.is_question) {
+										return (
+											<AIQuestion
+												key={message.message_id}
+												questionsArr={message.message.split('\n')}
+												onQuestionClick={handleQuestionClick}
+												isLoading={isLoading}
+												questionDocName={message.question_doc_name}
+											/>
+										);
+									} else {
+										return (
+											<ChatFromAI
+												textFromAI={message.message}
+												key={message.message_id}
+											/>
+										);
+									}
 								} else {
 									return <></>;
 								}
@@ -157,5 +207,28 @@ const sx = {
 		@media (max-width: 1000px) {
 			right: 5%;
 		}
+	`,
+	createQuestionBtn: css`
+		color: ${Color.BrandMain};
+		background-color: ${Color.chatBackground};
+		/* padding: 8px; */
+		border-radius: 8px;
+		box-shadow: none;
+		text-transform: none;
+		font-size: 16px;
+		padding: 9px 12px;
+		border: 1px solid;
+		line-height: 1.5px;
+		/* background-color: #0063cc; */
+		border: none;
+		cursor: pointer;
+		&:hover {
+			background-color: #f7ebfca6;
+		}
+	`,
+	docuSelect: css`
+		font-size: 0.875rem;
+		height: 30px;
+		width: 100px;
 	`,
 };
