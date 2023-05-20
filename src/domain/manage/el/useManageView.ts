@@ -11,7 +11,9 @@ export const useManageView = () => {
 	useLoginCheck(
 		(data) => {
 			if (data.isLoggedIn) {
+				setIsLoadingConv(true);
 				loadConversation(() => {
+					setIsLoadingConv(false);
 					setIsScroll(true);
 				});
 			} else {
@@ -70,7 +72,6 @@ export const useManageView = () => {
 		};
 	}
 	function loadConversation(callback?: () => void) {
-		setIsLoadingConv(true);
 		axiosAPI({
 			method: 'GET',
 			url: '/conversation',
@@ -78,9 +79,7 @@ export const useManageView = () => {
 			.then((response) => {
 				const tempConversations: Tconversation[] = response.data;
 				setConversations(tempConversations);
-				if (callback) {
-					callback();
-				}
+
 				//check analyze
 				const analyzingConv = tempConversations.filter(
 					(conv) => conv.status === 'analyzing',
@@ -96,7 +95,10 @@ export const useManageView = () => {
 				router.push('/');
 			})
 			.finally(() => {
-				setIsLoadingConv(false);
+				// setIsLoadingConv(false);
+				if (callback) {
+					callback();
+				}
 			});
 	}
 	const handleDetailOpen = (conversation: Tconversation) => {

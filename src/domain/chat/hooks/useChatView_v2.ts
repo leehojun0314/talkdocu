@@ -229,6 +229,9 @@ export default function useChatViewV2() {
 	function handleGenerateQuestion(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault();
 		event.stopPropagation();
+		if (isLoading) {
+			return;
+		}
 		console.log('clicked generate question');
 		console.log('docu id for question : ', docuForQuestion);
 		// setQuestionBtn(false);
