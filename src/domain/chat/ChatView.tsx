@@ -90,6 +90,7 @@ export const ChatView = () => {
 						<button
 							onClick={handleGenerateQuestion}
 							css={sx.createQuestionBtn}
+							disabled={isLoading}
 						>
 							Create related question for: &nbsp;
 							<select
@@ -137,7 +138,7 @@ export const ChatView = () => {
 										return (
 											<AIQuestion
 												key={message.message_id}
-												questionsArr={message.message.split('\n')}
+												questionsArr={message.message?.split('\n')}
 												onQuestionClick={handleQuestionClick}
 												isLoading={isLoading}
 												questionDocName={message.question_doc_name}
@@ -224,6 +225,10 @@ const sx = {
 		cursor: pointer;
 		&:hover {
 			background-color: #f7ebfca6;
+		}
+		&:disabled {
+			background-color: #f7ebfca6;
+			cursor: progress;
 		}
 	`,
 	docuSelect: css`
