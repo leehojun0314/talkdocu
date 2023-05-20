@@ -17,7 +17,6 @@ type PcFooterType = {
 export const PcFooter = ({ position }: PcFooterType) => {
 	const [isMyaccOpen, setIsMyaccOpen] = useState<boolean>(false);
 	const auth = useSelector((state: TrootState) => state);
-	console.log('auth : ', auth);
 	const navModels = [
 		// { name: 'My Account', link: '/' },
 		{ name: 'Contact', link: 'mailto:info@talkdocu.com' },
