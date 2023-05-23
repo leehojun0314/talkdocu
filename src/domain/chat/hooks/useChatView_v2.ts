@@ -86,7 +86,7 @@ export default function useChatViewV2() {
 	const [conversation, setConversation] = useState<Tconversation>();
 	const [messages, setMessages] = useState<Tmessage[]>([]);
 	// const [questions, setQuestions] = useState<Tquestion[]>();
-	const [isLoadingQuestion, setIsLoadingQuestion] = useState<boolean>(false);
+	// const [isLoadingQuestion, setIsLoadingQuestion] = useState<boolean>(false);
 	const [documents, setDocuments] = useState<Tdocument[]>([]);
 	const [docuForQuestion, setDocuForQuestion] = useState<number>();
 	const [input, setInput] = useState<string>('');
@@ -430,7 +430,7 @@ export default function useChatViewV2() {
 		handleScroll,
 		salutation,
 		// isQuestionBtn,
-		isLoadingQuestion,
+		// isLoadingQuestion,
 		handleGenerateQuestion,
 		documents,
 		docuForQuestion,

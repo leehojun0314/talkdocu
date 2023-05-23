@@ -144,12 +144,13 @@ export const useManageView = () => {
 		})
 			.then((deleteRes) => {
 				loadConversation(() => {
+					handleDeleteClose();
+					handleDetailClose();
 					toggleOpenAlert(
 						'The conversation has been deleted.',
 						true,
 						() => {
-							handleDeleteClose();
-							handleDetailClose();
+							setIsLoading(false);
 							toggleOpenAlert('', false, () => {});
 						},
 					);
@@ -158,9 +159,7 @@ export const useManageView = () => {
 			.catch((err) => {
 				console.log('delete err : ', err);
 			})
-			.finally(() => {
-				setIsLoading(false);
-			});
+			.finally(() => {});
 	}
 
 	return {
