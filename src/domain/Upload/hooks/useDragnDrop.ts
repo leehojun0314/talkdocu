@@ -200,11 +200,17 @@ function useDragnDrop() {
 			})
 			.catch((err) => {
 				console.log('err: ', err);
-				const text = err.response.data.message;
+				const text = err.response?.data;
 
-				toggleOpen(text ? text : 'Unexpected Error occured.', true, () => {
-					toggleOpen('', false, () => {});
-				});
+				toggleOpen(
+					typeof text === 'string' && text.length > 0
+						? text
+						: 'Unexpected Error occured.',
+					true,
+					() => {
+						toggleOpen('', false, () => {});
+					},
+				);
 			})
 			.finally(() => {
 				setIsLoading(false);
