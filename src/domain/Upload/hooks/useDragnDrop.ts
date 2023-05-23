@@ -200,7 +200,7 @@ function useDragnDrop() {
 			})
 			.catch((err) => {
 				console.log('err: ', err);
-				const text = err.response.data;
+				const text = err.response.data.message;
 
 				toggleOpen(text ? text : 'Unexpected Error occured.', true, () => {
 					toggleOpen('', false, () => {});
