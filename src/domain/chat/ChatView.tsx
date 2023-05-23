@@ -40,7 +40,7 @@ export const ChatView = () => {
 		handleScroll,
 		salutation,
 		// isQuestionBtn,
-		isLoadingQuestion,
+		// isLoadingQuestion,
 		handleGenerateQuestion,
 		documents,
 		docuForQuestion,
