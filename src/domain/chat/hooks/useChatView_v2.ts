@@ -120,7 +120,6 @@ export default function useChatViewV2() {
 		})
 			.then((authRes) => {
 				// const userData = authRes.data.userData;
-				console.log('userData: ', authRes.data);
 				const isLoggedIn = authRes.data.isLoggedIn;
 				if (isLoggedIn) {
 					//라우터 체크
@@ -133,7 +132,6 @@ export default function useChatViewV2() {
 							url: `/conversation/check/v2?convId=${router.query.convId}`,
 						})
 							.then((checkRes) => {
-								console.log('check res: ', checkRes.data);
 								const checkConv: Tconversation =
 									checkRes.data.selectedConv;
 								const documents: Tdocument[] = checkRes.data.documents;
@@ -143,7 +141,6 @@ export default function useChatViewV2() {
 										url: `/message/v4?convId=${router.query.convId}`,
 									})
 										.then((messageRes) => {
-											console.log('message res: ', messageRes);
 											setConversation(messageRes.data.conversation);
 											setSalutation(
 												messageRes.data.conversation.salutation,
@@ -223,8 +220,88 @@ export default function useChatViewV2() {
 		}
 	}, [isBottom, answer, isLoading, scrollToBottom]);
 	function handleChangeDocuSelect(evt: React.ChangeEvent<HTMLSelectElement>) {
-		console.log('select changed: ', evt.currentTarget.value);
 		setDocuForQuestion(Number(evt.currentTarget.value));
+	}
+	function handleGenerateQuestionV2(
+		event: React.MouseEvent<HTMLButtonElement>,
+	) {
+		event.preventDefault();
+		event.stopPropagation();
+		if (isLoading) {
+			return;
+		}
+		// setQuestionBtn(false);
+		// setIsLoadingQuestion(true);
+		setAnswer({
+			isOpen: true,
+			content: '',
+		});
+		setIsScroll(true);
+		setIsLoading(true);
+		let receivedData = '';
+		let lastProcessedIndex = 0;
+		let result = '';
+		let questionDocName = '';
+		axiosAPI({
+			method: 'POST',
+			url: `/message/questions/v3?convStringId=${router.query.convId}&docuId=${docuForQuestion}`,
+			onDownloadProgress: (progress) => {
+				receivedData +=
+					progress.event.currentTarget.responseText.slice(
+						lastProcessedIndex,
+					);
+				lastProcessedIndex =
+					progress.event.currentTarget.responseText.length;
+				const rawDataArray = receivedData.split('#');
+				let parsedText = '';
+				rawDataArray.forEach((rawData, index) => {
+					if (index === rawDataArray.length - 1) {
+						receivedData = rawData;
+					} else {
+						const parsedData = JSON.parse(rawData);
+						parsedText += parsedData.text;
+						questionDocName = parsedData.documentName;
+					}
+				});
+				setAnswer((pre) => {
+					return {
+						isOpen: true,
+						content: pre.content + parsedText,
+					};
+				});
+				result += parsedText;
+			},
+		})
+			.then((questionRes) => {
+				setAnswer({ isOpen: false, content: '' });
+
+				// setQuestions(questionRes.data.questions);
+				// const questionsStr = questionRes.data.questions;
+				// const documentForQuestion = questionRes.data.documentName;
+				setMessages((pre) => {
+					return [
+						...pre,
+						{
+							message: result,
+							message_id: pre.length,
+							sender: 'assistant',
+							is_question: 1,
+							question_doc_name: questionDocName,
+						},
+					];
+				});
+			})
+			.catch((err) => {
+				console.log('get question error: ', err);
+				if (err.response?.status === 401) {
+					router.reload();
+				}
+				setAnswer({ isOpen: true, content: err.message });
+			})
+			.finally(() => {
+				setIsLoading(false);
+				// setIsLoadingQuestion(false);
+			});
 	}
 	function handleGenerateQuestion(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault();
@@ -232,8 +309,6 @@ export default function useChatViewV2() {
 		if (isLoading) {
 			return;
 		}
-		console.log('clicked generate question');
-		console.log('docu id for question : ', docuForQuestion);
 		// setQuestionBtn(false);
 		// setIsLoadingQuestion(true);
 		setAnswer({
@@ -249,7 +324,6 @@ export default function useChatViewV2() {
 			.then((questionRes) => {
 				setAnswer({ isOpen: false, content: '' });
 
-				console.log('questionRes:', questionRes);
 				// setQuestions(questionRes.data.questions);
 				const questionsStr = questionRes.data.questions;
 				const documentForQuestion = questionRes.data.documentName;
@@ -275,7 +349,6 @@ export default function useChatViewV2() {
 			});
 	}
 	function handleSubmit(input: string) {
-		console.log('input : ', input);
 		if (auth?.isLoggedIn) {
 			//add my message
 			if (messages) {
@@ -330,19 +403,19 @@ export default function useChatViewV2() {
 						);
 					lastProcessedIndex =
 						progress.event.currentTarget.responseText.length;
-					const rawDataArray = receivedData.split('\n');
+					const rawDataArray = receivedData.split('#');
 					let parsedText = '';
 					rawDataArray.forEach((rawData, index) => {
 						if (index === rawDataArray.length - 1) {
 							receivedData = rawData;
 						} else {
 							const parsedData = JSON.parse(rawData);
-
+							// console.log('parsed data: ', parsedData);
 							parsedText += parsedData.text;
 							referenceDocs = parsedData.referenceDocs;
 						}
 					});
-
+					// console.log('parsed text: ', parsedText);
 					setAnswer((pre) => {
 						return {
 							isOpen: true,
@@ -404,6 +477,7 @@ export default function useChatViewV2() {
 		} else {
 			console.log('you are not logged in');
 			console.log('auth : ', auth);
+			router.push('/login');
 		}
 	}
 	// const [questions, setQuestions] = useState<
@@ -431,7 +505,7 @@ export default function useChatViewV2() {
 		salutation,
 		// isQuestionBtn,
 		// isLoadingQuestion,
-		handleGenerateQuestion,
+		handleGenerateQuestion: handleGenerateQuestionV2,
 		documents,
 		docuForQuestion,
 		handleChangeDocuSelect,
