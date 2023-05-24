@@ -27,6 +27,20 @@ jobs:
            uses: azure/login@v1
            with:
               creds: ${{ secrets.AZURE_CREDENTIALS }}
+         - name: Delete existing files in blob container
+           uses: azure/CLI@v1.0.0
+           with:
+              azcliversion: 2.30.0
+              inlineScript: |
+                 az storage blob delete-batch --source '$web' --account-name jemishome --pattern '*'
+                 sleep 10s  # Wait for the deletion to propagate
+
+         # - name: Upload folder to blob
+         #   uses: azure/CLI@v1.0.0
+         #   with:
+         #      azcliversion: 2.30.0
+         #      inlineScript: |
+         #         az storage blob upload-batch --destination '$web' --account-name jemishome --source out --overwrite=true
          - name: upload folder to blob
            uses: azure/cli@v1.0.0
            with:
@@ -36,4 +50,4 @@ jobs:
                  --destination '$web' \
                  --account-name jemishome \
                  --source out \
-                 --overwrite=true
+              #   --overwrite=true
