@@ -1,11 +1,12 @@
 import { Button, CircularProgress, Stack, Typography } from '@mui/material';
-import { css } from '@emotion/react';
+import { css, jsx } from '@emotion/react';
 import { Color } from '@/common/theme/colors';
 import Image from 'next/image';
 import profile from '@/assets/images/ai.png';
 import { Mq } from '@/common/theme/screen';
 import { Tquestion } from '../hooks/useChatView';
 import parser from 'html-react-parser';
+import React, { ReactElement } from 'react';
 type chatFromMeType = {
 	textFromMe: string;
 	profileUrl?: string | null;
@@ -92,6 +93,22 @@ export const ChatFromAI = ({ textFromAI }: ChatFromAIType) => {
 		</Stack>
 	);
 };
+function isEmptyContent(
+	content: string | JSX.Element | JSX.Element[],
+): boolean {
+	if (typeof content === 'string') {
+		return content.length === 0;
+	} else if (Array.isArray(content)) {
+		return content.length === 0;
+	} else if (React.isValidElement(content)) {
+		// JSX.Element 일 경우
+		return (
+			React.Children.count((content as ReactElement).props.children) === 0
+		);
+	} else {
+		return false;
+	}
+}
 export const AnswerFromAI = ({ textFromAI }: ChatFromAIType) => {
 	const message = parser(convertNewlinesToHTML(textFromAI));
 	return (
@@ -102,11 +119,7 @@ export const AnswerFromAI = ({ textFromAI }: ChatFromAIType) => {
 				color={Color.WhiteText}
 				css={sx.textFromAI}
 			>
-				{typeof message === 'object' ? (
-					<CircularProgress size={30} />
-				) : (
-					message
-				)}
+				{isEmptyContent(message) ? <CircularProgress size={30} /> : message}
 			</Typography>
 		</Stack>
 	);
