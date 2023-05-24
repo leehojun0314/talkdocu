@@ -125,6 +125,9 @@ export const ChatView = () => {
 
 					{messages?.length
 						? messages?.map((message) => {
+								if (!message.message) {
+									return null;
+								}
 								if (message.sender === 'user') {
 									return (
 										<ChatFromMe
