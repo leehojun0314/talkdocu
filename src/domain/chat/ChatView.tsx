@@ -100,6 +100,7 @@ export const ChatView = () => {
 								}}
 								value={docuForQuestion}
 								onChange={handleChangeDocuSelect}
+								css={sx.docuSelect}
 							>
 								{documents.map((document, index) => {
 									return (
@@ -233,10 +234,19 @@ const sx = {
 			background-color: #f7ebfca6;
 			cursor: progress;
 		}
+		@media (max-width: 368px) {
+			padding-top: 20px;
+		}
 	`,
 	docuSelect: css`
-		font-size: 0.875rem;
-		height: 30px;
-		width: 100px;
+		width: 80px;
+		overflow-x: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		height: 33px;
+		@media (max-width: 368px) {
+			margin-top: 10px;
+			width: 150px;
+		}
 	`,
 };
