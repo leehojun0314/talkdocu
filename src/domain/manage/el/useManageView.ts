@@ -158,6 +158,10 @@ export const useManageView = () => {
 			})
 			.catch((err) => {
 				console.log('delete err : ', err);
+				toggleOpenAlert(err.message, true, () => {
+					setIsLoading(false);
+					toggleOpenAlert('', false, () => {});
+				});
 			})
 			.finally(() => {});
 	}
