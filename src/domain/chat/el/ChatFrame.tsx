@@ -9,14 +9,12 @@ import Image from 'next/image';
 import { Color } from '@/common/theme/colors';
 import { css } from '@emotion/react';
 import menu from '@/assets/icons/menu.png';
-import openIcon from '@/assets/icons/openFile.png';
 import send from '@/assets/icons/send.png';
-import { UploadDialog } from './uploadDialog';
-import { RefObject, UIEvent, useCallback, useState } from 'react';
+import { RefObject, useState } from 'react';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { Tconversation } from '../hooks/useChatView';
 import { ConversationDialog } from './ConversationDialog';
-
+import GoogleAd from '@/common/el/GoogleAds/GoogleAd';
 type ChatFrameType = {
 	children: React.ReactElement;
 	conversation: Tconversation | undefined;
@@ -105,6 +103,11 @@ export const ChatFrame = ({
 					</Button> */}
 				</Stack>
 			</Stack>
+			<GoogleAd
+				client='ca-pub-7554551043921031'
+				slot='2627214485'
+				responsive='true'
+			/>
 			<div css={sx.chatContent} onScroll={handleScroll} ref={messageBoxRef}>
 				{/* <div css={sx.chatContent} onScroll={handleScroll}> */}
 				{children}

@@ -26,8 +26,8 @@ export default function Document() {
 					crossOrigin='anonymous'
 				></script> */}
 				<script
-					data-ad-client='ca-pub-7554551043921031'
 					async
+					crossOrigin='anonymous'
 					src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
 				></script>
 				<link
