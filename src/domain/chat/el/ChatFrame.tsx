@@ -105,8 +105,10 @@ export const ChatFrame = ({
 			</Stack>
 			<GoogleAd
 				client='ca-pub-7554551043921031'
-				slot='2627214485'
+				slot='3668444701'
 				responsive='true'
+				layoutKey='-fb+5w+4e-db+86'
+				format='fluid'
 			/>
 			<div css={sx.chatContent} onScroll={handleScroll} ref={messageBoxRef}>
 				{/* <div css={sx.chatContent} onScroll={handleScroll}> */}
