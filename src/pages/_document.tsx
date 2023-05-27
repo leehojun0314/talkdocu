@@ -1,5 +1,6 @@
 import { Html, Head, Main, NextScript } from 'next/document';
-
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 export default function Document() {
 	return (
 		<Html lang='en'>
@@ -28,7 +29,7 @@ export default function Document() {
 				<script
 					async
 					crossOrigin='anonymous'
-					src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7554551043921031'
+					src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publicRuntimeConfig.ADSENSE_CLIENT}`}
 				></script>
 				<link
 					rel='stylesheet'

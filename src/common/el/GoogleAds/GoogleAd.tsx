@@ -32,7 +32,8 @@ const GoogleAd = ({
 					fontSize: '18px',
 					fontWeight: 'bold',
 					textAlign: 'center',
-					padding: '16px',
+					height: '500px',
+					padding: '0 10px',
 				}}
 			>
 				광고 표시 영역
@@ -55,6 +56,8 @@ const GoogleAd = ({
 					overflowY: 'hidden',
 					display: 'block',
 					textAlign: 'center',
+					height: '500px',
+					padding: '0 10px',
 				}}
 				data-ad-client={client}
 				data-ad-slot={slot}
