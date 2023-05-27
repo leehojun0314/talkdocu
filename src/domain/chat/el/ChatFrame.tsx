@@ -166,6 +166,7 @@ export const ChatFrame = ({
 
 const sx = {
 	chat: css`
+		flex: 2;
 		max-width: 1000px;
 		margin: 0 auto;
 		height: calc(100vh - 70px);

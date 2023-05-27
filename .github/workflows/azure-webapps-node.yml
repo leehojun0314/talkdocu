@@ -23,6 +23,8 @@ jobs:
               NAVER_CLIENT_ID: vSZhUBrETdcnS2U1hAmS
               APPLE_CLIENT_ID: com.talkdocu.service
               FACEBOOK_CLIENT_ID: 625046362996233
+              ADSENSE_CLIENT: ca-pub-7554551043921031
+              ADSENSE_SLOT : 7003703415
          - name: Log in to Azure
            uses: azure/login@v1
            with:
