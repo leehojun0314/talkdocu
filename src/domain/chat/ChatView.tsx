@@ -10,6 +10,7 @@ import { Button } from '@mui/material';
 import GoogleAd from '@/common/el/GoogleAds/GoogleAd';
 import useChatViewV2 from './hooks/useChatView_v2';
 import getConfig from 'next/config';
+import { useCustomMediaQuery } from '@/common/theme/screen';
 const { publicRuntimeConfig } = getConfig();
 export const ChatView = () => {
 	const {
@@ -34,7 +35,7 @@ export const ChatView = () => {
 		docuForQuestion,
 		handleChangeDocuSelect,
 	} = useChatViewV2();
-
+	const { isLarge } = useCustomMediaQuery();
 	return (
 		<div css={sx.root}>
 			<Image
@@ -48,13 +49,139 @@ export const ChatView = () => {
 			<Button onClick={scrollToTop} css={sx.scrollTopBtn}>
 				Top
 			</Button>
-			<div css={sx.container}>
-				<div css={sx.ad}>
-					<GoogleAd
-						client={publicRuntimeConfig.ADSENSE_CLIENT}
-						slot={publicRuntimeConfig.ADSENSE_SLOT}
-					/>
+			{!isLarge ? (
+				<div css={sx.container}>
+					<div css={sx.ad}>
+						<GoogleAd
+							client={publicRuntimeConfig.ADSENSE_CLIENT}
+							slot={publicRuntimeConfig.ADSENSE_SLOT}
+						/>
+					</div>
+					<ChatFrame
+						conversation={conversation}
+						input={input}
+						handleSubmit={handleSubmit}
+						setInput={setInput}
+						isLoading={isLoading}
+						handleScroll={handleScroll}
+						messageBoxRef={messageBoxRef}
+					>
+						<>
+							{salutation && <ChatFromAI textFromAI={salutation} />}
+							{/* {isQuestionBtn && (
+						<Button
+							onClick={handleGenerateQuestion}
+							style={{
+								color: Color.BrandMain,
+								backgroundColor: Color.chatBackground,
+								marginLeft: '50px',
+							}}
+						>
+							Create Related Question
+							<Select>
+								
+							</Select>
+						</Button>
+					)} */}
+							{documents.length > 0 && (
+								<button
+									onClick={handleGenerateQuestion}
+									css={sx.createQuestionBtn}
+									disabled={isLoading}
+								>
+									Create related question for: &nbsp;
+									<select
+										onClick={(evt) => {
+											evt.preventDefault();
+											evt.stopPropagation();
+										}}
+										value={docuForQuestion}
+										onChange={handleChangeDocuSelect}
+										css={sx.docuSelect}
+									>
+										{documents.map((document, index) => {
+											return (
+												<option
+													key={index}
+													value={document.document_id}
+												>
+													{document.document_name}
+												</option>
+											);
+										})}
+									</select>
+								</button>
+							)}
+
+							{/* {isLoadingQuestion && <AILoadingQuestion />} */}
+							{/* {questions?.length ? (
+						<AIQuestion
+							questionsArr={questions}
+							onQuestionClick={handleQuestionClick}
+							isLoading={isLoading}
+						/>
+					) : (
+						''
+					)} */}
+
+							{messages?.length
+								? messages?.map((message) => {
+										if (!message.message) {
+											return null;
+										}
+										if (message.sender === 'user') {
+											return (
+												<ChatFromMe
+													textFromMe={message.message}
+													key={message.message_id}
+													profileUrl={auth?.userData?.profile_img}
+												/>
+											);
+										} else if (message.sender === 'assistant') {
+											if (message.is_question) {
+												return (
+													<AIQuestion
+														key={message.message_id}
+														questionsArr={message.message?.split(
+															'\n',
+														)}
+														onQuestionClick={handleQuestionClick}
+														isLoading={isLoading}
+														questionDocName={
+															message.question_doc_name
+														}
+													/>
+												);
+											} else {
+												return (
+													<ChatFromAI
+														textFromAI={message.message}
+														key={message.message_id}
+													/>
+												);
+											}
+										} else {
+											return <></>;
+										}
+								  })
+								: ''}
+
+							{answer.isOpen && (
+								<AnswerFromAI textFromAI={answer.content} />
+							)}
+							{/* </div> */}
+						</>
+					</ChatFrame>
+					<div css={sx.ad}>
+						<GoogleAd
+							client={publicRuntimeConfig.ADSENSE_CLIENT}
+							slot={publicRuntimeConfig.ADSENSE_SLOT}
+							format='auto'
+							responsive='true'
+						/>
+					</div>
 				</div>
+			) : (
 				<ChatFrame
 					conversation={conversation}
 					input={input}
@@ -170,15 +297,7 @@ export const ChatView = () => {
 						{/* </div> */}
 					</>
 				</ChatFrame>
-				<div css={sx.ad}>
-					<GoogleAd
-						client={publicRuntimeConfig.ADSENSE_CLIENT}
-						slot={publicRuntimeConfig.ADSENSE_SLOT}
-						format='auto'
-						responsive='true'
-					/>
-				</div>
-			</div>
+			)}
 
 			{/* <GoogleAd /> */}
 		</div>
