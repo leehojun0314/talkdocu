@@ -17,7 +17,7 @@ export default function App({ Component, pageProps }: AppProps) {
 		f.parentNode.insertBefore(j, f);
 	}
 	useEffect(() => {
-		console.log('app useEffect called');
+		console.log('app useEffect called.');
 		googleTagManager(window, document, 'script', 'dataLayer', 'GTM-WBB4N3M');
 	}, []);
 	return (
