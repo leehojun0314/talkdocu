@@ -1,5 +1,6 @@
 import { Html, Head, Main, NextScript } from 'next/document';
 import getConfig from 'next/config';
+import Script from 'next/script';
 const { publicRuntimeConfig } = getConfig();
 export default function Document() {
 	return (
