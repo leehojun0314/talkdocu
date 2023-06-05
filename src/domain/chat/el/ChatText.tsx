@@ -7,6 +7,7 @@ import { Mq } from '@/common/theme/screen';
 import { Tquestion } from '../hooks/useChatView';
 import parser from 'html-react-parser';
 import React, { ReactElement } from 'react';
+import ForumIcon from '@mui/icons-material/Forum';
 type chatFromMeType = {
 	textFromMe: string;
 	profileUrl?: string | null;
@@ -37,48 +38,77 @@ export const ChatFromMe = ({ textFromMe, profileUrl }: chatFromMeType) => {
 	);
 };
 
-const sx = {
-	textFromMe: css`
-		background: ${Color.chatBackground};
-		border-radius: 20px 0px 20px 20px;
-		padding: 10px;
-		max-width: 60%;
-	`,
-	textFromMeWrap: css`
-		justify-content: flex-end;
-		padding: 20px 0;
-		@media ${Mq.sm} {
-			padding: 10px 0;
-		}
-	`,
-	chatFromaIWrap: css`
-		padding: 20px 0;
-		@media ${Mq.sm} {
-			padding: 10px 0;
-		}
-	`,
-	textFromAI: css`
-		border-radius: 0px 20px 20px 20px;
-		border: solid 1px ${Color.chatBackground};
-		padding: 10px;
-		max-width: 60%;
-	`,
-	questionBtn: css`
-		justify-content: flex-start;
-		text-align: left;
-		&:hover {
-			background-color: ${Color.hoverDark};
-		}
-	`,
-};
-
-type ChatFromAIType = {
-	textFromAI: string;
-};
 function convertNewlinesToHTML(text: string) {
 	return text.replace(/\n/g, '<br />');
 }
-export const ChatFromAI = ({ textFromAI }: ChatFromAIType) => {
+export const SalutationFromAI = ({ textFromAI }: { textFromAI: string }) => {
+	return (
+		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
+			<Image src={profile} alt='profile' width={40} height={40} />
+			<Typography
+				variant='body2'
+				color={Color.WhiteText}
+				css={sx.textFromAI}
+			>
+				{parser(convertNewlinesToHTML(textFromAI))}
+				{/* {textFromAI} */}
+			</Typography>
+		</Stack>
+	);
+};
+type TChatFromAIButton = {
+	textFromAI: string;
+	messageId: number;
+	handleClickDebate: (
+		messageId: number,
+	) => (evt: React.MouseEvent<HTMLButtonElement>) => void;
+	isLoadingDebate: boolean;
+};
+export const ChatFromAIButton = ({
+	textFromAI,
+	messageId,
+	handleClickDebate,
+	isLoadingDebate,
+}: TChatFromAIButton) => {
+	return (
+		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
+			<Image src={profile} alt='profile' width={40} height={40} />
+			<Typography
+				variant='body2'
+				color={Color.WhiteText}
+				css={sx.textFromAI}
+			>
+				{parser(convertNewlinesToHTML(textFromAI))}
+				{/* {textFromAI} */}
+			</Typography>
+			<div css={sx.buttonContainer}>
+				{isLoadingDebate ? (
+					<CircularProgress
+						size={25}
+						css={css`
+							justify-content: center;
+							width: 50px;
+							color: ${Color.WhiteText};
+							margin-left: 10px;
+						`}
+					/>
+				) : (
+					<Button
+						onClick={handleClickDebate(messageId)}
+						css={sx.debateBtn}
+					>
+						<ForumIcon
+							style={{
+								width: '50px',
+							}}
+						/>
+					</Button>
+				)}
+			</div>
+		</Stack>
+	);
+};
+export const ChatFromAI = ({ textFromAI }: { textFromAI: string }) => {
 	return (
 		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
 			<Image src={profile} alt='profile' width={40} height={40} />
@@ -109,7 +139,7 @@ function isEmptyContent(
 		return false;
 	}
 }
-export const AnswerFromAI = ({ textFromAI }: ChatFromAIType) => {
+export const AnswerFromAI = ({ textFromAI }: { textFromAI: string }) => {
 	const message = parser(convertNewlinesToHTML(textFromAI));
 	return (
 		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
@@ -131,7 +161,12 @@ export const AILoadingQuestion = () => {
 			<Stack css={sx.textFromAI}>
 				<Typography variant='body2' color={Color.WhiteText}>
 					Generating questions...
-					<CircularProgress size={18} />
+					<CircularProgress
+						size={18}
+						style={{
+							color: Color.WhiteText,
+						}}
+					/>
 				</Typography>
 			</Stack>
 		</Stack>
@@ -178,4 +213,52 @@ export const AIQuestion = ({
 			</Stack>
 		</Stack>
 	);
+};
+const sx = {
+	textFromMe: css`
+		background: ${Color.chatBackground};
+		border-radius: 20px 0px 20px 20px;
+		padding: 10px;
+		max-width: 60%;
+	`,
+	textFromMeWrap: css`
+		justify-content: flex-end;
+		padding: 20px 0;
+		@media ${Mq.sm} {
+			padding: 10px 0;
+		}
+	`,
+	chatFromaIWrap: css`
+		padding: 20px 0;
+		@media ${Mq.sm} {
+			padding: 10px 0;
+		}
+	`,
+	textFromAI: css`
+		border-radius: 0px 20px 20px 20px;
+		border: solid 1px ${Color.chatBackground};
+		padding: 10px;
+		max-width: 60%;
+	`,
+	questionBtn: css`
+		justify-content: flex-start;
+		text-align: left;
+		&:hover {
+			background-color: ${Color.hoverDark};
+		}
+	`,
+	buttonContainer: css`
+		display: flex;
+		align-items: center;
+	`,
+	debateBtn: css`
+		width: 50px;
+		color: ${Color.WhiteText};
+		height: 50px;
+		justify-content: center;
+		&:hover {
+			background-color: ${Color.backgroundGray};
+			color: ${Color.BrandMain};
+		}
+	`,
 };

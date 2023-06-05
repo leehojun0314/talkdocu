@@ -174,7 +174,11 @@ export const MobileMainSection = () => {
 				)}
 				{isLoading ? (
 					<Button disabled={true} css={sx.button}>
-						<CircularProgress />
+						<CircularProgress
+							style={{
+								color: Color.WhiteText,
+							}}
+						/>
 					</Button>
 				) : (
 					<Button css={sx.button} onClick={handleSubmit}>

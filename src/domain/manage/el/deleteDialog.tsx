@@ -67,7 +67,11 @@ export const DeleteDialog = ({
 						</Button>
 					) : (
 						<Button disabled>
-							<CircularProgress />
+							<CircularProgress
+								style={{
+									color: Color.WhiteText,
+								}}
+							/>
 							<Typography variant='body2' color={Color.Navy}>
 								{'Deleting...'}
 							</Typography>
