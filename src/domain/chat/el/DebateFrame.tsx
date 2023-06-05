@@ -11,16 +11,16 @@ import { Color } from '@/common/theme/colors';
 import { css } from '@emotion/react';
 import menu from '@/assets/icons/menu.png';
 import send from '@/assets/icons/send.png';
-import React, { RefObject, useState } from 'react';
+import { RefObject, useState } from 'react';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { Tconversation } from '../hooks/useChatView';
 import { ConversationDialog } from './ConversationDialog';
 import GoogleAd from '@/common/el/GoogleAds/GoogleAd';
 import TuneIcon from '@mui/icons-material/Tune';
-import { TchatMode } from '../hooks/useChatView_v2';
+import { TchatMode, Tdebate, TdebateMessage } from '../hooks/useChatView_v2';
 const { publicRuntimeConfig } = getConfig();
-
-type TChatFrame = {
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+type TDebateFrame = {
 	children: React.ReactElement;
 	conversation: Tconversation | undefined;
 	input: string;
@@ -34,21 +34,21 @@ type TChatFrame = {
 	handleChatMode: (
 		chatMode: TchatMode,
 	) => (evt: React.MouseEvent<HTMLButtonElement>) => void;
+	debate: Tdebate;
 };
 
-export const ChatFrame = ({
+export const DebateFrame = ({
 	children,
-	conversation,
 	input,
 	setInput,
 	handleSubmit,
 	isLoading,
 	handleScroll,
 	messageBoxRef,
-	handleOptionClick,
 	chatMode,
 	handleChatMode,
-}: TChatFrame) => {
+	debate,
+}: TDebateFrame) => {
 	const [open, setOpen] = useState(false);
 	const handleClickOpen = () => {
 		setOpen(true);
@@ -59,20 +59,39 @@ export const ChatFrame = ({
 
 	const { isLarge } = useCustomMediaQuery();
 	return (
-		<Stack css={sx.chat(chatMode)}>
+		<Stack css={sx.chat(chatMode)} className={'slide1 ' + chatMode}>
 			{/* <UploadDialog open={open} onClose={handleClose}></UploadDialog> */}
 			{!isLoading && (
 				<ConversationDialog open={open} onClose={handleClose} />
 			)}
-
 			<Stack css={sx.topChat} direction='row' justifyContent='space-between'>
 				<Stack direction='row' alignItems='center' gap='13px'>
-					<Button css={sx.menuBtn} onClick={handleClickOpen}>
+					{/* <Button css={sx.menuBtn} onClick={handleClickOpen}>
 						<Image src={menu} alt='menu' width={18} height={18} />
-					</Button>
+					</Button> */}
+					{isLoading ? (
+						<CircularProgress
+							size={25}
+							style={{
+								color: Color.WhiteText,
+							}}
+						/>
+					) : (
+						<Button css={sx.menuBtn} onClick={handleChatMode('QA')}>
+							<ArrowBackIcon
+								style={{
+									fontSize: 'large',
+									color: Color.WhiteText,
+								}}
+							/>
+						</Button>
+					)}
+
 					<Typography color={Color.WhiteText}>
-						{conversation?.conversation_name}
+						{/* {conversation?.conversation_name} */}
+						Debate id : {debate.debate_id}
 					</Typography>
+					{/* <Button onClick={handleChatMode('QA')}>test</Button> */}
 				</Stack>
 				{/* <div css={sx.optionBtn} onClick={handleOptionClick}>
 					<TuneIcon fontSize='medium' />
@@ -201,9 +220,9 @@ export const ChatFrame = ({
 
 const sx = {
 	// chat: css`
-	// 	/* flex: 2; */
+	// 	flex: 2;
 	// 	max-width: 1000px;
-	// 	/* margin: 0 auto; */
+	// 	margin: 0 auto;
 	// 	height: calc(100vh - 70px);
 	// 	/* for ani */
 	// 	position: absolute;
@@ -219,7 +238,7 @@ const sx = {
 			/* for ani */
 			position: absolute;
 			transition: transform 0.2s ease;
-			transform: ${chatMode === 'QA' ? '' : 'translateX(-100%)'};
+			transform: ${chatMode === 'Debate' ? '' : 'translateX(100%)'};
 		`;
 	},
 	topChat: css`
@@ -253,8 +272,7 @@ const sx = {
 		border-right: solid 1px #fff;
 		overflow-y: scroll;
 		height: 100%;
-		/* min-width: 100%; */
-		width: 100%;
+		/* width: 100%; */
 		::-webkit-scrollbar {
 			background-color: transparent;
 			width: 20px;

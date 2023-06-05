@@ -207,7 +207,12 @@ export const MainSection = () => {
 					>
 						{isLoading ? (
 							<Button disabled={true} css={sx.button}>
-								<CircularProgress size={25} />
+								<CircularProgress
+									size={25}
+									style={{
+										color: Color.WhiteText,
+									}}
+								/>
 							</Button>
 						) : (
 							<Button css={sx.button} onClick={handleSubmit}>

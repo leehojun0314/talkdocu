@@ -122,7 +122,11 @@ export const ManageView = () => {
 				)}
 				{isLoadingConv ? (
 					<div css={sx.loadingConv}>
-						<CircularProgress />
+						<CircularProgress
+							style={{
+								color: Color.WhiteText,
+							}}
+						/>
 					</div>
 				) : (
 					<Stack css={sx.content}>
@@ -206,6 +210,7 @@ export const ManageView = () => {
 														size={20}
 														style={{
 															marginLeft: '5px',
+															color: Color.WhiteText,
 														}}
 													/>
 												)}

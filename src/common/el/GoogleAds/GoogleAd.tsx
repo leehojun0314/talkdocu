@@ -13,8 +13,10 @@ const GoogleAd = ({
 	format = '',
 	responsive = '',
 	layoutKey = '',
+	height = '',
 }) => {
 	useEffect(() => {
+		console.log('useEffect called');
 		try {
 			(window.adsbygoogle = window.adsbygoogle || []).push({});
 			console.log('Advertise is pushed');
@@ -32,7 +34,7 @@ const GoogleAd = ({
 					fontSize: '18px',
 					fontWeight: 'bold',
 					textAlign: 'center',
-					height: '500px',
+					height: height,
 					padding: '0 10px',
 				}}
 			>
@@ -56,7 +58,7 @@ const GoogleAd = ({
 					overflowY: 'hidden',
 					display: 'block',
 					textAlign: 'center',
-					height: '500px',
+					height: height,
 					padding: '0 10px',
 				}}
 				data-ad-client={client}

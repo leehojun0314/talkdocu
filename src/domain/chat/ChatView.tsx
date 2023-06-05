@@ -11,6 +11,10 @@ import GoogleAd from '@/common/el/GoogleAds/GoogleAd';
 import useChatViewV2 from './hooks/useChatView_v2';
 import getConfig from 'next/config';
 import { useCustomMediaQuery } from '@/common/theme/screen';
+import OptionDialog from './el/OptionDialog';
+import Chats from './el/Chats';
+import { DebateFrame } from './el/DebateFrame';
+import DebateChats from './el/DebateChats';
 const { publicRuntimeConfig } = getConfig();
 export const ChatView = () => {
 	const {
@@ -34,10 +38,25 @@ export const ChatView = () => {
 		documents,
 		docuForQuestion,
 		handleChangeDocuSelect,
+		handleOptionToggle,
+		optionDialog,
+		chatMode,
+		handleChatMode,
+		handleClickDebate,
+		debate,
+		debateMessages,
+		isLoadingDebate,
+		handleSubmitDebate,
+		handleScrollDebate,
+		debateMessageBoxRef,
 	} = useChatViewV2();
 	const { isLarge } = useCustomMediaQuery();
 	return (
 		<div css={sx.root}>
+			<OptionDialog
+				isOpen={optionDialog.isOpen}
+				handleOptionClose={handleOptionToggle}
+			/>
 			<Image
 				css={sx.chr}
 				src={character}
@@ -55,8 +74,75 @@ export const ChatView = () => {
 						<GoogleAd
 							client={publicRuntimeConfig.ADSENSE_CLIENT}
 							slot={publicRuntimeConfig.ADSENSE_SLOT}
+							height='500px'
+							format='auto'
+							responsive='true'
 						/>
 					</div>
+					<div css={sx.frameContainer}>
+						<ChatFrame
+							conversation={conversation}
+							input={input}
+							handleSubmit={handleSubmit}
+							setInput={setInput}
+							isLoading={isLoading}
+							handleScroll={handleScroll}
+							messageBoxRef={messageBoxRef}
+							handleOptionClick={handleOptionToggle}
+							chatMode={chatMode}
+							handleChatMode={handleChatMode}
+						>
+							{/* <></> */}
+							<Chats
+								salutation={salutation}
+								documents={documents}
+								isLoading={isLoading}
+								isLoadingDebate={isLoadingDebate}
+								messages={messages}
+								auth={auth}
+								answer={answer}
+								docuForQuestion={docuForQuestion}
+								handleChangeDocuSelect={handleChangeDocuSelect}
+								handleGenerateQuestion={handleGenerateQuestion}
+								handleQuestionClick={handleQuestionClick}
+								handleClickDebate={handleClickDebate}
+							/>
+						</ChatFrame>
+						<DebateFrame
+							conversation={conversation}
+							input={input}
+							handleSubmit={handleSubmitDebate}
+							setInput={setInput}
+							isLoading={isLoading}
+							handleScroll={handleScrollDebate}
+							messageBoxRef={debateMessageBoxRef}
+							handleOptionClick={handleOptionToggle}
+							chatMode={chatMode}
+							handleChatMode={handleChatMode}
+							debate={debate}
+						>
+							{/* <></> */}
+							<DebateChats
+								debate={debate}
+								messages={debateMessages}
+								auth={auth}
+								answer={answer}
+							/>
+						</DebateFrame>
+					</div>
+
+					<div css={sx.ad}>
+						<GoogleAd
+							client={publicRuntimeConfig.ADSENSE_CLIENT}
+							slot={publicRuntimeConfig.ADSENSE_SLOT}
+							format='auto'
+							responsive='true'
+							height='500px'
+						/>
+					</div>
+				</div>
+			) : (
+				<div css={sx.frameContainer}>
 					<ChatFrame
 						conversation={conversation}
 						input={input}
@@ -65,238 +151,48 @@ export const ChatView = () => {
 						isLoading={isLoading}
 						handleScroll={handleScroll}
 						messageBoxRef={messageBoxRef}
+						handleOptionClick={handleOptionToggle}
+						chatMode={chatMode}
+						handleChatMode={handleChatMode}
 					>
-						<>
-							{salutation && <ChatFromAI textFromAI={salutation} />}
-							{/* {isQuestionBtn && (
-						<Button
-							onClick={handleGenerateQuestion}
-							style={{
-								color: Color.BrandMain,
-								backgroundColor: Color.chatBackground,
-								marginLeft: '50px',
-							}}
-						>
-							Create Related Question
-							<Select>
-								
-							</Select>
-						</Button>
-					)} */}
-							{documents.length > 0 && (
-								<button
-									onClick={handleGenerateQuestion}
-									css={sx.createQuestionBtn}
-									disabled={isLoading}
-								>
-									Create related question for: &nbsp;
-									<select
-										onClick={(evt) => {
-											evt.preventDefault();
-											evt.stopPropagation();
-										}}
-										value={docuForQuestion}
-										onChange={handleChangeDocuSelect}
-										css={sx.docuSelect}
-									>
-										{documents.map((document, index) => {
-											return (
-												<option
-													key={index}
-													value={document.document_id}
-												>
-													{document.document_name}
-												</option>
-											);
-										})}
-									</select>
-								</button>
-							)}
-
-							{/* {isLoadingQuestion && <AILoadingQuestion />} */}
-							{/* {questions?.length ? (
-						<AIQuestion
-							questionsArr={questions}
-							onQuestionClick={handleQuestionClick}
+						{/* <></> */}
+						<Chats
+							salutation={salutation}
+							documents={documents}
 							isLoading={isLoading}
+							isLoadingDebate={isLoadingDebate}
+							messages={messages}
+							auth={auth}
+							answer={answer}
+							docuForQuestion={docuForQuestion}
+							handleChangeDocuSelect={handleChangeDocuSelect}
+							handleGenerateQuestion={handleGenerateQuestion}
+							handleQuestionClick={handleQuestionClick}
+							handleClickDebate={handleClickDebate}
 						/>
-					) : (
-						''
-					)} */}
-
-							{messages?.length
-								? messages?.map((message) => {
-										if (!message.message) {
-											return null;
-										}
-										if (message.sender === 'user') {
-											return (
-												<ChatFromMe
-													textFromMe={message.message}
-													key={message.message_id}
-													profileUrl={auth?.userData?.profile_img}
-												/>
-											);
-										} else if (message.sender === 'assistant') {
-											if (message.is_question) {
-												return (
-													<AIQuestion
-														key={message.message_id}
-														questionsArr={message.message?.split(
-															'\n',
-														)}
-														onQuestionClick={handleQuestionClick}
-														isLoading={isLoading}
-														questionDocName={
-															message.question_doc_name
-														}
-													/>
-												);
-											} else {
-												return (
-													<ChatFromAI
-														textFromAI={message.message}
-														key={message.message_id}
-													/>
-												);
-											}
-										} else {
-											return <></>;
-										}
-								  })
-								: ''}
-
-							{answer.isOpen && (
-								<AnswerFromAI textFromAI={answer.content} />
-							)}
-							{/* </div> */}
-						</>
 					</ChatFrame>
-					<div css={sx.ad}>
-						<GoogleAd
-							client={publicRuntimeConfig.ADSENSE_CLIENT}
-							slot={publicRuntimeConfig.ADSENSE_SLOT}
-							format='auto'
-							responsive='true'
+					<DebateFrame
+						conversation={conversation}
+						input={input}
+						handleSubmit={handleSubmitDebate}
+						setInput={setInput}
+						isLoading={isLoading}
+						handleScroll={handleScrollDebate}
+						messageBoxRef={debateMessageBoxRef}
+						handleOptionClick={handleOptionToggle}
+						chatMode={chatMode}
+						handleChatMode={handleChatMode}
+						debate={debate}
+					>
+						{/* <></> */}
+						<DebateChats
+							debate={debate}
+							messages={debateMessages}
+							auth={auth}
+							answer={answer}
 						/>
-					</div>
+					</DebateFrame>
 				</div>
-			) : (
-				<ChatFrame
-					conversation={conversation}
-					input={input}
-					handleSubmit={handleSubmit}
-					setInput={setInput}
-					isLoading={isLoading}
-					handleScroll={handleScroll}
-					messageBoxRef={messageBoxRef}
-				>
-					<>
-						{salutation && <ChatFromAI textFromAI={salutation} />}
-						{/* {isQuestionBtn && (
-						<Button
-							onClick={handleGenerateQuestion}
-							style={{
-								color: Color.BrandMain,
-								backgroundColor: Color.chatBackground,
-								marginLeft: '50px',
-							}}
-						>
-							Create Related Question
-							<Select>
-								
-							</Select>
-						</Button>
-					)} */}
-						{documents.length > 0 && (
-							<button
-								onClick={handleGenerateQuestion}
-								css={sx.createQuestionBtn}
-								disabled={isLoading}
-							>
-								Create related question for: &nbsp;
-								<select
-									onClick={(evt) => {
-										evt.preventDefault();
-										evt.stopPropagation();
-									}}
-									value={docuForQuestion}
-									onChange={handleChangeDocuSelect}
-									css={sx.docuSelect}
-								>
-									{documents.map((document, index) => {
-										return (
-											<option
-												key={index}
-												value={document.document_id}
-											>
-												{document.document_name}
-											</option>
-										);
-									})}
-								</select>
-							</button>
-						)}
-
-						{/* {isLoadingQuestion && <AILoadingQuestion />} */}
-						{/* {questions?.length ? (
-						<AIQuestion
-							questionsArr={questions}
-							onQuestionClick={handleQuestionClick}
-							isLoading={isLoading}
-						/>
-					) : (
-						''
-					)} */}
-
-						{messages?.length
-							? messages?.map((message) => {
-									if (!message.message) {
-										return null;
-									}
-									if (message.sender === 'user') {
-										return (
-											<ChatFromMe
-												textFromMe={message.message}
-												key={message.message_id}
-												profileUrl={auth?.userData?.profile_img}
-											/>
-										);
-									} else if (message.sender === 'assistant') {
-										if (message.is_question) {
-											return (
-												<AIQuestion
-													key={message.message_id}
-													questionsArr={message.message?.split(
-														'\n',
-													)}
-													onQuestionClick={handleQuestionClick}
-													isLoading={isLoading}
-													questionDocName={
-														message.question_doc_name
-													}
-												/>
-											);
-										} else {
-											return (
-												<ChatFromAI
-													textFromAI={message.message}
-													key={message.message_id}
-												/>
-											);
-										}
-									} else {
-										return <></>;
-									}
-							  })
-							: ''}
-
-						{answer.isOpen && (
-							<AnswerFromAI textFromAI={answer.content} />
-						)}
-						{/* </div> */}
-					</>
-				</ChatFrame>
 			)}
 
 			{/* <GoogleAd /> */}
@@ -338,56 +234,33 @@ const sx = {
 	scrollTopBtn: css`
 		background-color: white;
 		position: fixed;
-		right: calc(50% - 450px);
+		right: calc((100%-400px) / 2 - (100% - 400px) * 0.4);
 		bottom: 100px;
 		height: 50px;
 		color: ${Color.BrandMain};
-		@media (max-width: 1000px) {
+		@media (max-width: 1024px) {
 			right: 5%;
 		}
+		z-index: 99;
 	`,
-	createQuestionBtn: css`
-		color: ${Color.BrandMain};
-		background-color: ${Color.chatBackground};
-		/* padding: 8px; */
-		border-radius: 8px;
-		box-shadow: none;
-		text-transform: none;
-		font-size: 16px;
-		padding: 9px 12px;
-		border: 1px solid;
-		line-height: 1.5px;
-		/* background-color: #0063cc; */
-		border: none;
-		cursor: pointer;
-		&:hover {
-			background-color: #f7ebfca6;
-		}
-		&:disabled {
-			background-color: #f7ebfca6;
-			cursor: progress;
-		}
-		@media (max-width: 368px) {
-			padding-top: 20px;
-		}
-	`,
-	docuSelect: css`
-		width: 80px;
-		overflow-x: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		height: 33px;
-		@media (max-width: 368px) {
-			margin-top: 10px;
-			width: 150px;
-		}
-	`,
+
 	container: css`
 		display: flex;
 		align-items: center;
 	`,
+
 	ad: css`
-		flex: 0.3;
-		width: 100px;
+		/* flex: 0.3; */
+		width: 200px;
+		/* position: absolute; */
+	`,
+	frameContainer: css`
+		position: relative;
+		/* max-width: 1000px; */
+		flex: 2;
+		margin: 0 auto;
+		height: calc(100vh - 70px);
+		overflow: hidden;
+		width: 100%;
 	`,
 };
