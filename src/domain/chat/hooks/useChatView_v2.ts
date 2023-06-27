@@ -140,6 +140,8 @@ export default function useChatViewV2() {
 	const debateMessageBoxRef = useRef<HTMLDivElement>(null);
 	const [isScrollDebate, setIsScrollDebate] = useState<boolean>(false);
 	const [isBottomDebate, setIsBottomDebate] = useState<boolean>(false);
+	const [isReferOpen, setIsReferOpen] = useState<boolean>(false);
+
 	const router = useRouter();
 	//1. 로그인 체크
 	//2. 라우터 체크
@@ -320,6 +322,13 @@ export default function useChatViewV2() {
 					setIsLoadingDebate(false);
 				});
 		};
+	}
+	function toggleReferContent() {
+		if (isReferOpen) {
+			setIsReferOpen(false);
+		} else {
+			setIsReferOpen(true);
+		}
 	}
 	function handleChatMode(chatMode: TchatMode) {
 		return (evt: React.MouseEvent<HTMLButtonElement>) => {
@@ -703,5 +712,7 @@ export default function useChatViewV2() {
 		handleSubmitDebate,
 		handleScrollDebate,
 		debateMessageBoxRef,
+		toggleReferContent,
+		isReferOpen,
 	};
 }
