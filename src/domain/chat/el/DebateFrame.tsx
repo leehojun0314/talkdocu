@@ -20,6 +20,8 @@ import TuneIcon from '@mui/icons-material/Tune';
 import { TchatMode, Tdebate, TdebateMessage } from '../hooks/useChatView_v2';
 const { publicRuntimeConfig } = getConfig();
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ImportContactsIcon from '@mui/icons-material/ImportContacts';
+import ReferDialog from './ReferDialog';
 type TDebateFrame = {
 	children: React.ReactElement;
 	conversation: Tconversation | undefined;
@@ -35,6 +37,8 @@ type TDebateFrame = {
 		chatMode: TchatMode,
 	) => (evt: React.MouseEvent<HTMLButtonElement>) => void;
 	debate: Tdebate;
+	isReferOpen: boolean;
+	toggleReferOpen: () => void;
 };
 
 export const DebateFrame = ({
@@ -48,6 +52,8 @@ export const DebateFrame = ({
 	chatMode,
 	handleChatMode,
 	debate,
+	isReferOpen,
+	toggleReferOpen,
 }: TDebateFrame) => {
 	const [open, setOpen] = useState(false);
 	const handleClickOpen = () => {
@@ -63,6 +69,13 @@ export const DebateFrame = ({
 			{/* <UploadDialog open={open} onClose={handleClose}></UploadDialog> */}
 			{!isLoading && (
 				<ConversationDialog open={open} onClose={handleClose} />
+			)}
+			{!isLoading && (
+				<ReferDialog
+					isOpen={isReferOpen}
+					handleClose={toggleReferOpen}
+					content={debate.refer_content}
+				/>
 			)}
 			<Stack css={sx.topChat} direction='row' justifyContent='space-between'>
 				<Stack direction='row' alignItems='center' gap='13px'>
@@ -93,9 +106,10 @@ export const DebateFrame = ({
 					</Typography>
 					{/* <Button onClick={handleChatMode('QA')}>test</Button> */}
 				</Stack>
-				{/* <div css={sx.optionBtn} onClick={handleOptionClick}>
-					<TuneIcon fontSize='medium' />
-				</div> */}
+				<div css={sx.optionBtn} onClick={toggleReferOpen}>
+					{/* <TuneIcon fontSize='medium' /> */}
+					<ImportContactsIcon fontSize='medium' />
+				</div>
 				{/* <Stack
 					style={{
 						display: 'flex',

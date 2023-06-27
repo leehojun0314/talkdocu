@@ -49,6 +49,8 @@ export const ChatView = () => {
 		handleSubmitDebate,
 		handleScrollDebate,
 		debateMessageBoxRef,
+		toggleReferContent,
+		isReferOpen,
 	} = useChatViewV2();
 	const { isLarge } = useCustomMediaQuery();
 	return (
@@ -120,6 +122,8 @@ export const ChatView = () => {
 							chatMode={chatMode}
 							handleChatMode={handleChatMode}
 							debate={debate}
+							isReferOpen={isReferOpen}
+							toggleReferOpen={toggleReferContent}
 						>
 							{/* <></> */}
 							<DebateChats
@@ -183,6 +187,8 @@ export const ChatView = () => {
 						chatMode={chatMode}
 						handleChatMode={handleChatMode}
 						debate={debate}
+						isReferOpen={isReferOpen}
+						toggleReferOpen={toggleReferContent}
 					>
 						{/* <></> */}
 						<DebateChats
@@ -234,7 +240,7 @@ const sx = {
 	scrollTopBtn: css`
 		background-color: white;
 		position: fixed;
-		right: calc((100%-400px) / 2 - (100% - 400px) * 0.4);
+		right: calc(50% - 30%);
 		bottom: 100px;
 		height: 50px;
 		color: ${Color.BrandMain};
