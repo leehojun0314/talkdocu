@@ -317,7 +317,7 @@ export default function useChatViewV2() {
 				.catch((err) => {
 					console.log('err: ', err);
 					window.alert(
-						'Unavailable Conversation. Please try again in another conversation.',
+						'Unavailable Conversation. \nPlease try again in another conversation.',
 					);
 				})
 				.finally(() => {
