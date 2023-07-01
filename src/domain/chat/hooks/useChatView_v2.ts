@@ -316,7 +316,9 @@ export default function useChatViewV2() {
 				})
 				.catch((err) => {
 					console.log('err: ', err);
-					window.alert('Unavailable Conversation');
+					window.alert(
+						'Unavailable Conversation. Please try again in another conversation.',
+					);
 				})
 				.finally(() => {
 					setIsLoading(false);
