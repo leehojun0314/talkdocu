@@ -15,10 +15,8 @@ import React, { RefObject, useState } from 'react';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { Tconversation } from '../hooks/useChatView';
 import { ConversationDialog } from './ConversationDialog';
-import GoogleAd from '@/common/el/GoogleAds/GoogleAd';
-import TuneIcon from '@mui/icons-material/Tune';
 import { TchatMode } from '../hooks/useChatView_v2';
-const { publicRuntimeConfig } = getConfig();
+import PostAddIcon from '@mui/icons-material/PostAdd';
 
 type TChatFrame = {
 	children: React.ReactElement;
@@ -34,6 +32,7 @@ type TChatFrame = {
 	handleChatMode: (
 		chatMode: TchatMode,
 	) => (evt: React.MouseEvent<HTMLButtonElement>) => void;
+	toggleAdd: () => void;
 };
 
 export const ChatFrame = ({
@@ -48,6 +47,7 @@ export const ChatFrame = ({
 	handleOptionClick,
 	chatMode,
 	handleChatMode,
+	toggleAdd,
 }: TChatFrame) => {
 	const [open, setOpen] = useState(false);
 	const handleClickOpen = () => {
@@ -145,6 +145,16 @@ export const ChatFrame = ({
 				{children}
 			</div>
 			<div css={sx.chatBottom}>
+				<Button css={sx.addButton} onClick={toggleAdd}>
+					<PostAddIcon
+						style={{
+							width: '24px',
+							height: '24px',
+							color: Color.WhiteText,
+						}}
+						fontSize='large'
+					/>
+				</Button>
 				<TextField
 					css={sx.message}
 					multiline
@@ -157,6 +167,10 @@ export const ChatFrame = ({
 					value={input}
 					onKeyDown={(evt) => {
 						if (evt.key === 'Enter') {
+							console.log('input : ', input.length);
+							if (!input.length) {
+								return;
+							}
 							if (!isLoading) {
 								handleSubmit(input);
 								setInput('');
@@ -174,6 +188,9 @@ export const ChatFrame = ({
 				<Button
 					css={sx.sendbtn}
 					onClick={() => {
+						if (!input.length) {
+							return;
+						}
 						if (!isLoading) {
 							handleSubmit(input);
 							setInput('');
@@ -272,15 +289,26 @@ const sx = {
 	`,
 	chatBottom: css`
 		border: solid 1px #fff;
-		padding-left: 20px;
+		/* padding-left: 5px; */
 		display: grid;
-		grid-template-columns: auto 64px;
+		grid-template-columns: 64px auto 64px;
 		grid-template-rows: auto;
+		min-height: 64px;
+	`,
+	addButton: css`
+		min-width: fit-content;
+		padding: 0;
+		border-right: solid 1px #fff;
+		border-radius: 0;
+		&:hover {
+			background-color: ${Color.hoverDark};
+		}
 	`,
 	message: css`
 		width: 100%;
 		outline: none;
 		padding-right: 20px;
+		padding-left: 20px;
 		display: flex;
 		flex-direction: column;
 		height: 100%;

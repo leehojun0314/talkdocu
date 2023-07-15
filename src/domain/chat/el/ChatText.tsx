@@ -149,7 +149,16 @@ export const AnswerFromAI = ({ textFromAI }: { textFromAI: string }) => {
 				color={Color.WhiteText}
 				css={sx.textFromAI}
 			>
-				{isEmptyContent(message) ? <CircularProgress size={30} /> : message}
+				{isEmptyContent(message) ? (
+					<CircularProgress
+						size={30}
+						style={{
+							color: Color.WhiteText,
+						}}
+					/>
+				) : (
+					message
+				)}
 			</Typography>
 		</Stack>
 	);
