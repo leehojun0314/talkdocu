@@ -12,7 +12,7 @@ const fileSizes = {
 	'1kb': 1024,
 	'1byte': 1,
 };
-function checkFileSize(fileSize: number, limit: number) {
+export function checkFileSize(fileSize: number, limit: number) {
 	if (fileSize < limit) {
 		return true;
 	} else {
@@ -83,7 +83,6 @@ function useDragnDrop() {
 		};
 	}
 	function handleInputChange(evt: React.ChangeEvent<HTMLInputElement>) {
-		console.log('input changed: ', evt);
 		if (evt.currentTarget.files?.length) {
 			// const file = evt.currentTarget.files[0];
 			// console.log('file: ', file);
@@ -150,7 +149,7 @@ function useDragnDrop() {
 		// 	return;
 		// }
 		if (!selectedFiles.length) {
-			window.alert('Please select a file');
+			// window.alert('Please select a file');
 			toggleOpen('Please select a file. ', true, () => {
 				setIsLoading(false);
 				toggleOpen('', false, () => {});

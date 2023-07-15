@@ -15,6 +15,7 @@ import OptionDialog from './el/OptionDialog';
 import Chats from './el/Chats';
 import { DebateFrame } from './el/DebateFrame';
 import DebateChats from './el/DebateChats';
+import { AddDialog } from './el/AddDialog';
 const { publicRuntimeConfig } = getConfig();
 export const ChatView = () => {
 	const {
@@ -51,6 +52,12 @@ export const ChatView = () => {
 		debateMessageBoxRef,
 		toggleReferContent,
 		isReferOpen,
+		addFiles,
+		isAddOpen,
+		toggleAdd,
+		handleAddFileChange,
+		handleAddFileElDelete,
+		handleAddSubmit,
 	} = useChatViewV2();
 	const { isLarge } = useCustomMediaQuery();
 	return (
@@ -58,6 +65,15 @@ export const ChatView = () => {
 			<OptionDialog
 				isOpen={optionDialog.isOpen}
 				handleOptionClose={handleOptionToggle}
+			/>
+			<AddDialog
+				files={addFiles}
+				open={isAddOpen}
+				isLoading={isLoading}
+				onClose={toggleAdd}
+				handleFileChange={handleAddFileChange}
+				handleFileElDelete={handleAddFileElDelete}
+				handleUpload={handleAddSubmit}
 			/>
 			<Image
 				css={sx.chr}
@@ -93,6 +109,7 @@ export const ChatView = () => {
 							handleOptionClick={handleOptionToggle}
 							chatMode={chatMode}
 							handleChatMode={handleChatMode}
+							toggleAdd={toggleAdd}
 						>
 							{/* <></> */}
 							<Chats
@@ -158,6 +175,7 @@ export const ChatView = () => {
 						handleOptionClick={handleOptionToggle}
 						chatMode={chatMode}
 						handleChatMode={handleChatMode}
+						toggleAdd={toggleAdd}
 					>
 						{/* <></> */}
 						<Chats

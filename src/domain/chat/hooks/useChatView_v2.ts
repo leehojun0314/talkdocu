@@ -1,7 +1,9 @@
 import useLoginCheck from '@/common/hooks/useLoginCheck';
+import { checkFileSize } from '@/domain/Upload/hooks/useDragnDrop';
 import { TrootState } from '@/redux/reducers';
 import { login } from '@/redux/reducers/actions';
 import axiosAPI from '@/utils/axiosAPI';
+import checkFileExtension from '@/utils/checkFileType';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -126,6 +128,8 @@ export default function useChatViewV2() {
 	const [optionDialog, setOptionDialog] = useState<ToptionDialog>({
 		isOpen: false,
 	});
+
+	//debate
 	const [chatMode, setChatMode] = useState<TchatMode>('QA');
 	const [debate, setDebate] = useState<Tdebate>({
 		debate_id: 0,
@@ -142,11 +146,15 @@ export default function useChatViewV2() {
 	const [isBottomDebate, setIsBottomDebate] = useState<boolean>(false);
 	const [isReferOpen, setIsReferOpen] = useState<boolean>(false);
 
-	const router = useRouter();
+	//add dialog
+	const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
+	const [addFiles, setAddFiles] = useState<File[]>([]);
+
 	//1. 로그인 체크
 	//2. 라우터 체크
-	//2.1 라우터에 conv 없으면 로그인 정보의 last_conv 참조
+	//2.1 라우터에 conv 없으면 로그인 정보의 last_conv 참조 (deprecated)
 	//2.2 라우터에 conv 있으면 해당 conv 로드 후 로그인 정보 변경
+	const router = useRouter();
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -441,6 +449,9 @@ export default function useChatViewV2() {
 	}
 
 	function handleSubmit(input: string) {
+		if (!input.length) {
+			return;
+		}
 		if (auth?.isLoggedIn) {
 			//add my message
 			if (messages) {
@@ -682,6 +693,72 @@ export default function useChatViewV2() {
 		};
 	}
 
+	//add files
+	function toggleAdd() {
+		setIsAddOpen(!isAddOpen);
+	}
+	function handleAddFileElDelete(index: number) {
+		return (evt: React.MouseEvent<HTMLButtonElement>) => {
+			const newFileList = [...addFiles];
+			newFileList.splice(index, 1);
+			setAddFiles(newFileList);
+		};
+	}
+	function handleAddFileChange(evt: React.ChangeEvent<HTMLInputElement>) {
+		if (evt.currentTarget.files?.length) {
+			const files = Array.from(evt.currentTarget.files);
+			console.log('files: ', files);
+			//check total size
+			//need to get original file size from server
+			//maybe should do before the upload
+			//check file type
+			for (let i = 0; i < files.length; i++) {
+				if (!checkFileExtension(files[i].name, ['pdf'])) {
+					window.alert('You can only upload PDF files.');
+					return;
+				}
+			}
+			setAddFiles((pre) => {
+				return [...pre, ...files];
+			});
+		}
+	}
+	function handleAddSubmit() {
+		if (isLoading) {
+			return;
+		}
+		if (!auth.isLoggedIn) {
+			window.alert('You need to login first.');
+			router.push('/login');
+			return;
+		}
+		if (!addFiles.length) {
+			window.alert('Please select a file.');
+			return;
+		}
+
+		setIsLoading(true);
+		const formData = new FormData();
+		for (let i = 0; i < addFiles.length; i++) {
+			formData.append(`file${i}`, addFiles[i]);
+		}
+		formData.append('convStringId', router.query.convId as string);
+		axiosAPI({
+			method: 'PATCH',
+			url: '/conversation/add',
+			data: formData,
+		})
+			.then((response) => {
+				console.log('response : ', response);
+				setIsLoading(false);
+				window.alert('Upload completed');
+				router.reload();
+			})
+			.catch((err) => {
+				console.log('err: ', err);
+				setIsLoading(false);
+			});
+	}
 	return {
 		auth,
 		conversation,
@@ -717,5 +794,11 @@ export default function useChatViewV2() {
 		debateMessageBoxRef,
 		toggleReferContent,
 		isReferOpen,
+		addFiles,
+		isAddOpen,
+		toggleAdd,
+		handleAddFileChange,
+		handleAddFileElDelete,
+		handleAddSubmit,
 	};
 }
