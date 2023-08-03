@@ -81,6 +81,10 @@ export type TdebateMessage = {
 	conversation_id: number | string | undefined;
 	user_id: number | undefined;
 };
+export type TexistFile = {
+	file: Tdocument;
+	status: 'exist' | 'delete';
+};
 function referenceDocsToString(docs: TreferenceDoc[]): string {
 	let result: string = 'Refered : ';
 
@@ -149,7 +153,7 @@ export default function useChatViewV2() {
 	//add dialog
 	const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
 	const [addFiles, setAddFiles] = useState<File[]>([]);
-
+	const [addDiaExistFiles, setAddDiaExistFiles] = useState<TexistFile[]>([]);
 	//1. 로그인 체크
 	//2. 라우터 체크
 	//2.1 라우터에 conv 없으면 로그인 정보의 last_conv 참조 (deprecated)
@@ -196,9 +200,18 @@ export default function useChatViewV2() {
 											// setQuestions(messageRes.data.questions);
 											setMessages(messageRes.data.messages);
 											setDocuments(documents);
-											setDocuForQuestion(documents[0].document_id);
+											if (documents.length) {
+												setDocuForQuestion(
+													documents[0].document_id,
+												);
+											}
 											setIsScroll(true);
 											setIsLoading(false);
+											setAddDiaExistFiles(
+												documents.map((el) => {
+													return { file: el, status: 'exist' };
+												}),
+											);
 										})
 										.catch((error) => {
 											console.log('fetch message error: ', error);
@@ -723,6 +736,13 @@ export default function useChatViewV2() {
 			});
 		}
 	}
+	function handleAddExistDocuChange(status: 'exist' | 'delete', idx: number) {
+		setAddDiaExistFiles((pre) => {
+			var temp = [...pre];
+			temp[idx].status = status;
+			return temp;
+		});
+	}
 	function handleAddSubmit() {
 		if (isLoading) {
 			return;
@@ -732,32 +752,82 @@ export default function useChatViewV2() {
 			router.push('/login');
 			return;
 		}
-		if (!addFiles.length) {
-			window.alert('Please select a file.');
-			return;
-		}
 
 		setIsLoading(true);
-		const formData = new FormData();
-		for (let i = 0; i < addFiles.length; i++) {
-			formData.append(`file${i}`, addFiles[i]);
-		}
-		formData.append('convStringId', router.query.convId as string);
-		axiosAPI({
-			method: 'PATCH',
-			url: '/conversation/add',
-			data: formData,
-		})
-			.then((response) => {
-				console.log('response : ', response);
-				setIsLoading(false);
-				window.alert('Upload completed');
-				router.reload();
+		const promiseArr = [];
+
+		const deleteFiles = addDiaExistFiles
+			.filter((existFile) => {
+				return existFile.status === 'delete';
 			})
-			.catch((err) => {
-				console.log('err: ', err);
-				setIsLoading(false);
+			.map((existFile) => {
+				return existFile.file;
 			});
+		console.log('delete IDs: ', deleteFiles);
+
+		if (deleteFiles.length) {
+			const deleteExistFilePromise = new Promise((resolve, reject) => {
+				axiosAPI({
+					method: 'DELETE',
+					url: '/conversation/file',
+					data: {
+						deleteFiles: deleteFiles,
+						convStringId: router.query.convId,
+					},
+				})
+					.then((res) => {
+						console.log('delete res : ', res);
+						resolve(true);
+					})
+					.catch((err) => {
+						console.log('delete file err: ', err);
+						reject();
+					});
+			});
+			promiseArr.push(deleteExistFilePromise);
+		}
+		console.log('add files: ', addFiles);
+		if (addFiles.length) {
+			const uploadAddFilePromise = new Promise((resolve, reject) => {
+				const formData = new FormData();
+				for (let i = 0; i < addFiles.length; i++) {
+					formData.append(`file${i}`, addFiles[i]);
+				}
+				formData.append('convStringId', router.query.convId as string);
+				axiosAPI({
+					method: 'PATCH',
+					url: '/conversation/add',
+					data: formData,
+				})
+					.then(() => {
+						resolve(true);
+					})
+					.catch((err) => {
+						console.log('upload file err');
+						reject(err);
+					});
+			});
+			promiseArr.push(uploadAddFilePromise);
+		}
+		console.log('promise arr: ', promiseArr);
+		if (promiseArr.length) {
+			Promise.all(promiseArr)
+				.then((promiseAllRes) => {
+					console.log('promise all res: ', promiseAllRes);
+					setIsLoading(false);
+					window.alert('Your changes have been saved.');
+					router.reload();
+				})
+				.catch((err) => {
+					console.log('promise catch err: ', err);
+					setIsLoading(false);
+					window.alert('Error occured.');
+					setIsAddOpen(false);
+				});
+		} else {
+			setIsLoading(false);
+			setIsAddOpen(false);
+		}
 	}
 	return {
 		auth,
@@ -800,5 +870,7 @@ export default function useChatViewV2() {
 		handleAddFileChange,
 		handleAddFileElDelete,
 		handleAddSubmit,
+		addDiaExistFiles,
+		handleAddExistDocuChange,
 	};
 }
