@@ -58,6 +58,8 @@ export const ChatView = () => {
 		handleAddFileChange,
 		handleAddFileElDelete,
 		handleAddSubmit,
+		addDiaExistFiles,
+		handleAddExistDocuChange,
 	} = useChatViewV2();
 	const { isLarge } = useCustomMediaQuery();
 	return (
@@ -70,10 +72,12 @@ export const ChatView = () => {
 				files={addFiles}
 				open={isAddOpen}
 				isLoading={isLoading}
+				documents={addDiaExistFiles}
 				onClose={toggleAdd}
 				handleFileChange={handleAddFileChange}
 				handleFileElDelete={handleAddFileElDelete}
 				handleUpload={handleAddSubmit}
+				handleAddExistDocuChange={handleAddExistDocuChange}
 			/>
 			<Image
 				css={sx.chr}

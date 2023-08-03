@@ -105,7 +105,6 @@ export const MainSection = () => {
 		handleConvNameChange,
 		conversationName,
 	} = useDragnDrop();
-	console.log('selected files: ', selectedFiles);
 	return (
 		<div css={sx.root}>
 			<Stack css={sx.inner}>
@@ -134,6 +133,7 @@ export const MainSection = () => {
 						<Input
 							placeholder='Chat Name'
 							color='secondary'
+							type='text'
 							value={conversationName}
 							onChange={handleConvNameChange}
 							css={css`

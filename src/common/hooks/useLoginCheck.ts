@@ -16,7 +16,6 @@ export default function useLoginCheck(
 		})
 			.then((response) => {
 				// console.log('check2	 response:', response);
-				console.log('check login : ', response.data);
 				const data = response.data;
 				if (data.isLoggedIn) {
 					dispatch(
@@ -44,7 +43,6 @@ export default function useLoginCheck(
 			});
 	}
 	useEffect(() => {
-		console.log('token in localstorage : ', localStorage.getItem('token'));
 		if (localStorage.getItem('token')) {
 			checkLoginStatus();
 		}
