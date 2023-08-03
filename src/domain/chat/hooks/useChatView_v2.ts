@@ -743,7 +743,7 @@ export default function useChatViewV2() {
 			return temp;
 		});
 	}
-	function handleAddSubmit() {
+	async function handleAddSubmit() {
 		if (isLoading) {
 			return;
 		}
@@ -754,7 +754,6 @@ export default function useChatViewV2() {
 		}
 
 		setIsLoading(true);
-		const promiseArr = [];
 
 		const deleteFiles = addDiaExistFiles
 			.filter((existFile) => {
@@ -765,69 +764,58 @@ export default function useChatViewV2() {
 			});
 		console.log('delete IDs: ', deleteFiles);
 
-		if (deleteFiles.length) {
-			const deleteExistFilePromise = new Promise((resolve, reject) => {
-				axiosAPI({
+		try {
+			if (deleteFiles.length) {
+				await axiosAPI({
 					method: 'DELETE',
 					url: '/conversation/file',
 					data: {
 						deleteFiles: deleteFiles,
 						convStringId: router.query.convId,
 					},
-				})
-					.then((res) => {
-						console.log('delete res : ', res);
-						resolve(true);
-					})
-					.catch((err) => {
-						console.log('delete file err: ', err);
-						reject();
-					});
-			});
-			promiseArr.push(deleteExistFilePromise);
-		}
-		console.log('add files: ', addFiles);
-		if (addFiles.length) {
-			const uploadAddFilePromise = new Promise((resolve, reject) => {
+				});
+			}
+			console.log('add files: ', addFiles);
+			if (addFiles.length) {
 				const formData = new FormData();
 				for (let i = 0; i < addFiles.length; i++) {
 					formData.append(`file${i}`, addFiles[i]);
 				}
 				formData.append('convStringId', router.query.convId as string);
-				axiosAPI({
+				await axiosAPI({
 					method: 'PATCH',
 					url: '/conversation/add',
 					data: formData,
-				})
-					.then(() => {
-						resolve(true);
-					})
-					.catch((err) => {
-						console.log('upload file err');
-						reject(err);
-					});
-			});
-			promiseArr.push(uploadAddFilePromise);
-		}
-		console.log('promise arr: ', promiseArr);
-		if (promiseArr.length) {
-			Promise.all(promiseArr)
-				.then((promiseAllRes) => {
-					console.log('promise all res: ', promiseAllRes);
-					setIsLoading(false);
-					window.alert('Your changes have been saved.');
-					router.reload();
-				})
-				.catch((err) => {
-					console.log('promise catch err: ', err);
-					setIsLoading(false);
-					window.alert('Error occured.');
-					setIsAddOpen(false);
 				});
-		} else {
+			}
 			setIsLoading(false);
+			window.alert('Your changes have been saved.');
+			router.reload();
+		} catch (error) {
+			console.log('promise catch err: ', error);
+			setIsLoading(false);
+			window.alert('Error occured.');
 			setIsAddOpen(false);
 		}
+		// console.log('promise arr: ', promiseArr);
+		// if (promiseArr.length) {
+		// 	Promise.allSettled(promiseArr)
+		// 		.then((promiseAllRes) => {
+		// 			console.log('promise all res: ', promiseAllRes);
+		// 			setIsLoading(false);
+		// 			window.alert('Your changes have been saved.');
+		// 			router.reload();
+		// 		})
+		// 		.catch((err) => {
+		// 			console.log('promise catch err: ', err);
+		// 			setIsLoading(false);
+		// 			window.alert('Error occured.');
+		// 			setIsAddOpen(false);
+		// 		});
+		// } else {
+		// 	setIsLoading(false);
+		// 	setIsAddOpen(false);
+		// }
 	}
 	return {
 		auth,
