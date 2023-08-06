@@ -783,7 +783,7 @@ export default function useChatViewV2() {
 				}
 				formData.append('convStringId', router.query.convId as string);
 				await axiosAPI({
-					method: 'PATCH',
+					method: 'POST',
 					url: '/conversation/add',
 					data: formData,
 				});
