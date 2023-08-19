@@ -5,6 +5,7 @@ import type { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 import store from '@/redux/store';
 import { useEffect } from 'react';
+import axiosAPI from '@/utils/axiosAPI';
 export default function App({ Component, pageProps }: AppProps) {
 	function googleTagManager(w: any, d: any, s: any, l: any, i: any) {
 		w[l] = w[l] || [];
@@ -17,8 +18,21 @@ export default function App({ Component, pageProps }: AppProps) {
 		f.parentNode.insertBefore(j, f);
 	}
 	useEffect(() => {
-		console.log('app useEffect called.');
 		googleTagManager(window, document, 'script', 'dataLayer', 'GTM-WBB4N3M');
+		axiosAPI({
+			url: '/test/a',
+			method: 'GET',
+		})
+			.then((response) => {
+				console.log('check response: ', response);
+			})
+			.catch((err) => {
+				console.log('err: ', err);
+				window.alert(
+					'The test server has been shut down. Please use the production page below. \n https://talkdocu.com',
+				);
+				window.location.href = 'https://www.talkdocu.com';
+			});
 	}, []);
 	return (
 		<ThemeProvider theme={lightTheme}>
