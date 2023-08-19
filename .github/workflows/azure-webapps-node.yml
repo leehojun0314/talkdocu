@@ -24,7 +24,8 @@ jobs:
               APPLE_CLIENT_ID: com.talkdocu.service
               FACEBOOK_CLIENT_ID: 625046362996233
               ADSENSE_CLIENT: ca-pub-7554551043921031
-              ADSENSE_SLOT : 7003703415
+              ADSENSE_SLOT: 7003703415
+              NODE_ENV_CLI: production
          - name: Log in to Azure
            uses: azure/login@v1
            with:

@@ -21,6 +21,7 @@ const nextConfig = {
 		FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID,
 		ADSENSE_CLIENT: process.env.ADSENSE_CLIENT,
 		ADSENSE_SLOT: process.env.ADSENSE_SLOT,
+		NODE_ENV_CLI: process.env.NODE_ENV_CLI,
 	},
 };
 
