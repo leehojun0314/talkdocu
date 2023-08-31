@@ -85,26 +85,26 @@ export type TexistFile = {
 	file: Tdocument;
 	status: 'exist' | 'delete';
 };
-function referenceDocsToString(docs: TreferenceDoc[]): string {
-	let result: string = 'Refered : ';
+// function referenceDocsToString(docs: TreferenceDoc[]): string {
+// 	let result: string = 'Refered : ';
 
-	// group by documentName
-	const grouped = docs.reduce((groupedDocs, doc) => {
-		if (!groupedDocs[doc.documentName]) {
-			groupedDocs[doc.documentName] = [];
-		}
-		groupedDocs[doc.documentName].push(doc.page);
-		return groupedDocs;
-	}, {} as { [key: string]: number[] });
+// 	// group by documentName
+// 	const grouped = docs.reduce((groupedDocs, doc) => {
+// 		if (!groupedDocs[doc.documentName]) {
+// 			groupedDocs[doc.documentName] = [];
+// 		}
+// 		groupedDocs[doc.documentName].push(doc.page);
+// 		return groupedDocs;
+// 	}, {} as { [key: string]: number[] });
 
-	// convert to string
-	for (const [docName, pages] of Object.entries(grouped)) {
-		const sortedPages = pages.sort((a, b) => a - b);
-		result += `\n ${docName} (${sortedPages.join(', ')} page)`;
-	}
+// 	// convert to string
+// 	for (const [docName, pages] of Object.entries(grouped)) {
+// 		const sortedPages = pages.sort((a, b) => a - b);
+// 		result += `\n ${docName} (${sortedPages.join(', ')} page)`;
+// 	}
 
-	return result;
-}
+// 	return result;
+// }
 
 export default function useChatViewV2() {
 	const auth = useSelector((state: TrootState) => state);
@@ -154,12 +154,22 @@ export default function useChatViewV2() {
 	const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
 	const [addFiles, setAddFiles] = useState<File[]>([]);
 	const [addDiaExistFiles, setAddDiaExistFiles] = useState<TexistFile[]>([]);
+	const [addDiaProgress, setAddDiaProgress] = useState<number>(0);
+	const [addDiaProgressMessage, setAddDiaProgressMessage] =
+		useState<string>('');
+
+	//alert dialog
+	const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
+	const [alertContent, setAlertContent] = useState<string>('');
+	function onAlertClose() {
+		setIsAlertOpen(false);
+	}
 	//1. 로그인 체크
 	//2. 라우터 체크
 	//2.1 라우터에 conv 없으면 로그인 정보의 last_conv 참조 (deprecated)
 	//2.2 라우터에 conv 있으면 해당 conv 로드 후 로그인 정보 변경
 	const router = useRouter();
-
+	const [loadDocuments, toggleLoadDocuments] = useState<boolean>(false);
 	useEffect(() => {
 		setIsLoading(true);
 		if (!router.isReady) {
@@ -246,6 +256,37 @@ export default function useChatViewV2() {
 			});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [router]);
+	useEffect(() => {
+		if (loadDocuments) {
+			setIsLoading(true);
+			axiosAPI({
+				method: 'GET',
+				url: `/conversation/check/v2?convId=${router.query.convId}`,
+			})
+				.then((checkRes) => {
+					const documents: Tdocument[] = checkRes.data.documents;
+					setDocuments(documents);
+					if (documents.length) {
+						setDocuForQuestion(documents[0].document_id);
+						setAddDiaExistFiles(
+							documents.map((el) => {
+								return { file: el, status: 'exist' };
+							}),
+						);
+					} else {
+						setAddDiaExistFiles([]);
+					}
+				})
+				.catch((err) => {
+					console.log('load documents error: ', err);
+				})
+				.finally(() => {
+					toggleLoadDocuments(false);
+					setIsLoading(false);
+				});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [loadDocuments]);
 
 	const scrollToBottom = useCallback(() => {
 		if (messageBoxRef.current) {
@@ -766,6 +807,9 @@ export default function useChatViewV2() {
 
 		try {
 			if (deleteFiles.length) {
+				setAddDiaProgressMessage('Preparing');
+				let receivedData = '';
+				let lastProcessedIndex = 0;
 				await axiosAPI({
 					method: 'DELETE',
 					url: '/conversation/file',
@@ -773,24 +817,79 @@ export default function useChatViewV2() {
 						deleteFiles: deleteFiles,
 						convStringId: router.query.convId,
 					},
+					onDownloadProgress: (progress) => {
+						receivedData +=
+							progress.event.currentTarget.responseText.slice(
+								lastProcessedIndex,
+							);
+						lastProcessedIndex =
+							progress.event.currentTarget.responseText.length;
+						let rawDataArray = receivedData.split('#');
+						let parsedMessage = '';
+						let parsedProgress = 0;
+						rawDataArray.forEach((rawData, index) => {
+							console.log('raw data: ', rawData);
+							if (index === rawDataArray.length - 1) {
+								receivedData = rawData;
+							} else {
+								let parsedData = JSON.parse(rawData);
+								console.log('parsed data: ', parsedData);
+								parsedMessage = parsedData.message;
+								parsedProgress = Number(parsedData.progress);
+							}
+						});
+						setAddDiaProgress(parsedProgress);
+						setAddDiaProgressMessage(parsedMessage);
+					},
 				});
 			}
-			console.log('add files: ', addFiles);
 			if (addFiles.length) {
+				setAddDiaProgressMessage('Preparing');
 				const formData = new FormData();
 				for (let i = 0; i < addFiles.length; i++) {
 					formData.append(`file${i}`, addFiles[i]);
 				}
 				formData.append('convStringId', router.query.convId as string);
+				let receivedData = '';
+				let lastProcessedIndex = 0;
+
 				await axiosAPI({
 					method: 'POST',
-					url: '/conversation/add',
+					url: '/conversation/add/v2',
 					data: formData,
+					onDownloadProgress: (progress) => {
+						receivedData +=
+							progress.event.currentTarget.responseText.slice(
+								lastProcessedIndex,
+							);
+						lastProcessedIndex =
+							progress.event.currentTarget.responseText.length;
+						let rawDataArray = receivedData.split('#');
+						let parsedMessage = '';
+						let parsedProgress = 0;
+						rawDataArray.forEach((rawData, index) => {
+							if (index === rawDataArray.length - 1) {
+								receivedData = rawData;
+							} else {
+								let parsedData = JSON.parse(rawData);
+								console.log('parsed data: ', parsedData);
+								parsedMessage = parsedData.message;
+								parsedProgress = Number(parsedData.progress);
+							}
+						});
+						setAddDiaProgress(parsedProgress);
+						setAddDiaProgressMessage(parsedMessage);
+					},
 				});
 			}
 			setIsLoading(false);
-			window.alert('Your changes have been saved.');
-			router.reload();
+			// window.alert('Your changes have been saved.');
+			setIsAlertOpen(true);
+			setAlertContent('Your changes have been saved.');
+			toggleLoadDocuments(true);
+			setIsAddOpen(false);
+			setAddFiles([]);
+			// router.reload();
 		} catch (error) {
 			console.log('promise catch err: ', error);
 			setIsLoading(false);
@@ -860,5 +959,10 @@ export default function useChatViewV2() {
 		handleAddSubmit,
 		addDiaExistFiles,
 		handleAddExistDocuChange,
+		addDiaProgress,
+		addDiaProgressMessage,
+		isAlertOpen,
+		alertContent,
+		onAlertClose,
 	};
 }

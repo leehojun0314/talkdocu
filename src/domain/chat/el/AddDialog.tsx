@@ -28,6 +28,8 @@ type AddDialogType = {
 	files: File[];
 	isLoading: boolean;
 	documents: TexistFile[];
+	progress: number;
+	progressMsg: string;
 	onClose: () => void;
 	handleUpload: (evt: React.MouseEvent<HTMLButtonElement>) => void;
 	handleFileChange: (evt: React.ChangeEvent<HTMLInputElement>) => void;
@@ -41,6 +43,8 @@ export const AddDialog = ({
 	files,
 	isLoading,
 	documents,
+	progress,
+	progressMsg,
 	onClose,
 	handleUpload,
 	handleFileChange,
@@ -218,12 +222,25 @@ export const AddDialog = ({
 
 			<DialogActions>
 				{isLoading ? (
-					<CircularProgress
-						size={20}
-						style={{
-							color: Color.BrandMain,
-						}}
-					/>
+					<>
+						<Typography
+							style={{
+								color: Color.BrandMain,
+							}}
+						>
+							{progressMsg}
+						</Typography>
+						<CircularProgress
+							variant={progress > 0 ? 'determinate' : 'indeterminate'}
+							size={20}
+							style={{
+								color: Color.BrandMain,
+								marginLeft: 10,
+								marginRight: 10,
+							}}
+							value={progress}
+						/>
+					</>
 				) : (
 					<>
 						<Button onClick={handleUpload} css={sx.uploadButton}>

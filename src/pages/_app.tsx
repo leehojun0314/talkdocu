@@ -24,7 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
 		googleTagManager(window, document, 'script', 'dataLayer', 'GTM-WBB4N3M');
 		if (NODE_ENV_CLI === 'development') {
 			axiosAPI({
-				url: '/test/a',
+				url: '/test/',
 				method: 'GET',
 			})
 				.then((response) => {

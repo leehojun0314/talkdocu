@@ -16,6 +16,8 @@ import Chats from './el/Chats';
 import { DebateFrame } from './el/DebateFrame';
 import DebateChats from './el/DebateChats';
 import { AddDialog } from './el/AddDialog';
+import ConfirmDialog from '@/common/el/Dialog/confirmDialog';
+import AlertDialog from '@/common/el/Dialog/alertDialog';
 const { publicRuntimeConfig } = getConfig();
 export const ChatView = () => {
 	const {
@@ -60,10 +62,20 @@ export const ChatView = () => {
 		handleAddSubmit,
 		addDiaExistFiles,
 		handleAddExistDocuChange,
+		addDiaProgress,
+		addDiaProgressMessage,
+		isAlertOpen,
+		alertContent,
+		onAlertClose,
 	} = useChatViewV2();
 	const { isLarge } = useCustomMediaQuery();
 	return (
 		<div css={sx.root}>
+			<AlertDialog
+				open={isAlertOpen}
+				onClose={onAlertClose}
+				content={alertContent}
+			/>
 			<OptionDialog
 				isOpen={optionDialog.isOpen}
 				handleOptionClose={handleOptionToggle}
@@ -73,6 +85,8 @@ export const ChatView = () => {
 				open={isAddOpen}
 				isLoading={isLoading}
 				documents={addDiaExistFiles}
+				progress={addDiaProgress}
+				progressMsg={addDiaProgressMessage}
 				onClose={toggleAdd}
 				handleFileChange={handleAddFileChange}
 				handleFileElDelete={handleAddFileElDelete}
