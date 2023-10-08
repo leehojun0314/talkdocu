@@ -172,7 +172,7 @@ function useDragnDrop() {
 		formData.append('conversationName', conversationName || '');
 		axiosAPI({
 			method: 'POST',
-			url: '/conversation/v9',
+			url: '/conversation/v10',
 			data: formData,
 		})
 			// .then((response) => {
