@@ -1,6 +1,7 @@
 import { Html, Head, Main, NextScript } from 'next/document';
 import getConfig from 'next/config';
-import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/react';
+
 const { publicRuntimeConfig } = getConfig();
 export default function Document() {
 	return (
@@ -40,6 +41,7 @@ export default function Document() {
 			<body>
 				<Main />
 				<NextScript />
+				<Analytics />
 			</body>
 		</Html>
 	);
