@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import axiosAPI from '@/utils/axiosAPI';
 import getConfig from 'next/config';
 const { NODE_ENV_CLI } = getConfig().publicRuntimeConfig;
+import { Analytics } from '@vercel/analytics/react';
 
 export default function App({ Component, pageProps }: AppProps) {
 	function googleTagManager(w: any, d: any, s: any, l: any, i: any) {
@@ -44,6 +45,7 @@ export default function App({ Component, pageProps }: AppProps) {
 			<CssBaseline />
 			<Provider store={store}>
 				<Component {...pageProps} />
+				<Analytics />
 			</Provider>
 		</ThemeProvider>
 	);
