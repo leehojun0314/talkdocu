@@ -1,40 +1,40 @@
-name: deploy-to-object-storage
+# name: deploy-to-object-storage
 
-on:
-   push:
-      branches:
-         - master
-   workflow_dispatch:
+# on:
+#    push:
+#       branches:
+#          - master
+#    workflow_dispatch:
 
-jobs:
-   deploy:
-      runs-on: ubuntu-latest
-      steps:
-         - uses: actions/checkout@v3
-         - name: npm install
-           run: npm install
-           shell: bash
-         - name: npm run build
-           run: npm run build
-           env:
-              API_ENDPOINT: https://chat4doc.com
-              GOOGLE_CLIENT_ID: 53471127537-jlk6u6k67veppbr1t858e033qk744tc0.apps.googleusercontent.com
-              KAKAO_CLIENT_ID: d178be7325e38f0545b134fae4e38cfc
-              NAVER_CLIENT_ID: vSZhUBrETdcnS2U1hAmS
-              APPLE_CLIENT_ID: com.talkdocu.service
-              FACEBOOK_CLIENT_ID: 625046362996233
-              ADSENSE_CLIENT: ca-pub-7554551043921031
-              ADSENSE_SLOT: 7003703415
-              NODE_ENV_CLI: production
-         - name: Configure NCP Credentials
-           run: |
-              aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-              aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-              aws configure set region ${{ secrets.AWS_REGION }}
-         - name: Delete existing files in S3 bucket
-           run: |
-              aws --endpoint-url=https://kr.object.ncloudstorage.com s3 rm s3://bucket-jemixhome-web/web/ --recursive
-              sleep 10s  # 삭제가 전파될 때까지 대기
-         - name: Upload folder to S3 bucket
-           run: |
-              aws --endpoint-url=https://kr.object.ncloudstorage.com s3 cp build s3://bucket-jemixhome-web/web/ --recursive
+# jobs:
+#    deploy:
+#       runs-on: ubuntu-latest
+#       steps:
+#          - uses: actions/checkout@v3
+#          - name: npm install
+#            run: npm install
+#            shell: bash
+#          - name: npm run build
+#            run: npm run build
+#            env:
+#               API_ENDPOINT: https://chat4doc.com
+#               GOOGLE_CLIENT_ID: 53471127537-jlk6u6k67veppbr1t858e033qk744tc0.apps.googleusercontent.com
+#               KAKAO_CLIENT_ID: d178be7325e38f0545b134fae4e38cfc
+#               NAVER_CLIENT_ID: vSZhUBrETdcnS2U1hAmS
+#               APPLE_CLIENT_ID: com.talkdocu.service
+#               FACEBOOK_CLIENT_ID: 625046362996233
+#               ADSENSE_CLIENT: ca-pub-7554551043921031
+#               ADSENSE_SLOT: 7003703415
+#               NODE_ENV_CLI: production
+#          - name: Configure NCP Credentials
+#            run: |
+#               aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+#               aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#               aws configure set region ${{ secrets.AWS_REGION }}
+#          - name: Delete existing files in S3 bucket
+#            run: |
+#               aws --endpoint-url=https://kr.object.ncloudstorage.com s3 rm s3://bucket-jemixhome-web/web/ --recursive
+#               sleep 10s  # 삭제가 전파될 때까지 대기
+#          - name: Upload folder to S3 bucket
+#            run: |
+#               aws --endpoint-url=https://kr.object.ncloudstorage.com s3 cp build s3://bucket-jemixhome-web/web/ --recursive
