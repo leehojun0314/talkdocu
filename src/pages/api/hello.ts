@@ -1,13 +1,9 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-type Data = {
-	name: string;
-};
-export const runtime = 'edge';
 export default function handler(
-	req: NextApiRequest,
-	res: NextApiResponse<Data>,
+	request: VercelRequest,
+	response: VercelResponse,
 ) {
-	res.status(200).json({ name: 'John Doe' });
+	const { name = 'World' } = request.query;
+	response.send(`Hello ${name}!`);
 }
