@@ -9,7 +9,7 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 export const runtime = 'edge';
-export async function GET(req: Request) {
+export default async function GET(req: Request) {
 	console.log('get called');
 
 	const json = await req.json();
