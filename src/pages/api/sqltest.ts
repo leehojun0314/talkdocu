@@ -7,7 +7,7 @@ const sqlConnectionPool = new sql.ConnectionPool({
 	database: process.env.DB_NAME ?? '',
 	server: process.env.DB_HOST ?? '',
 	options: {
-		encrypt: true,
+		encrypt: false,
 	},
 	pool: {
 		max: 10,
@@ -15,24 +15,23 @@ const sqlConnectionPool = new sql.ConnectionPool({
 		idleTimeoutMillis: 30000,
 	},
 });
-type Data = {
-	name: string;
-};
+type Data = sql.IResult<any>;
 function sayHello() {
 	return 'hello world';
 }
 // export const runtime = 'edge';
 export default async function GET(
 	req: NextApiRequest,
-	res: NextApiResponse<Data>,
+	res: NextApiResponse<Data | undefined>,
 ) {
 	console.log('flag 1');
+	let result;
 	try {
 		const sqlpool = await sqlConnectionPool.connect();
 		console.log('flag 2');
 		const request = sqlpool.request();
 		console.log('flag 3');
-		const result = await request.query(
+		result = await request.query(
 			`SELECT * FROM UserTable WHERE user_email = 'dlghwns0314@naver.com'`,
 		);
 		console.log('flag 4');
@@ -41,6 +40,6 @@ export default async function GET(
 		console.log(error);
 	}
 
-	res.send({ name: 'hello' });
+	res.send(result);
 	// res.status(200).json({ name: 'John Doe' });
 }
