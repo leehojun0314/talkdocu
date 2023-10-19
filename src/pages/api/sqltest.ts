@@ -20,7 +20,7 @@ function sayHello() {
 	return 'hello world';
 }
 // export const runtime = 'edge';
-export async function GET(
+export default async function GET(
 	req: NextApiRequest,
 	res: NextApiResponse<Data | undefined>,
 ) {
