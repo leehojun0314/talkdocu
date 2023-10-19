@@ -13,6 +13,17 @@ const TestPage: NextPage = () => {
 			console.log(response);
 		},
 	});
+	function test2() {
+		console.log('test2 clicked');
+		axios
+			.get('/api/sqltest')
+			.then((response) => {
+				console.log('response : ', response);
+			})
+			.catch((err) => {
+				console.log('err: ', err);
+			});
+	}
 	console.log('messages: ', messages);
 	return (
 		<>
@@ -30,8 +41,9 @@ const TestPage: NextPage = () => {
 					append({ id: '123', content: 'asd', role: 'user' });
 				}}
 			>
-				test
+				test1
 			</button>
+			<button onClick={test2}>test2</button>
 		</>
 	);
 };
