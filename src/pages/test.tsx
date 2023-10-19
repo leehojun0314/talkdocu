@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useChat, type Message } from 'ai/react';
 const TestPage: NextPage = () => {
 	const { messages, append } = useChat({
@@ -12,6 +12,11 @@ const TestPage: NextPage = () => {
 		onFinish(response) {
 			console.log(response);
 		},
+	});
+	useEffect(() => {
+		axios.get('/api/sqltest').then((response) => {
+			console.log('sql useEffectresponse: ', response);
+		});
 	});
 	function test2() {
 		console.log('test2 clicked');
