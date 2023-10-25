@@ -25,7 +25,7 @@ export const authOptions = {
 		}),
 
 		KakaoProvider({
-			clientId: process.env.KAKAO_CLIENT_ID ?? '',
+			clientId: process.env.KAKAO_RESTAPI_KEY ?? '',
 			clientSecret: process.env.KAKAO_CLIENT_SECRET ?? '',
 		}),
 		AppleProvider({
