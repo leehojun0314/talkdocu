@@ -3,7 +3,7 @@ import { TrootState } from '@/redux/reducers';
 import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
 import axios from 'axios';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -145,7 +145,8 @@ function useDragnDrop() {
 				setIsLoading(false);
 				toggleOpen('', false, () => {});
 				// window.location.href = '/login';
-				router.push('/login');
+				// router.push('/login');
+				signIn();
 			});
 			return;
 		}

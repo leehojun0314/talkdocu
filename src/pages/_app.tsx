@@ -33,7 +33,7 @@ export default function App({
 				method: 'GET',
 			})
 				.then((response) => {
-					console.log('check response: ', response);
+					// console.log('check response: ', response.data);
 				})
 				.catch((err) => {
 					console.log('err: ', err);

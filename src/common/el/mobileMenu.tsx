@@ -10,6 +10,7 @@ import { TrootState } from '@/redux/reducers';
 import AlertDialog from './Dialog/alertDialog';
 import useAlert from '../hooks/useAlert';
 import { useRouter } from 'next/router';
+import { signIn, useSession } from 'next-auth/react';
 export const MobileMenu = ({
 	open,
 	onClose,
@@ -17,7 +18,8 @@ export const MobileMenu = ({
 	open: boolean;
 	onClose: () => void;
 }) => {
-	const auth = useSelector((state: TrootState) => state);
+	// const auth = useSelector((state: TrootState) => state);
+	const { data, status } = useSession();
 	const {
 		open: isAlertOpen,
 		toggleOpen,
@@ -53,11 +55,10 @@ export const MobileMenu = ({
 							color={Color.WhiteText}
 							key={index}
 							onClick={() => {
-								if (auth?.isLoggedIn) {
+								if (status === 'authenticated') {
 									onClose();
-									// window.location.href = it.href;
 									router.push(it.href);
-								} else {
+								} else if (status === 'unauthenticated') {
 									if (it.href === '/chat' || it.href === '/manage') {
 										toggleOpen(
 											'You need to sign in first.',
@@ -65,6 +66,7 @@ export const MobileMenu = ({
 											() => {
 												onClose();
 												toggleOpen('', false, () => {});
+												signIn();
 											},
 										);
 									} else {
@@ -73,6 +75,26 @@ export const MobileMenu = ({
 										router.push(it.href);
 									}
 								}
+								// if (auth?.isLoggedIn) {
+								// 	onClose();
+								// 	// window.location.href = it.href;
+								// 	router.push(it.href);
+								// } else {
+								// 	if (it.href === '/chat' || it.href === '/manage') {
+								// 		toggleOpen(
+								// 			'You need to sign in first.',
+								// 			true,
+								// 			() => {
+								// 				onClose();
+								// 				toggleOpen('', false, () => {});
+								// 			},
+								// 		);
+								// 	} else {
+								// 		onClose();
+								// 		// window.location.href = it.href;
+								// 		router.push(it.href);
+								// 	}
+								// }
 							}}
 							// css={sx.menu}
 							variant='h5'
