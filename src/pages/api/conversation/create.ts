@@ -8,5 +8,5 @@ export default async function handler(
 ) {
 	const session = await getServerSession(request, response, authOptions);
 	console.log('session: ', session);
-	response.send(`Hello world!`);
+	response.send(session);
 }
