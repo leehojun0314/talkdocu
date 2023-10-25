@@ -3,7 +3,11 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useChat, type Message } from 'ai/react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 const TestPage: NextPage = () => {
+	const { status, data } = useSession();
+	console.log('status: ', status);
+	console.log('data: ', data);
 	const { messages, append } = useChat({
 		api: '/api/test',
 		body: {
@@ -49,6 +53,34 @@ const TestPage: NextPage = () => {
 				test1
 			</button>
 			<button onClick={test2}>test2</button>
+			<button
+				onClick={() => {
+					signIn();
+				}}
+			>
+				login
+			</button>
+			<button
+				onClick={() => {
+					signOut();
+				}}
+			>
+				logout
+			</button>
+			<button
+				onClick={() => {
+					axios
+						.get('/api/conversation/create')
+						.then((response) => {
+							console.log('response: ', response);
+						})
+						.catch((err) => {
+							console.log('err: ', err);
+						});
+				}}
+			>
+				session test
+			</button>
 		</>
 	);
 };

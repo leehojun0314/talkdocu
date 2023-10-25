@@ -7,6 +7,7 @@ import { Stack } from '@mui/system';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { PcFooter } from '@/common/el/footer/PcFooter';
 import facebook from '@/assets/logos/facebook.png';
+import { signIn } from 'next-auth/react';
 export const LoginView = () => {
 	const title = {
 		main: 'Sign in',
@@ -37,7 +38,9 @@ export const LoginView = () => {
 						{SNSModels.map((it, index) => (
 							<Button
 								css={sx.button(it.bgColor, it.border, it.hoverColor)}
-								onClick={it.onclick}
+								onClick={() => {
+									signIn(it.provider);
+								}}
 								key={index}
 							>
 								<Image

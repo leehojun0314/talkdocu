@@ -9,8 +9,12 @@ import axiosAPI from '@/utils/axiosAPI';
 import getConfig from 'next/config';
 const { NODE_ENV_CLI } = getConfig().publicRuntimeConfig;
 import { Analytics } from '@vercel/analytics/react';
+import { SessionProvider } from 'next-auth/react';
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({
+	Component,
+	pageProps: { session, ...pageProps },
+}: AppProps) {
 	function googleTagManager(w: any, d: any, s: any, l: any, i: any) {
 		w[l] = w[l] || [];
 		w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
@@ -44,7 +48,9 @@ export default function App({ Component, pageProps }: AppProps) {
 		<ThemeProvider theme={lightTheme}>
 			<CssBaseline />
 			<Provider store={store}>
-				<Component {...pageProps} />
+				<SessionProvider session={session}>
+					<Component {...pageProps} />
+				</SessionProvider>
 				<Analytics />
 			</Provider>
 		</ThemeProvider>

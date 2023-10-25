@@ -2,6 +2,8 @@ import useAlert from '@/common/hooks/useAlert';
 import { TrootState } from '@/redux/reducers';
 import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -26,7 +28,8 @@ function useDragnDrop() {
 	const { open, toggleOpen, content, onClose } = useAlert();
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const auth = useSelector((state: TrootState) => state);
+	// const auth = useSelector((state: TrootState) => state);
+	const { status, data } = useSession();
 	const router = useRouter();
 	const { getRootProps, isDragActive } = useDropzone({
 		onDrop: async (files) => {
@@ -41,8 +44,8 @@ function useDragnDrop() {
 			}
 			const totalSize = files.reduce((total, file) => total + file.size, 0);
 
-			if (!checkFileSize(totalSize, fileSizes['1mb'] * 20)) {
-				toggleOpen('The limit of file size is under 20mb', true, () => {
+			if (!checkFileSize(totalSize, fileSizes['1mb'] * 50)) {
+				toggleOpen('The limit of file size is under 50mb', true, () => {
 					toggleOpen('', false, () => {});
 				});
 				return;
@@ -106,7 +109,7 @@ function useDragnDrop() {
 			//check total size
 			const totalSize = files.reduce((total, file) => total + file.size, 0);
 			if (!checkFileSize(totalSize, fileSizes['1mb'] * 50)) {
-				toggleOpen('The limit of file size is under 20mb', true, () => {
+				toggleOpen('The limit of file size is under 50mb', true, () => {
 					toggleOpen('', false, () => {});
 				});
 				return;
@@ -134,7 +137,10 @@ function useDragnDrop() {
 		event.preventDefault();
 		console.log('submit clicked');
 		setIsLoading(true);
-		if (!auth.isLoggedIn) {
+		if (status === 'loading') {
+			return;
+		}
+		if (status === 'unauthenticated') {
 			toggleOpen('You need to login first.', true, () => {
 				setIsLoading(false);
 				toggleOpen('', false, () => {});
@@ -170,50 +176,48 @@ function useDragnDrop() {
 			formData.append(`file${i}`, selectedFiles[i]);
 		}
 		formData.append('conversationName', conversationName || '');
-		axiosAPI({
-			method: 'POST',
-			url: '/conversation/v10',
-			data: formData,
-		})
-			// .then((response) => {
-			// 	console.log('create response: ', response);
-			// 	return axiosAPI({
-			// 		method: 'PATCH',
-			// 		url: '/conversation/last',
-			// 		data: {
-			// 			convId: response.data.createdId,
-			// 		},
-			// 	});
-			// })
+		axios
+			.post('/conversation', formData)
 			.then((response) => {
-				console.log('patch response : ', response);
-				toggleOpen(
-					'Upload complete. Please wait until it finishes analyze.',
-					true,
-					() => {
-						toggleOpen('', false, () => {});
-						// window.location.href = '/chat';
-						router.push('/manage');
-					},
-				);
+				console.log('response: ', response);
 			})
 			.catch((err) => {
 				console.log('err: ', err);
-				const text = err.response?.data;
-
-				toggleOpen(
-					typeof text === 'string' && text.length > 0
-						? text
-						: 'Unexpected Error occured.',
-					true,
-					() => {
-						toggleOpen('', false, () => {});
-					},
-				);
-			})
-			.finally(() => {
-				setIsLoading(false);
 			});
+		// axiosAPI({
+		// 	method: 'POST',
+		// 	url: '/conversation/v10',
+		// 	data: formData,
+		// })
+		// 	.then((response) => {
+		// 		console.log('patch response : ', response);
+		// 		toggleOpen(
+		// 			'Upload complete. Please wait until it finishes analyze.',
+		// 			true,
+		// 			() => {
+		// 				toggleOpen('', false, () => {});
+		// 				// window.location.href = '/chat';
+		// 				router.push('/manage');
+		// 			},
+		// 		);
+		// 	})
+		// 	.catch((err) => {
+		// 		console.log('err: ', err);
+		// 		const text = err.response?.data;
+
+		// 		toggleOpen(
+		// 			typeof text === 'string' && text.length > 0
+		// 				? text
+		// 				: 'Unexpected Error occured.',
+		// 			true,
+		// 			() => {
+		// 				toggleOpen('', false, () => {});
+		// 			},
+		// 		);
+		// 	})
+		// 	.finally(() => {
+		// 		setIsLoading(false);
+		// 	});
 	}
 	return {
 		// selectedFile,
