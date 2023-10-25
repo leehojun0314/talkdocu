@@ -27,8 +27,6 @@ export default function axiosAPI(params: TaxiosAPIParams) {
 		data: params.data,
 		headers: {
 			Authorization: `Bearer ${localStorage.getItem('token')}`,
-
-			// Authorization: `Bearer ${params.jwt}`,
 		},
 		withCredentials: true,
 		onDownloadProgress: params.onDownloadProgress,

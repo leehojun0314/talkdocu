@@ -12,6 +12,7 @@ const { publicRuntimeConfig } = getConfig();
 
 export const SNSModels = [
 	{
+		provider: 'apple',
 		logo: apple,
 		text: 'Sign in with apple',
 		bgColor: 'black',
@@ -27,6 +28,7 @@ export const SNSModels = [
 		},
 	},
 	{
+		provider: 'google',
 		logo: google,
 		text: 'Sign in with google',
 		bgColor: '#fff',
@@ -43,6 +45,7 @@ export const SNSModels = [
 		},
 	},
 	{
+		provider: 'facebook',
 		logo: facebook,
 		text: 'Sign in with Facebook',
 		bgColor: '#2374F2',
@@ -58,6 +61,7 @@ export const SNSModels = [
 		},
 	},
 	{
+		provider: 'naver',
 		logo: naver,
 		text: 'Sign in with Naver',
 		bgColor: '#03C75A',
@@ -73,6 +77,7 @@ export const SNSModels = [
 		},
 	},
 	{
+		provider: 'kakao',
 		logo: kakao,
 		text: 'Sign in with Kakao',
 		bgColor: '#FEE500',
