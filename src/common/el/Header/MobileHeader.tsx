@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { css } from '@emotion/react';
 import { useEffect, useState } from 'react';
 import menu_black from '@/assets/icons/menu_black.png';
-import { Button, Popover, Typography } from '@mui/material';
+import { Button, CircularProgress, Popover, Typography } from '@mui/material';
 import { MobileMenu } from '../mobileMenu';
 import Link from 'next/link';
 import { Color } from '@/common/theme/colors';
@@ -15,8 +15,10 @@ import arrowDown_black from '@/assets/icons/arrowDown_black.png';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/redux/reducers/actions';
 import { useRouter } from 'next/router';
+import { signIn, signOut, useSession } from 'next-auth/react';
 export const MobileHeader = () => {
-	const auth = useSelector((state: TrootState) => state);
+	// const auth = useSelector((state: TrootState) => state);
+	const { status, data } = useSession();
 	const dispatch = useDispatch();
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [popoverEl, setPopoverEl] = useState<HTMLElement | null>(null);
@@ -31,6 +33,15 @@ export const MobileHeader = () => {
 	function handleLogout() {
 		setPopoverEl(null);
 		localStorage.setItem('token', '');
+		dispatch(logout());
+		const pathname = window.location.pathname;
+		if (pathname.includes('chat') || pathname.includes('manage')) {
+			// window.location.href = '/';
+			router.push('/');
+		}
+	}
+	function handleLogout2() {
+		setPopoverEl(null);
 		dispatch(logout());
 		const pathname = window.location.pathname;
 		if (pathname.includes('chat') || pathname.includes('manage')) {
@@ -59,45 +70,115 @@ export const MobileHeader = () => {
 			<MobileMenu open={menuOpen} onClose={handleClose} />
 			<Link href='/'>{scrollPosition < 62 ? <Logo /> : <PurpleLogo />}</Link>
 			<div>
-				{auth.isLoggedIn ? (
-					<div
-						css={sx.nameBtn}
-						aria-owns='profile-popover'
-						onClick={handleProfilePopOpen}
-						className={scrollPosition < 12 ? '' : 'scrolled'}
-					>
-						<Typography
-							variant='body2'
-							color={
-								scrollPosition < 12 ? Color.WhiteText : Color.BlackText
-							}
-							style={{
-								whiteSpace:
-									'nowrap' /* 텍스트가 한 줄로 표시되도록 설정 */,
-								overflow: 'hidden' /* 넘치는 텍스트를 숨김 */,
-								textOverflow: 'ellipsis' /* 말줄임표(...)를 표시 */,
-							}}
-						>
-							{auth?.userData?.user_name}
-						</Typography>
-						<Image
-							src={scrollPosition < 12 ? arrowDown : arrowDown_black}
-							alt='down'
-							width={9}
-							height={5}
-						/>
-					</div>
-				) : (
-					<Button
-						css={sx.loginBtn}
-						onClick={() => {
-							// window.location.href = '/login';
-							router.push('/login');
-						}}
-					>
-						Sign in
-					</Button>
-				)}
+				{(() => {
+					switch (status) {
+						case 'authenticated': {
+							return (
+								<div
+									css={sx.nameBtn}
+									aria-owns='profile-popover'
+									onClick={handleProfilePopOpen}
+									className={scrollPosition < 12 ? '' : 'scrolled'}
+								>
+									<Typography
+										variant='body2'
+										color={
+											scrollPosition < 12
+												? Color.WhiteText
+												: Color.BlackText
+										}
+										style={{
+											whiteSpace:
+												'nowrap' /* 텍스트가 한 줄로 표시되도록 설정 */,
+											overflow: 'hidden' /* 넘치는 텍스트를 숨김 */,
+											textOverflow:
+												'ellipsis' /* 말줄임표(...)를 표시 */,
+										}}
+									>
+										{/* {auth?.userData?.user_name} */}
+										{data.user?.name}
+									</Typography>
+									<Image
+										src={
+											scrollPosition < 12
+												? arrowDown
+												: arrowDown_black
+										}
+										alt='down'
+										width={9}
+										height={5}
+									/>
+								</div>
+							);
+						}
+						case 'loading': {
+							return (
+								<CircularProgress
+									size={20}
+									style={{
+										color: Color.WhiteText,
+									}}
+								/>
+							);
+						}
+						case 'unauthenticated': {
+							return (
+								<Button
+									css={sx.loginBtn}
+									onClick={() => {
+										// window.location.href = '/login';
+										// router.push('/login');
+										signIn();
+									}}
+								>
+									Sign in
+								</Button>
+							);
+						}
+					}
+					return <></>;
+				})()}
+				{
+					// auth.isLoggedIn ? (
+					// 	<div
+					// 		css={sx.nameBtn}
+					// 		aria-owns='profile-popover'
+					// 		onClick={handleProfilePopOpen}
+					// 		className={scrollPosition < 12 ? '' : 'scrolled'}
+					// 	>
+					// 		<Typography
+					// 			variant='body2'
+					// 			color={
+					// 				scrollPosition < 12 ? Color.WhiteText : Color.BlackText
+					// 			}
+					// 			style={{
+					// 				whiteSpace:
+					// 					'nowrap' /* 텍스트가 한 줄로 표시되도록 설정 */,
+					// 				overflow: 'hidden' /* 넘치는 텍스트를 숨김 */,
+					// 				textOverflow: 'ellipsis' /* 말줄임표(...)를 표시 */,
+					// 			}}
+					// 		>
+					// 			{auth?.userData?.user_name}
+					// 		</Typography>
+					// 		<Image
+					// 			src={scrollPosition < 12 ? arrowDown : arrowDown_black}
+					// 			alt='down'
+					// 			width={9}
+					// 			height={5}
+					// 		/>
+					// 	</div>
+					// ) : (
+					// 	<Button
+					// 		css={sx.loginBtn}
+					// 		onClick={() => {
+					// 			// window.location.href = '/login';
+					// 			router.push('/login');
+					// 		}}
+					// 	>
+					// 		Sign in
+					// 	</Button>
+					// )
+				}
 				<Popover
 					open={profilePopover}
 					disableScrollLock={true}
@@ -113,7 +194,15 @@ export const MobileHeader = () => {
 					}}
 					onClose={handleProfilePopClose}
 				>
-					<Button css={sx.popover} onClick={handleLogout}>
+					<Button
+						css={sx.popover}
+						onClick={() => {
+							signOut({
+								redirect: false,
+							});
+							handleLogout2();
+						}}
+					>
 						Sign out
 					</Button>
 				</Popover>

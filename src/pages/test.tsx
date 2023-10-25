@@ -17,11 +17,11 @@ const TestPage: NextPage = () => {
 			console.log(response);
 		},
 	});
-	useEffect(() => {
-		axios.get('/api/sqltest').then((response) => {
-			console.log('sql useEffectresponse: ', response);
-		});
-	});
+	// useEffect(() => {
+	// 	axios.get('/api/sqltest').then((response) => {
+	// 		console.log('sql useEffectresponse: ', response);
+	// 	});
+	// }, []);
 	function test2() {
 		console.log('test2 clicked');
 		axios
@@ -66,6 +66,15 @@ const TestPage: NextPage = () => {
 				}}
 			>
 				logout
+			</button>
+			<button
+				onClick={() => {
+					axios.get('/api/sqltest').then((response) => {
+						console.log('sql useEffectresponse: ', response);
+					});
+				}}
+			>
+				sql test
 			</button>
 			<button
 				onClick={() => {

@@ -28,6 +28,13 @@ export default function usePCheader() {
 			window.location.href = '/';
 		}
 	}
+	function handleLogout2() {
+		setPopoverEl(null);
+		const pathname = window.location.pathname;
+		if (pathname.includes('chat') || pathname.includes('manage')) {
+			window.location.href = '/';
+		}
+	}
 
 	useEffect(() => {
 		window.addEventListener('scroll', updateScroll);
@@ -47,5 +54,6 @@ export default function usePCheader() {
 		handleProfilePopClose,
 		handleProfilePopOpen,
 		handleLogout,
+		handleLogout2,
 	};
 }

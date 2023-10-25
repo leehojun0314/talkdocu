@@ -5,12 +5,12 @@ import TwitterProvider from 'next-auth/providers/twitter';
 import KakaoProvider from 'next-auth/providers/kakao';
 import AppleProvider from 'next-auth/providers/apple';
 import NaverProvider from 'next-auth/providers/naver';
-
-export const authOptions = {
+import { AuthOptions } from 'next-auth';
+export const authOptions: AuthOptions = {
 	// Configure one or more authentication providers
 	providers: [
 		FacebookProvider({
-			clientId: process.env.FACEBOOK_ID ?? '',
+			clientId: process.env.FACEBOOK_CLIENT_ID ?? '',
 			clientSecret: process.env.FACEBOOK_SECRET ?? '',
 		}),
 
@@ -46,6 +46,11 @@ export const authOptions = {
 		signIn: '/login',
 	},
 	secret: process.env.NEXTAUTH_SECRET ?? '',
+	callbacks: {
+		async redirect(params) {
+			return Promise.resolve(params.baseUrl);
+		},
+	},
 };
 
 export default NextAuth(authOptions);
