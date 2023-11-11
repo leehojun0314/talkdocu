@@ -47,8 +47,20 @@ export const authOptions: AuthOptions = {
 	},
 	secret: process.env.NEXTAUTH_SECRET ?? '',
 	callbacks: {
+		async jwt({ token, account }) {
+			// if (account?.access_token) {
+			// 	token.accessToken = account.access_token;
+			// }
+			if (account?.provider) {
+				token.provider = account.provider;
+			}
+			return token;
+		},
 		async redirect(params) {
 			return Promise.resolve(params.baseUrl);
+		},
+		async session({ session, token, user }) {
+			return { ...session, provider: token.provider };
 		},
 	},
 };
