@@ -178,12 +178,15 @@ function useDragnDrop() {
 		}
 		formData.append('conversationName', conversationName || '');
 		axios
-			.post('/conversation', formData)
+			.post('/api/conversation/create', formData)
 			.then((response) => {
 				console.log('response: ', response);
 			})
 			.catch((err) => {
 				console.log('err: ', err);
+			})
+			.finally(() => {
+				setIsLoading(false);
 			});
 		// axiosAPI({
 		// 	method: 'POST',
