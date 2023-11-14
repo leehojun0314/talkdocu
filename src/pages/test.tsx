@@ -6,15 +6,16 @@ import { useChat, type Message } from 'ai/react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 const TestPage: NextPage = () => {
 	const { status, data } = useSession();
-	console.log('status: ', status);
-	console.log('data: ', data);
+	// console.log('status: ', status);
+	// console.log('data: ', data);
 	const { messages, append } = useChat({
-		api: '/api/test',
+		api: '/api/test?convStringId=testid',
 		body: {
 			previewToken: 'test data',
 		},
+		initialMessages: [],
 		onFinish(response) {
-			console.log(response);
+			console.log('onfinish: ', response);
 		},
 	});
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -67,7 +68,6 @@ const TestPage: NextPage = () => {
 				console.log('err: ', err);
 			});
 	}
-	console.log('messages: ', messages);
 	return (
 		<>
 			<Head>
@@ -75,7 +75,6 @@ const TestPage: NextPage = () => {
 			</Head>
 			Messages:{' '}
 			{messages.map((message, index) => {
-				console.log('message: ', message);
 				return <div key={index}>{message.content}</div>;
 			})}
 			<hr />

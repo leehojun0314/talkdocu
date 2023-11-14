@@ -193,3 +193,10 @@ export async function deleteConversationModel(
 	console.log('conversation deleted successfully');
 	return result;
 }
+export async function selectMessages(convIntId: number, userId: number) {
+	return (await sqlConnectionPool.connect())
+		.request()
+		.query(
+			`SELECT * FROM Message WHERE conversation_id = '${convIntId}' AND user_id = ${userId} ORDER BY message_order ASC`,
+		);
+}

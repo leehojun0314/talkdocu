@@ -1,88 +1,99 @@
 import { TrootState } from '@/redux/reducers';
 import { login } from '@/redux/reducers/actions';
+import {
+	TChatMode,
+	TConversation,
+	TDebate,
+	TDebateMessage,
+	TDocument,
+	TExistFile,
+	TMessage,
+	TOptionDialog,
+	TReferenceDoc,
+} from '@/types';
 import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-export type Tconversation = {
-	id: number;
-	conversation_name: string;
-	end_time: number | null;
-	created_at: string | null;
-	fileUrl: string;
-	salutation: string;
-	user_id: number;
-	status: 'created' | 'analyzing' | 'error';
-	conversation_id: string;
-};
+// export type Tconversation = {
+// 	id: number;
+// 	conversation_name: string;
+// 	end_time: number | null;
+// 	created_at: string | null;
+// 	fileUrl: string;
+// 	salutation: string;
+// 	user_id: number;
+// 	status: 'created' | 'analyzing' | 'error';
+// 	conversation_id: string;
+// };
 
-export type Tquestion = {
-	conversation_id: number;
-	question_content: string;
-	question_id: number;
-	question_order: number;
-};
-export type Tmessage =
-	| {
-			conversation_id: number;
-			create_time: number | null;
-			message: string;
-			message_id: number;
-			message_order: number;
-			sender: 'assistant' | 'user';
-			user_id: number;
-			is_question: 0 | 1;
-			question_doc_name: string | null;
-	  }
-	| {
-			message: string;
-			message_id: number;
-			sender: 'assistant' | 'user';
-			is_question: 0 | 1;
-			question_doc_name: string | null;
-	  };
-// function convertNewlinesToHTML(text: string) {
-// 	return text.replace(/\n/g, '<br />');
-// }
-export type Tdocument = {
-	conversation_id: number;
-	document_id: number;
-	document_name: string;
-	document_size: string;
-	document_url: string;
-};
+// export type Tquestion = {
+// 	conversation_id: number;
+// 	question_content: string;
+// 	question_id: number;
+// 	question_order: number;
+// };
+// export type Tmessage =
+// 	| {
+// 			conversation_id: number;
+// 			create_time: number | null;
+// 			message: string;
+// 			message_id: number;
+// 			message_order: number;
+// 			sender: 'assistant' | 'user';
+// 			user_id: number;
+// 			is_question: 0 | 1;
+// 			question_doc_name: string | null;
+// 	  }
+// 	| {
+// 			message: string;
+// 			message_id: number;
+// 			sender: 'assistant' | 'user';
+// 			is_question: 0 | 1;
+// 			question_doc_name: string | null;
+// 	  };
+// // function convertNewlinesToHTML(text: string) {
+// // 	return text.replace(/\n/g, '<br />');
+// // }
+// export type Tdocument = {
+// 	conversation_id: number;
+// 	document_id: number;
+// 	document_name: string;
+// 	document_size: string;
+// 	document_url: string;
+// };
 
-export type TreferenceDoc = {
-	page: number;
-	documentName: string;
-};
-type ToptionDialog = {
-	isOpen: boolean;
-};
-export type TchatMode = 'QA' | 'Debate';
-export type Tdebate = {
-	debate_id: number;
-	question_id: number;
-	answer_id: number;
-	refer_content: string;
-	question_content: string;
-	answer_content: string;
-};
-export type TdebateMessage = {
-	id: number;
-	content: string;
-	sender: 'assistant' | 'user';
-	time: number | null | undefined;
-	debate_id: number;
-	conversation_id: number | string | undefined;
-	user_id: number | undefined;
-};
-export type TexistFile = {
-	file: Tdocument;
-	status: 'exist' | 'delete';
-};
+// export type TreferenceDoc = {
+// 	page: number;
+// 	documentName: string;
+// };
+// type ToptionDialog = {
+// 	isOpen: boolean;
+// };
+// export type TchatMode = 'QA' | 'Debate';
+// export type Tdebate = {
+// 	debate_id: number;
+// 	question_id: number;
+// 	answer_id: number;
+// 	refer_content: string;
+// 	question_content: string;
+// 	answer_content: string;
+// };
+// export type TdebateMessage = {
+// 	id: number;
+// 	content: string;
+// 	sender: 'assistant' | 'user';
+// 	time: number | null | undefined;
+// 	debate_id: number;
+// 	conversation_id: number | string | undefined;
+// 	user_id: number | undefined;
+// };
+// export type TexistFile = {
+// 	file: Tdocument;
+// 	status: 'exist' | 'delete';
+// };
 // function referenceDocsToString(docs: TreferenceDoc[]): string {
 // 	let result: string = 'Refered : ';
 
@@ -107,11 +118,11 @@ export type TexistFile = {
 export default function useChatViewV2() {
 	const auth = useSelector((state: TrootState) => state);
 	const dispatch = useDispatch();
-	const [conversation, setConversation] = useState<Tconversation>();
-	const [messages, setMessages] = useState<Tmessage[]>([]);
+	const [conversation, setConversation] = useState<TConversation>();
+	const [messages, setMessages] = useState<TMessage[]>([]);
 	// const [questions, setQuestions] = useState<Tquestion[]>();
 	// const [isLoadingQuestion, setIsLoadingQuestion] = useState<boolean>(false);
-	const [documents, setDocuments] = useState<Tdocument[]>([]);
+	const [documents, setDocuments] = useState<TDocument[]>([]);
 	const [docuForQuestion, setDocuForQuestion] = useState<number>();
 	const [input, setInput] = useState<string>('');
 	const [salutation, setSalutation] = useState<string>();
@@ -127,13 +138,13 @@ export default function useChatViewV2() {
 	const [isScroll, setIsScroll] = useState<boolean>(false);
 	const [isBottom, setIsBottom] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
-	const [optionDialog, setOptionDialog] = useState<ToptionDialog>({
+	const [optionDialog, setOptionDialog] = useState<TOptionDialog>({
 		isOpen: false,
 	});
 
 	//debate
-	const [chatMode, setChatMode] = useState<TchatMode>('QA');
-	const [debate, setDebate] = useState<Tdebate>({
+	const [chatMode, setChatMode] = useState<TChatMode>('QA');
+	const [debate, setDebate] = useState<TDebate>({
 		debate_id: 0,
 		question_id: 0,
 		answer_id: 0,
@@ -141,7 +152,7 @@ export default function useChatViewV2() {
 		question_content: '',
 		answer_content: '',
 	});
-	const [debateMessages, setDebateMessages] = useState<TdebateMessage[]>([]);
+	const [debateMessages, setDebateMessages] = useState<TDebateMessage[]>([]);
 	const [isLoadingDebate, setIsLoadingDebate] = useState<boolean>(false);
 	const debateMessageBoxRef = useRef<HTMLDivElement>(null);
 	const [isScrollDebate, setIsScrollDebate] = useState<boolean>(false);
@@ -151,7 +162,7 @@ export default function useChatViewV2() {
 	//add dialog
 	const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
 	const [addFiles, setAddFiles] = useState<File[]>([]);
-	const [addDiaExistFiles, setAddDiaExistFiles] = useState<TexistFile[]>([]);
+	const [addDiaExistFiles, setAddDiaExistFiles] = useState<TExistFile[]>([]);
 	const [addDiaProgress, setAddDiaProgress] = useState<number>(0);
 	const [addDiaProgressMessage, setAddDiaProgressMessage] =
 		useState<string>('');
@@ -191,9 +202,9 @@ export default function useChatViewV2() {
 							url: `/conversation/check/v2?convId=${router.query.convId}`,
 						})
 							.then((checkRes) => {
-								const checkConv: Tconversation =
+								const checkConv: TConversation =
 									checkRes.data.selectedConv;
-								const documents: Tdocument[] = checkRes.data.documents;
+								const documents: TDocument[] = checkRes.data.documents;
 								if (checkConv.status === 'created') {
 									axiosAPI({
 										method: 'GET',
@@ -262,7 +273,7 @@ export default function useChatViewV2() {
 				url: `/conversation/check/v2?convId=${router.query.convId}`,
 			})
 				.then((checkRes) => {
-					const documents: Tdocument[] = checkRes.data.documents;
+					const documents: TDocument[] = checkRes.data.documents;
 					setDocuments(documents);
 					if (documents.length) {
 						setDocuForQuestion(documents[0].document_id);
@@ -371,8 +382,8 @@ export default function useChatViewV2() {
 				.then((response) => {
 					console.log('response: ', response);
 					setChatMode('Debate');
-					setDebate(response.data.debate as Tdebate);
-					setDebateMessages(response.data.messages as TdebateMessage[]);
+					setDebate(response.data.debate as TDebate);
+					setDebateMessages(response.data.messages as TDebateMessage[]);
 				})
 				.catch((err) => {
 					console.log('err: ', err);
@@ -393,7 +404,7 @@ export default function useChatViewV2() {
 			setIsReferOpen(true);
 		}
 	}
-	function handleChatMode(chatMode: TchatMode) {
+	function handleChatMode(chatMode: TChatMode) {
 		return (evt: React.MouseEvent<HTMLButtonElement>) => {
 			setChatMode(chatMode);
 		};
@@ -543,7 +554,7 @@ export default function useChatViewV2() {
 			let receivedData = '';
 			let lastProcessedIndex = 0;
 			let result = '';
-			let referenceDocs: TreferenceDoc[] = [];
+			let referenceDocs: TReferenceDoc[] = [];
 			axiosAPI({
 				method: 'POST',
 				url: '/message/v6',
@@ -647,7 +658,7 @@ export default function useChatViewV2() {
 		if (auth?.isLoggedIn) {
 			//add my message
 			setDebateMessages((pre) => {
-				const newEl: TdebateMessage = {
+				const newEl: TDebateMessage = {
 					id: 0,
 					content: input,
 					sender: 'user',

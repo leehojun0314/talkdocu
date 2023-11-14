@@ -1,6 +1,10 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { OpenAIStream, StreamingTextResponse } from 'ai';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth';
 import { Configuration, OpenAIApi } from 'openai-edge';
+import { authOptions } from './auth/[...nextauth]';
+import { getToken } from 'next-auth/jwt';
 type Data = {
 	name: string;
 };
@@ -9,15 +13,17 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 export const runtime = 'edge';
-export default async function GET(req: Request) {
+export default async function POST(request: Request) {
 	console.log('get called');
-
-	const json = await req.json();
-	const { messages, previewToken } = json;
-	console.log('messages:', messages);
-	console.log('previewToken:', previewToken);
+	// const session = await getServerSession(authOptions);
+	// console.log('session: ', session);
+	// const session = await getToken({req : request})
+	// const json = await request.json();
+	// const { messages, previewToken } = json;
+	// console.log('messages:', messages);
+	// console.log('previewToken:', previewToken);
 	const res = await openai.createChatCompletion({
-		model: 'gpt-3.5-turbo',
+		model: 'gpt-4-1106-preview',
 		messages: [
 			{
 				role: 'user',
