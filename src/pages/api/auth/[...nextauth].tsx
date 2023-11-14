@@ -5,8 +5,8 @@ import TwitterProvider from 'next-auth/providers/twitter';
 import KakaoProvider from 'next-auth/providers/kakao';
 import AppleProvider from 'next-auth/providers/apple';
 import NaverProvider from 'next-auth/providers/naver';
-import { AuthOptions } from 'next-auth';
-export const authOptions: AuthOptions = {
+import { NextAuthOptions } from 'next-auth';
+export const authOptions: NextAuthOptions = {
 	// Configure one or more authentication providers
 	providers: [
 		FacebookProvider({

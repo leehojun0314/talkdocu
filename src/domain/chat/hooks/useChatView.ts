@@ -1,53 +1,54 @@
 import useLoginCheck from '@/common/hooks/useLoginCheck';
 import { TrootState } from '@/redux/reducers';
 import { login } from '@/redux/reducers/actions';
+import { TConversation, TMessage, TQuestion } from '@/types';
 import axiosAPI from '@/utils/axiosAPI';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-export type Tconversation = {
-	id: number;
-	conversation_name: string;
-	end_time: number | null;
-	created_at: string | null;
-	fileUrl: string;
-	salutation: string;
-	user_id: number;
-	status: 'created' | 'analyzing' | 'error';
-	conversation_id: string;
-};
+// export type Tconversation = {
+// 	id: number;
+// 	conversation_name: string;
+// 	end_time: number | null;
+// 	created_at: string | null;
+// 	fileUrl: string;
+// 	salutation: string;
+// 	user_id: number;
+// 	status: 'created' | 'analyzing' | 'error';
+// 	conversation_id: string;
+// };
 
-export type Tquestion = {
-	conversation_id: number;
-	question_content: string;
-	question_id: number;
-	question_order: number;
-};
-export type Tmessage =
-	| {
-			conversation_id: number;
-			create_time: number | null;
-			message: string;
-			message_id: number;
-			message_order: number;
-			sender: 'assistant' | 'user';
-			user_id: number;
-	  }
-	| {
-			message: string;
-			message_id: number;
-			sender: 'assistant' | 'user';
-	  };
+// export type Tquestion = {
+// 	conversation_id: number;
+// 	question_content: string;
+// 	question_id: number;
+// 	question_order: number;
+// };
+// export type Tmessage =
+// 	| {
+// 			conversation_id: number;
+// 			create_time: number | null;
+// 			message: string;
+// 			message_id: number;
+// 			message_order: number;
+// 			sender: 'assistant' | 'user';
+// 			user_id: number;
+// 	  }
+// 	| {
+// 			message: string;
+// 			message_id: number;
+// 			sender: 'assistant' | 'user';
+// 	  };
 // function convertNewlinesToHTML(text: string) {
 // 	return text.replace(/\n/g, '<br />');
 // }
 export default function useChatView() {
 	const auth = useSelector((state: TrootState) => state);
 	const dispatch = useDispatch();
-	const [conversation, setConversation] = useState<Tconversation>();
-	const [messages, setMessages] = useState<Tmessage[]>();
-	const [questions, setQuestions] = useState<Tquestion[]>();
+	const [conversation, setConversation] = useState<TConversation>();
+	const [messages, setMessages] = useState<TMessage[]>([]);
+	const [questions, setQuestions] = useState<TQuestion[]>();
 	const [isLoadingQuestion, setIsLoadingQuestion] = useState<boolean>(false);
 	const [input, setInput] = useState<string>('');
 	const [salutation, setSalutation] = useState<string>();
@@ -234,12 +235,28 @@ export default function useChatView() {
 					if (pre) {
 						return [
 							...pre,
-							{ message: input, message_id: pre.length, sender: 'user' },
+							{
+								message: input,
+								message_id: pre.length,
+								sender: 'user',
+								is_question: 0,
+								question_doc_name: null,
+							},
 						];
+					} else {
+						return pre;
 					}
 				});
 			} else {
-				setMessages([{ message: input, message_id: 0, sender: 'user' }]);
+				setMessages([
+					{
+						message: input,
+						message_id: 0,
+						sender: 'user',
+						is_question: 0,
+						question_doc_name: null,
+					},
+				]);
 			}
 			setAnswer({
 				isOpen: true,
@@ -309,6 +326,8 @@ export default function useChatView() {
 									message: message,
 									message_id: pre.length,
 									sender: 'assistant',
+									is_question: 0,
+									question_doc_name: null,
 								},
 							];
 						} else {
@@ -317,6 +336,8 @@ export default function useChatView() {
 									message: message,
 									message_id: 1,
 									sender: 'assistant',
+									is_question: 0,
+									question_doc_name: null,
 								},
 							];
 						}
@@ -338,7 +359,7 @@ export default function useChatView() {
 		}
 	}
 	// const [questions, setQuestions] = useState<
-	function handleQuestionClick(question: Tquestion) {
+	function handleQuestionClick(question: TQuestion) {
 		return (event: React.MouseEvent<HTMLButtonElement>) => {
 			handleSubmit(question.question_content);
 		};
