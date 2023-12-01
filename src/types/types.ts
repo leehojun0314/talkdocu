@@ -8,6 +8,13 @@ export type TExtendedSession =
 			provider?: TProvider;
 	  })
 	| null;
+// export interface TExtendedSession extends Session {
+// 	provider?: TProvider;
+
+// }
+export interface TExtendedAuthData extends Session {
+	provider?: TProvider | undefined;
+}
 export type TExtendedFile = formidable.File & {
 	filepath: string;
 };
@@ -57,24 +64,24 @@ export type TQuestion = {
 	question_order: number;
 };
 export type TMessage =
-	| {
-			conversation_id: number;
-			create_time: number | null;
-			message: string;
-			message_id: number;
-			message_order: number;
-			sender: 'assistant' | 'user';
-			user_id: number;
-			is_question: 0 | 1;
-			question_doc_name: string | null;
-	  }
-	| {
-			message: string;
-			message_id: number;
-			sender: 'assistant' | 'user';
-			is_question: 0 | 1;
-			question_doc_name: string | null;
-	  };
+	// | {
+	// 		conversation_id: number;
+	// 		create_time: number | null;
+	// 		message: string;
+	// 		message_id: number;
+	// 		message_order: number;
+	// 		sender: 'assistant' | 'user';
+	// 		user_id: number;
+	// 		is_question: 0 | 1;
+	// 		question_doc_name: string | null;
+	//   }
+	{
+		message: string;
+		message_id: number;
+		sender: 'assistant' | 'user';
+		is_question: 0 | 1;
+		question_doc_name: string | null;
+	};
 export type TDocument = {
 	conversation_id: number;
 	document_id: number;
@@ -105,9 +112,15 @@ export type TDebateMessage = {
 	time: number | null | undefined;
 	debate_id: number;
 	conversation_id: number | string | undefined;
-	user_id: number | undefined;
+	// user_id: number | undefined;
 };
 export type TExistFile = {
 	file: TDocument;
 	status: 'exist' | 'delete';
+};
+import { type Message } from 'ai/react';
+export type TExtendedMessage = Message & {
+	id: string;
+	isQuestion: number;
+	question_doc_name: string;
 };

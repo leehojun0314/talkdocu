@@ -1,10 +1,5 @@
 import { TrootState } from '@/redux/reducers';
-import {
-	Tdebate,
-	TdebateMessage,
-	Tdocument,
-	Tmessage,
-} from '../hooks/useChatView_v2';
+
 import React, { useCallback } from 'react';
 import {
 	AIQuestion,
@@ -15,10 +10,12 @@ import {
 } from './ChatText';
 import { css } from '@emotion/react';
 import { Color } from '@/common/theme/colors';
+import { Session } from 'next-auth';
+import { TDebate, TDebateMessage } from '@/types/types';
 type TChats = {
-	debate: Tdebate;
-	messages: TdebateMessage[];
-	auth: TrootState;
+	debate: TDebate;
+	messages: TDebateMessage[];
+	auth: Session | null;
 	answer: { isOpen: boolean; content: string };
 };
 export default function DebateChats({
@@ -31,7 +28,7 @@ export default function DebateChats({
 		<>
 			<ChatFromMe
 				textFromMe={debate.question_content}
-				profileUrl={auth.userData?.profile_img}
+				profileUrl={auth?.user?.image}
 			/>
 			<ChatFromAI textFromAI={debate.answer_content} />
 			{messages?.length > 0 &&
@@ -44,7 +41,7 @@ export default function DebateChats({
 							<ChatFromMe
 								textFromMe={message.content}
 								key={message.id}
-								profileUrl={auth?.userData?.profile_img}
+								profileUrl={auth?.user?.image}
 							/>
 						);
 					} else if (message.sender === 'assistant') {

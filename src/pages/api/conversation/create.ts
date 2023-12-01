@@ -2,20 +2,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
-import {
-	escapeQuotation,
-	generateConvId,
-	pageRender,
-	processFile,
-	useFormidable,
-} from '@/utils/functions';
-import {
-	getUserInfoFromSession,
-	insertConv,
-	insertDocument,
-	insertParagraphs,
-	updateConvStatus,
-} from '@/models';
+import { escapeQuotation, generateConvId } from '@/utils/functions';
+import { getUserInfoFromSession, insertConv, updateConvStatus } from '@/models';
 import fs from 'fs';
 import PdfParse from 'pdf-parse';
 import { upsertParagraph } from '@/models/pinecone';
@@ -24,8 +12,12 @@ import {
 	TExtendedSession,
 	TParagraph,
 	TUserFromDB,
-} from '@/types';
+} from '@/types/types';
 import { File } from 'formidable';
+import { useFormidable } from '@/lib/formidable';
+import { pageRender, processFile } from '@/lib/processFile';
+import { insertDocument } from '@/models/document';
+import { insertParagraphs } from '@/models/paragraph';
 export const config = {
 	api: {
 		bodyParser: false,

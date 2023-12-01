@@ -27,22 +27,22 @@ export default function App({
 	}
 	useEffect(() => {
 		googleTagManager(window, document, 'script', 'dataLayer', 'GTM-WBB4N3M');
-		if (NODE_ENV_CLI === 'development') {
-			axiosAPI({
-				url: '/test/',
-				method: 'GET',
-			})
-				.then((response) => {
-					// console.log('check response: ', response.data);
-				})
-				.catch((err) => {
-					console.log('err: ', err);
-					window.alert(
-						'The test server has been shut down. Please use the production page below. \n https://talkdocu.com',
-					);
-					window.location.href = 'https://www.talkdocu.com';
-				});
-		}
+		// if (NODE_ENV_CLI === 'development') {
+		// 	axiosAPI({
+		// 		url: '/test/',
+		// 		method: 'GET',
+		// 	})
+		// 		.then((response) => {
+		// 			// console.log('check response: ', response.data);
+		// 		})
+		// 		.catch((err) => {
+		// 			console.log('err: ', err);
+		// 			window.alert(
+		// 				'The test server has been shut down. Please use the production page below. \n https://talkdocu.com',
+		// 			);
+		// 			window.location.href = 'https://www.talkdocu.com';
+		// 		});
+		// }
 	}, []);
 	return (
 		<ThemeProvider theme={lightTheme}>

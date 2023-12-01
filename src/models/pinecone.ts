@@ -2,7 +2,7 @@ import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { Document } from 'langchain/document';
 import { Pinecone } from '@pinecone-database/pinecone';
-import { TParagraph } from '@/types';
+import { TParagraph } from '@/types/types';
 export async function upsertParagraph({
 	paragraphs,
 	convIntId,

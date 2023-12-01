@@ -45,12 +45,14 @@ export const authOptions: NextAuthOptions = {
 	pages: {
 		signIn: '/login',
 	},
+	session: {
+		strategy: 'jwt',
+		maxAge: 1000 * 60 * 5,
+	},
 	secret: process.env.NEXTAUTH_SECRET ?? '',
 	callbacks: {
-		async jwt({ token, account }) {
-			// if (account?.access_token) {
-			// 	token.accessToken = account.access_token;
-			// }
+		async jwt({ token, account, session }) {
+			console.log('account : ', account);
 			if (account?.provider) {
 				token.provider = account.provider;
 			}
@@ -60,7 +62,10 @@ export const authOptions: NextAuthOptions = {
 			return Promise.resolve(params.baseUrl);
 		},
 		async session({ session, token, user }) {
-			return { ...session, provider: token.provider };
+			return {
+				...session,
+				provider: token.provider,
+			};
 		},
 	},
 };

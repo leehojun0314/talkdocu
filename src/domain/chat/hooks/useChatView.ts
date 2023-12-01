@@ -1,7 +1,7 @@
 import useLoginCheck from '@/common/hooks/useLoginCheck';
 import { TrootState } from '@/redux/reducers';
 import { login } from '@/redux/reducers/actions';
-import { TConversation, TMessage, TQuestion } from '@/types';
+import { TConversation, TMessage, TQuestion } from '@/types/types';
 import axiosAPI from '@/utils/axiosAPI';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';

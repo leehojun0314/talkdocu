@@ -3,7 +3,7 @@ import {
 	selectConvByStr,
 	selectMessages,
 } from '@/models';
-import { TExtendedSession, TUserFromDB } from '@/types';
+import { TExtendedSession, TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
@@ -20,11 +20,7 @@ export default async function handler(
 		}
 
 		const convStringId = request.query.convStringId as string;
-		const session: TExtendedSession = await getServerSession(
-			request,
-			response,
-			authOptions,
-		);
+		const session = await getServerSession(request, response, authOptions);
 		const user: TUserFromDB = await getUserInfoFromSession(session);
 		if (!convStringId) {
 			throw new Error('You must provide conversation id.');

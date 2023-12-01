@@ -21,13 +21,13 @@ import CheckIcon from '@mui/icons-material/Check';
 import pdf from '@/assets/icons/pdf.png';
 import Image from 'next/image';
 import { Color } from '@/common/theme/colors';
-import { TexistFile } from '../hooks/useChatView_v2';
 import { red } from '@mui/material/colors';
+import { TExistFile } from '@/types/types';
 type AddDialogType = {
 	open: boolean;
 	files: File[];
 	isLoading: boolean;
-	documents: TexistFile[];
+	documents: TExistFile[];
 	progress: number;
 	progressMsg: string;
 	onClose: () => void;

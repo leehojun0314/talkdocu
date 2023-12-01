@@ -4,12 +4,11 @@ import { Color } from '@/common/theme/colors';
 import Image from 'next/image';
 import profile from '@/assets/images/ai.png';
 import { Mq } from '@/common/theme/screen';
-import { Tquestion } from '../hooks/useChatView';
 import parser from 'html-react-parser';
 import React, { ReactElement } from 'react';
 import ForumIcon from '@mui/icons-material/Forum';
 type chatFromMeType = {
-	textFromMe: string;
+	textFromMe: string | number;
 	profileUrl?: string | null;
 };
 

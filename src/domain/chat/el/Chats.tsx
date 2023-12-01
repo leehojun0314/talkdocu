@@ -1,5 +1,4 @@
 import { TrootState } from '@/redux/reducers';
-import { Tdocument, Tmessage } from '../hooks/useChatView_v2';
 import React, { useCallback } from 'react';
 import {
 	AIQuestion,
@@ -11,13 +10,15 @@ import {
 } from './ChatText';
 import { css } from '@emotion/react';
 import { Color } from '@/common/theme/colors';
+import { Session } from 'next-auth';
+import { TDocument, TMessage } from '@/types/types';
 type TChats = {
 	salutation: string | undefined;
-	documents: Tdocument[];
+	documents: TDocument[];
 	isLoading: boolean;
 	isLoadingDebate: boolean;
-	messages: Tmessage[];
-	auth: TrootState;
+	messages: TMessage[];
+	auth: Session | null;
 	answer: { isOpen: boolean; content: string };
 	docuForQuestion: number | undefined;
 	handleGenerateQuestion: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -88,7 +89,7 @@ export default function Chats({
 							<ChatFromMe
 								textFromMe={message.message}
 								key={message.message_id}
-								profileUrl={auth?.userData?.profile_img}
+								profileUrl={auth?.user?.image}
 							/>
 						);
 					} else if (message.sender === 'assistant') {

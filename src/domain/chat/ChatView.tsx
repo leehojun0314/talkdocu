@@ -18,10 +18,16 @@ import DebateChats from './el/DebateChats';
 import { AddDialog } from './el/AddDialog';
 import ConfirmDialog from '@/common/el/Dialog/confirmDialog';
 import AlertDialog from '@/common/el/Dialog/alertDialog';
+import useChatViewV3 from './hooks/useChatView_v3';
+import { GetServerSideProps } from 'next';
+import { TConversation, TDocument, TMessage, TUserFromDB } from '@/types/types';
+import { getSession } from 'next-auth/react';
+import { getUserInfoFromSession, selectConversation } from '@/models';
 const { publicRuntimeConfig } = getConfig();
+
 export const ChatView = () => {
 	const {
-		auth,
+		authData,
 		conversation,
 		messages,
 		// questions,
@@ -67,7 +73,7 @@ export const ChatView = () => {
 		isAlertOpen,
 		alertContent,
 		onAlertClose,
-	} = useChatViewV2();
+	} = useChatViewV3();
 	const { isLarge } = useCustomMediaQuery();
 	return (
 		<div css={sx.root}>
@@ -136,7 +142,7 @@ export const ChatView = () => {
 								isLoading={isLoading}
 								isLoadingDebate={isLoadingDebate}
 								messages={messages}
-								auth={auth}
+								auth={authData}
 								answer={answer}
 								docuForQuestion={docuForQuestion}
 								handleChangeDocuSelect={handleChangeDocuSelect}
@@ -164,7 +170,7 @@ export const ChatView = () => {
 							<DebateChats
 								debate={debate}
 								messages={debateMessages}
-								auth={auth}
+								auth={authData}
 								answer={answer}
 							/>
 						</DebateFrame>
@@ -202,7 +208,7 @@ export const ChatView = () => {
 							isLoading={isLoading}
 							isLoadingDebate={isLoadingDebate}
 							messages={messages}
-							auth={auth}
+							auth={authData}
 							answer={answer}
 							docuForQuestion={docuForQuestion}
 							handleChangeDocuSelect={handleChangeDocuSelect}
@@ -230,7 +236,7 @@ export const ChatView = () => {
 						<DebateChats
 							debate={debate}
 							messages={debateMessages}
-							auth={auth}
+							auth={authData}
 							answer={answer}
 						/>
 					</DebateFrame>
