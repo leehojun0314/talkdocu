@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getServerSession } from 'next-auth';
 import { authOptions } from './auth/[...nextauth]';
 import { getUserInfoFromSession } from '@/models';
-import { TExtendedSession } from '@/types';
+import { TExtendedSession } from '@/types/types';
 
 export default async function handler(
 	request: VercelRequest,

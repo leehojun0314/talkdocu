@@ -10,110 +10,13 @@ import {
 	TMessage,
 	TOptionDialog,
 	TReferenceDoc,
-} from '@/types';
+} from '@/types/types';
 import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-// export type Tconversation = {
-// 	id: number;
-// 	conversation_name: string;
-// 	end_time: number | null;
-// 	created_at: string | null;
-// 	fileUrl: string;
-// 	salutation: string;
-// 	user_id: number;
-// 	status: 'created' | 'analyzing' | 'error';
-// 	conversation_id: string;
-// };
-
-// export type Tquestion = {
-// 	conversation_id: number;
-// 	question_content: string;
-// 	question_id: number;
-// 	question_order: number;
-// };
-// export type Tmessage =
-// 	| {
-// 			conversation_id: number;
-// 			create_time: number | null;
-// 			message: string;
-// 			message_id: number;
-// 			message_order: number;
-// 			sender: 'assistant' | 'user';
-// 			user_id: number;
-// 			is_question: 0 | 1;
-// 			question_doc_name: string | null;
-// 	  }
-// 	| {
-// 			message: string;
-// 			message_id: number;
-// 			sender: 'assistant' | 'user';
-// 			is_question: 0 | 1;
-// 			question_doc_name: string | null;
-// 	  };
-// // function convertNewlinesToHTML(text: string) {
-// // 	return text.replace(/\n/g, '<br />');
-// // }
-// export type Tdocument = {
-// 	conversation_id: number;
-// 	document_id: number;
-// 	document_name: string;
-// 	document_size: string;
-// 	document_url: string;
-// };
-
-// export type TreferenceDoc = {
-// 	page: number;
-// 	documentName: string;
-// };
-// type ToptionDialog = {
-// 	isOpen: boolean;
-// };
-// export type TchatMode = 'QA' | 'Debate';
-// export type Tdebate = {
-// 	debate_id: number;
-// 	question_id: number;
-// 	answer_id: number;
-// 	refer_content: string;
-// 	question_content: string;
-// 	answer_content: string;
-// };
-// export type TdebateMessage = {
-// 	id: number;
-// 	content: string;
-// 	sender: 'assistant' | 'user';
-// 	time: number | null | undefined;
-// 	debate_id: number;
-// 	conversation_id: number | string | undefined;
-// 	user_id: number | undefined;
-// };
-// export type TexistFile = {
-// 	file: Tdocument;
-// 	status: 'exist' | 'delete';
-// };
-// function referenceDocsToString(docs: TreferenceDoc[]): string {
-// 	let result: string = 'Refered : ';
-
-// 	// group by documentName
-// 	const grouped = docs.reduce((groupedDocs, doc) => {
-// 		if (!groupedDocs[doc.documentName]) {
-// 			groupedDocs[doc.documentName] = [];
-// 		}
-// 		groupedDocs[doc.documentName].push(doc.page);
-// 		return groupedDocs;
-// 	}, {} as { [key: string]: number[] });
-
-// 	// convert to string
-// 	for (const [docName, pages] of Object.entries(grouped)) {
-// 		const sortedPages = pages.sort((a, b) => a - b);
-// 		result += `\n ${docName} (${sortedPages.join(', ')} page)`;
-// 	}
-
-// 	return result;
-// }
 
 export default function useChatViewV2() {
 	const auth = useSelector((state: TrootState) => state);
@@ -664,7 +567,7 @@ export default function useChatViewV2() {
 					sender: 'user',
 					debate_id: debate.debate_id,
 					conversation_id: conversation?.conversation_id,
-					user_id: auth.userData?.user_id,
+					// user_id: auth.userData?.user_id,
 					time: null,
 				};
 				return [...pre, newEl];

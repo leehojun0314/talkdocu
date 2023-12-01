@@ -19,11 +19,9 @@ type Data = sql.IResult<any>;
 function sayHello() {
 	return 'hello world';
 }
+export const runtime = 'edge';
 // export const runtime = 'edge';
-export default async function GET(
-	req: NextApiRequest,
-	res: NextApiResponse<Data | undefined>,
-) {
+export default async function GET(req: Request) {
 	console.log('flag 1');
 	let result;
 	try {
@@ -36,10 +34,11 @@ export default async function GET(
 		);
 		console.log('flag 4');
 		console.log('query result : ', result);
+		return new Response(`${result}`);
 	} catch (error) {
 		console.log(error);
+		return new Response(`${error}`);
 	}
 
-	res.send(result);
 	// res.status(200).json({ name: 'John Doe' });
 }

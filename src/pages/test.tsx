@@ -3,12 +3,31 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
 import { useChat, type Message } from 'ai/react';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession, signIn, signOut, getSession } from 'next-auth/react';
+import type { GetServerSideProps } from 'next';
+import { TUserFromDB } from '@/types/types';
+import { getUserInfoFromSession, selectConversation } from '@/models';
+
+export const getServerSideProps = (async (context: any) => {
+	const session = await getSession(context);
+	console.log('session : ', session);
+
+	return {
+		props: {
+			test: 'test',
+		},
+	};
+}) satisfies GetServerSideProps<{ test: string }>;
 const TestPage: NextPage = () => {
 	const { status, data } = useSession();
+	const [jwtToken, setjwtToken] = useState<string>('');
 	// console.log('status: ', status);
 	// console.log('data: ', data);
-	const { messages, append } = useChat({
+	const {
+		messages,
+		append,
+		data: useChatData,
+	} = useChat({
 		api: '/api/test?convStringId=testid',
 		body: {
 			previewToken: 'test data',
@@ -16,6 +35,10 @@ const TestPage: NextPage = () => {
 		initialMessages: [],
 		onFinish(response) {
 			console.log('onfinish: ', response);
+			console.log('data: ', useChatData);
+		},
+		onResponse(response) {
+			console.log('on response: ', response);
 		},
 	});
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -80,7 +103,31 @@ const TestPage: NextPage = () => {
 			<hr />
 			<button
 				onClick={() => {
-					append({ id: '123', content: 'asd', role: 'user' });
+					const temp = 'temptoken';
+					console.log('temp: ', temp);
+					// setjwtToken(temp);
+					const newHeader = new Headers();
+					newHeader.append('authorization', `Bearer ${temp}`);
+					setjwtToken(temp);
+					append(
+						{ id: '123', content: 'asd', role: 'user' },
+						{
+							options: {
+								headers: {
+									Authorization: 'newauth',
+								},
+								body: {
+									test: 'data2',
+								},
+							},
+						},
+					)
+						.then((response) => {
+							console.log('append response:', response);
+						})
+						.catch((err) => {
+							console.log('append err: ', err);
+						});
 				}}
 			>
 				test1

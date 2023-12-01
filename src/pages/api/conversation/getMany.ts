@@ -1,4 +1,4 @@
-import { TExtendedSession, TUserFromDB } from '@/types';
+import { TExtendedSession, TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
@@ -18,6 +18,7 @@ export default async function handler(
 			response,
 			authOptions,
 		);
+		console.log('session: ', session);
 		const user: TUserFromDB = await getUserInfoFromSession(session);
 		console.log('user: ', user);
 

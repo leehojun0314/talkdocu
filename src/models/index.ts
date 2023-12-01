@@ -5,9 +5,9 @@ import {
 	TProvider,
 	TStatus,
 	TUserFromDB,
-} from '@/types';
+} from '@/types/types';
 import mssql from 'mssql';
-const sqlConnectionPool = new mssql.ConnectionPool({
+export const sqlConnectionPool = new mssql.ConnectionPool({
 	user: process.env.DB_USER ?? '',
 	password: process.env.DB_PWD ?? '',
 	database: process.env.DB_NAME ?? '',
@@ -28,7 +28,7 @@ export async function selectUser(userEmail: string, provider?: TProvider) {
 			`SELECT * FROM UserTable WHERE user_email = '${userEmail}' AND auth_type = '${provider}'`,
 		);
 }
-export async function getUserInfoFromSession(session: TExtendedSession) {
+export async function getUserInfoFromSession(session: TExtendedSession | null) {
 	const { recordset } = await selectUser(
 		session?.user?.email ?? '',
 		session?.provider,
@@ -68,70 +68,79 @@ export async function updateConvStatus(
 		.input('user_id', userId).query(`
 UPDATE Conversation SET status = @status WHERE id = @convIntId AND user_id = @user_id`);
 }
-export async function insertDocument({
-	documentName,
-	documentUrl,
-	documentSize,
-	convIntId,
-}: {
-	documentName: string;
-	documentUrl: string;
-	documentSize: number;
-	convIntId: number;
-}) {
+// export async function insertDocument({
+// 	documentName,
+// 	documentUrl,
+// 	documentSize,
+// 	convIntId,
+// }: {
+// 	documentName: string;
+// 	documentUrl: string;
+// 	documentSize: number;
+// 	convIntId: number;
+// }) {
+// 	return (await sqlConnectionPool.connect())
+// 		.request()
+// 		.input('document_name', documentName)
+// 		.input('document_url', documentUrl)
+// 		.input('document_size', documentSize)
+// 		.input('conversation_id', convIntId)
+// 		.query(
+// 			`INSERT INTO Document (document_name, document_url, document_size, conversation_id)
+// 						OUTPUT INSERTED.document_id VALUES (@document_name, @document_url, @document_size, @conversation_id)`,
+// 		);
+// }
+
+// export async function insertParagraphs({
+// 	paragraphs,
+// 	convIntId,
+// 	documentId,
+// }: {
+// 	paragraphs: TParagraph[];
+// 	convIntId: number;
+// 	documentId: number;
+// }) {
+// 	const batchSize = 500;
+// 	const batches = [];
+
+// 	for (let i = 0; i < paragraphs.length; i += batchSize) {
+// 		batches.push(paragraphs.slice(i, i + batchSize));
+// 	}
+
+// 	try {
+// 		for (const batch of batches) {
+// 			await insertBatchParagraphs(batch, documentId, convIntId);
+// 		}
+// 	} catch (error) {
+// 		console.error('Error inserting paragraphs:', error);
+// 	}
+// }
+// async function insertBatchParagraphs(
+// 	batch: TParagraph[],
+// 	documentId: number,
+// 	convIntId: number,
+// ) {
+// 	const values = batch
+// 		.map(
+// 			(p) =>
+// 				`(${documentId}, N'${p.content}', ${p.pageNumber}, ${convIntId})`,
+// 		)
+// 		.join(', ');
+
+// 	const query = `INSERT INTO Paragraph (document_id, paragraph_content, order_number, conversation_id) VALUES ${values}`;
+// 	const result = (await sqlConnectionPool.connect()).request().query(query);
+// 	return result;
+// }
+export async function selectConversation(
+	user: TUserFromDB,
+	convStringId: string,
+) {
 	return (await sqlConnectionPool.connect())
 		.request()
-		.input('document_name', documentName)
-		.input('document_url', documentUrl)
-		.input('document_size', documentSize)
-		.input('conversation_id', convIntId)
 		.query(
-			`INSERT INTO Document (document_name, document_url, document_size, conversation_id) 
-						OUTPUT INSERTED.document_id VALUES (@document_name, @document_url, @document_size, @conversation_id)`,
+			`SELECT * FROM Conversation WHERE conversation_id = '${convStringId}' AND (visibility = 1 OR (visibility = 0 AND user_id = ${user.user_id}))`,
 		);
 }
-
-export async function insertParagraphs({
-	paragraphs,
-	convIntId,
-	documentId,
-}: {
-	paragraphs: TParagraph[];
-	convIntId: number;
-	documentId: number;
-}) {
-	const batchSize = 500;
-	const batches = [];
-
-	for (let i = 0; i < paragraphs.length; i += batchSize) {
-		batches.push(paragraphs.slice(i, i + batchSize));
-	}
-
-	try {
-		for (const batch of batches) {
-			await insertBatchParagraphs(batch, documentId, convIntId);
-		}
-	} catch (error) {
-		console.error('Error inserting paragraphs:', error);
-	}
-}
-async function insertBatchParagraphs(
-	batch: TParagraph[],
-	documentId: number,
-	convIntId: number,
-) {
-	const values = batch
-		.map(
-			(p) =>
-				`(${documentId}, N'${p.content}', ${p.pageNumber}, ${convIntId})`,
-		)
-		.join(', ');
-
-	const query = `INSERT INTO Paragraph (document_id, paragraph_content, order_number, conversation_id) VALUES ${values}`;
-	const result = (await sqlConnectionPool.connect()).request().query(query);
-	return result;
-}
-
 export async function selectConversations(user: TUserFromDB) {
 	return (await sqlConnectionPool.connect())
 		.request()
@@ -198,5 +207,33 @@ export async function selectMessages(convIntId: number, userId: number) {
 		.request()
 		.query(
 			`SELECT * FROM Message WHERE conversation_id = '${convIntId}' AND user_id = ${userId} ORDER BY message_order ASC`,
+		);
+}
+export async function selectDebate(answerId: number, userId: number) {
+	return (await sqlConnectionPool.connect())
+		.request()
+		.input('answer_id', answerId)
+		.input('user_id', userId).query(`
+	SELECT 
+		D.debate_id, 
+		D.question_id, 
+		D.answer_id, 
+		D.refer_content,
+		QM.message AS question_content,
+		AM.message AS answer_content
+	FROM 
+		Debate D
+	LEFT JOIN 
+		Message QM ON D.question_id = QM.message_id
+	LEFT JOIN 
+		Message AM ON D.answer_id = AM.message_id
+	WHERE 
+		D.answer_id = @answer_id AND D.user_id = @user_id;`);
+}
+export async function selectDebateMessages(debateId: number, userId: number) {
+	return (await sqlConnectionPool.connect())
+		.request()
+		.query(
+			`SELECT * FROM Debate_Message WHERE debate_id = ${debateId} AND user_id = ${userId} ORDER BY id ASC`,
 		);
 }
