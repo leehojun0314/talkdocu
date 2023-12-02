@@ -17,7 +17,7 @@ import { useManageView } from './el/useManageView';
 import { PcFooter } from '@/common/el/footer/PcFooter';
 import AlertDialog from '@/common/el/Dialog/alertDialog';
 import formatDate from '@/utils/formatDate';
-import { Tconversation } from '../chat/hooks/useChatView';
+import { TConversation } from '@/types/types';
 export const ManageView = () => {
 	const {
 		open,
@@ -47,7 +47,7 @@ export const ManageView = () => {
 		desc: '',
 	};
 	const { isSmall, isMedium } = useCustomMediaQuery();
-	function SetButtons(conversation: Tconversation) {
+	function SetButtons(conversation: TConversation) {
 		switch (conversation.status) {
 			case 'created': {
 				return (

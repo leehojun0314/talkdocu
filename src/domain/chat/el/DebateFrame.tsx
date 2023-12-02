@@ -13,18 +13,17 @@ import menu from '@/assets/icons/menu.png';
 import send from '@/assets/icons/send.png';
 import { RefObject, useState } from 'react';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
-import { Tconversation } from '../hooks/useChatView';
 import { ConversationDialog } from './ConversationDialog';
 import GoogleAd from '@/common/el/GoogleAds/GoogleAd';
 import TuneIcon from '@mui/icons-material/Tune';
-import { TchatMode, Tdebate, TdebateMessage } from '../hooks/useChatView_v2';
 const { publicRuntimeConfig } = getConfig();
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ImportContactsIcon from '@mui/icons-material/ImportContacts';
 import ReferDialog from './ReferDialog';
+import { TChatMode, TConversation, TDebate } from '@/types/types';
 type TDebateFrame = {
 	children: React.ReactElement;
-	conversation: Tconversation | undefined;
+	conversation: TConversation | undefined;
 	input: string;
 	setInput: (content: string) => void;
 	handleSubmit: (input: string) => void;
@@ -34,9 +33,9 @@ type TDebateFrame = {
 	handleOptionClick: (event: React.MouseEvent<HTMLDivElement>) => void;
 	chatMode: 'QA' | 'Debate';
 	handleChatMode: (
-		chatMode: TchatMode,
+		chatMode: TChatMode,
 	) => (evt: React.MouseEvent<HTMLButtonElement>) => void;
-	debate: Tdebate;
+	debate: TDebate;
 	isReferOpen: boolean;
 	toggleReferOpen: () => void;
 };

@@ -1,6 +1,6 @@
 import useAlert from '@/common/hooks/useAlert';
 import useLoginCheck from '@/common/hooks/useLoginCheck';
-import { Tconversation } from '@/domain/chat/hooks/useChatView';
+import { TConversation } from '@/types/types';
 import axiosAPI from '@/utils/axiosAPI';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
@@ -29,8 +29,8 @@ export const useManageView = () => {
 	// 	},
 	// );
 	const [open, setOpen] = useState(false);
-	const [conversations, setConversations] = useState<Tconversation[]>([]);
-	const [selectedConv, setSelectedConv] = useState<Tconversation>();
+	const [conversations, setConversations] = useState<TConversation[]>([]);
+	const [selectedConv, setSelectedConv] = useState<TConversation>();
 	const [isLoading, setIsLoading] = useState<boolean>();
 	const [isLoadingConv, setIsLoadingConv] = useState<boolean>(true);
 	const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
@@ -79,7 +79,7 @@ export const useManageView = () => {
 			}, 10000);
 		}
 	}, [isAnalyzing, conversations]);
-	function handleClickChat(conversation: Tconversation) {
+	function handleClickChat(conversation: TConversation) {
 		return () => {
 			router.push(`/chat?convId=${conversation.conversation_id}`);
 		};
@@ -90,7 +90,7 @@ export const useManageView = () => {
 		// 	url: '/conversation',
 		// })
 		// 	.then((response) => {
-		// 		const tempConversations: Tconversation[] = response.data;
+		// 		const tempConversations: TConversation[] = response.data;
 		// 		setConversations(tempConversations);
 
 		// 		//check analyze
@@ -116,7 +116,7 @@ export const useManageView = () => {
 		axios
 			.get('/api/conversation/getMany')
 			.then((response) => {
-				const tempConversations: Tconversation[] =
+				const tempConversations: TConversation[] =
 					response.data.conversations;
 				setConversations(tempConversations);
 				//check analyze
@@ -139,7 +139,7 @@ export const useManageView = () => {
 				setIsLoadingConv(false);
 			});
 	}
-	const handleDetailOpen = (conversation: Tconversation) => {
+	const handleDetailOpen = (conversation: TConversation) => {
 		return () => {
 			setOpen(true);
 			setSelectedConv(conversation);

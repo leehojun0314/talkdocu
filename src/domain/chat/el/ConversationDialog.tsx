@@ -15,7 +15,7 @@ import axiosAPI from '@/utils/axiosAPI';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import { changeConv } from '@/redux/reducers/actions';
-import { Tconversation } from '../hooks/useChatView';
+import { TConversation } from '@/types/types';
 // export type Tconversation = {
 // 	conversation_id: number;
 // 	conversation_name: string;
@@ -34,7 +34,7 @@ export const ConversationDialog = ({
 }) => {
 	const { isSmall } = useCustomMediaQuery();
 	const auth = useSelector((state: TrootState) => state);
-	const [conversations, setConversations] = useState<Tconversation[]>();
+	const [conversations, setConversations] = useState<TConversation[]>();
 	const router = useRouter();
 	const dispatch = useDispatch();
 	useEffect(() => {
@@ -47,7 +47,7 @@ export const ConversationDialog = ({
 					console.log('conversations res:', response);
 					setConversations(
 						response.data.filter(
-							(conv: Tconversation) => conv.status === 'created',
+							(conv: TConversation) => conv.status === 'created',
 						),
 					);
 				})

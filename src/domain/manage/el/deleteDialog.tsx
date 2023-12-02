@@ -10,11 +10,11 @@ import closeIcon from '@/assets/icons/close.png';
 import check from '@/assets/icons/check.png';
 import { Color } from '@/common/theme/colors';
 import { useCustomMediaQuery } from '@/common/theme/screen';
-import { Tconversation } from '@/domain/chat/hooks/useChatView';
+import { TConversation } from '@/types/types';
 type DeleteDialog = {
 	open: boolean;
 	onClose: () => void;
-	selectedConv: Tconversation | undefined;
+	selectedConv: TConversation | undefined;
 	handleDelete: () => void;
 	isLoading: boolean | undefined;
 };

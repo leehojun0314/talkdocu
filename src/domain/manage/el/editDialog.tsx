@@ -5,17 +5,17 @@ import { Color } from '@/common/theme/colors';
 import { css } from '@emotion/react';
 import check from '@/assets/icons/check.png';
 import { useCustomMediaQuery } from '@/common/theme/screen';
-import { Tconversation } from '@/domain/chat/hooks/useChatView';
 import { useState } from 'react';
 import axiosAPI from '@/utils/axiosAPI';
+import { TConversation } from '@/types/types';
 type EditDialogType = {
 	open: boolean;
 	onClose: () => void;
 	handleEditChange: () => void;
-	conversation: Tconversation | undefined;
+	conversation: TConversation | undefined;
 };
 function useEditDialog(
-	conversation: Tconversation | undefined,
+	conversation: TConversation | undefined,
 	loadConversation: (callback?: () => void) => void,
 	onClose: () => void,
 ) {
