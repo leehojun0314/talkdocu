@@ -6,7 +6,7 @@ import { Color } from '@/common/theme/colors';
 import edit from '@/assets/icons/edit.png';
 import trash from '@/assets/icons/trash.png';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
-import { Tconversation } from '@/domain/chat/hooks/useChatView';
+import { TConversation } from '@/types/types';
 import formatDate from '@/utils/formatDate';
 
 type DetailDialogType = {
@@ -14,7 +14,7 @@ type DetailDialogType = {
 	onClose: () => void;
 	handleEditOpen: () => void;
 	handleDeleteOpen: () => void;
-	conversation: Tconversation | undefined;
+	conversation: TConversation | undefined;
 };
 
 export const DetailDialog = ({

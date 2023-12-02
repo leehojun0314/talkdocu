@@ -13,14 +13,13 @@ import menu from '@/assets/icons/menu.png';
 import send from '@/assets/icons/send.png';
 import React, { RefObject, useState } from 'react';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
-import { Tconversation } from '../hooks/useChatView';
 import { ConversationDialog } from './ConversationDialog';
-import { TchatMode } from '../hooks/useChatView_v2';
 import PostAddIcon from '@mui/icons-material/PostAdd';
+import { TChatMode, TConversation } from '@/types/types';
 
 type TChatFrame = {
 	children: React.ReactElement;
-	conversation: Tconversation | undefined;
+	conversation: TConversation | undefined;
 	input: string;
 	setInput: (content: string) => void;
 	handleSubmit: (input: string) => void;
@@ -30,7 +29,7 @@ type TChatFrame = {
 	handleOptionClick: (event: React.MouseEvent<HTMLDivElement>) => void;
 	chatMode: 'QA' | 'Debate';
 	handleChatMode: (
-		chatMode: TchatMode,
+		chatMode: TChatMode,
 	) => (evt: React.MouseEvent<HTMLButtonElement>) => void;
 	toggleAdd: () => void;
 };

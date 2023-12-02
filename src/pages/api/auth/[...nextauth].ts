@@ -59,6 +59,7 @@ export const authOptions: NextAuthOptions = {
 			return token;
 		},
 		async redirect(params) {
+			console.log('params: ', params);
 			return Promise.resolve(params.baseUrl);
 		},
 		async session({ session, token, user }) {

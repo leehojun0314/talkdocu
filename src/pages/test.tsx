@@ -91,6 +91,16 @@ const TestPage: NextPage = () => {
 				console.log('err: ', err);
 			});
 	}
+	function postgresTest() {
+		axios
+			.get('/api/postgresTest')
+			.then((response) => {
+				console.log('response:', response);
+			})
+			.catch((err) => {
+				console.log('error: ', err);
+			});
+	}
 	return (
 		<>
 			<Head>
@@ -176,6 +186,7 @@ const TestPage: NextPage = () => {
 				onChange={handleInputChange}
 			></input>
 			<button onClick={handleSubmit}>upload test</button>
+			<button onClick={postgresTest}>postgres test</button>
 		</>
 	);
 };
