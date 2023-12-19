@@ -14,6 +14,7 @@ export default async function handler(
 	request: NextApiRequest,
 	response: NextApiResponse,
 ) {
+	console.log('request method: ', request.method);
 	if (request.method !== 'GET') {
 		response.status(400).send('bad request');
 		return;

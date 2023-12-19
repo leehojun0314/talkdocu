@@ -384,7 +384,7 @@ export default function useChatViewV2() {
 		})
 			.then((questionRes) => {
 				setAnswer({ isOpen: false, content: '' });
-
+				console.log('result: ', result);
 				// setQuestions(questionRes.data.questions);
 				// const questionsStr = questionRes.data.questions;
 				// const documentForQuestion = questionRes.data.documentName;
