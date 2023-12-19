@@ -21,6 +21,7 @@ export const sqlConnectionPool = new mssql.ConnectionPool({
 		idleTimeoutMillis: 30000,
 	},
 });
+
 export async function selectUser(userEmail: string, provider?: TProvider) {
 	return (await sqlConnectionPool.connect())
 		.request()

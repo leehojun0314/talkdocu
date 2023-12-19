@@ -3,7 +3,7 @@ import { sqlConnectionPool } from '.';
 
 export async function selectParagraph(docuId: number, convIntId: number) {
 	return (await sqlConnectionPool.connect()).request()
-		.query`SELECT * FROM Paragraph WHERE conversation_id = '${convIntId}' AND document_id = '${docuId}'`;
+		.query`SELECT * FROM Paragraph WHERE conversation_id = ${convIntId} AND document_id = ${docuId}`;
 }
 export async function insertParagraphs({
 	paragraphs,

@@ -16,6 +16,8 @@ import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import { changeConv } from '@/redux/reducers/actions';
 import { TConversation } from '@/types/types';
+import { useSession } from 'next-auth/react';
+import axios from 'axios';
 // export type Tconversation = {
 // 	conversation_id: number;
 // 	conversation_name: string;
@@ -33,30 +35,43 @@ export const ConversationDialog = ({
 	onClose: () => void;
 }) => {
 	const { isSmall } = useCustomMediaQuery();
-	const auth = useSelector((state: TrootState) => state);
+	// const auth = useSelector((state: TrootState) => state);
+	const { status: authStatus, data: authData } = useSession();
 	const [conversations, setConversations] = useState<TConversation[]>();
 	const router = useRouter();
-	const dispatch = useDispatch();
 	useEffect(() => {
-		if (auth.isLoggedIn) {
-			axiosAPI({
-				method: 'GET',
-				url: '/conversation',
-			})
+		if (authStatus === 'authenticated') {
+			axios
+				.get('/api/conversation/getMany')
 				.then((response) => {
-					console.log('conversations res:', response);
+					console.log('conversation res: ', response);
 					setConversations(
-						response.data.filter(
+						response.data.conversations.filter(
 							(conv: TConversation) => conv.status === 'created',
 						),
 					);
 				})
 				.catch((err) => {
-					console.log('err : ', err);
+					console.log('conversation dialog error: ', err);
 				});
+			// axiosAPI({
+			// 	method: 'GET',
+			// 	url: '/conversation',
+			// })
+			// 	.then((response) => {
+			// 		console.log('conversations res:', response);
+			// 		setConversations(
+			// 			response.data.filter(
+			// 				(conv: TConversation) => conv.status === 'created',
+			// 			),
+			// 		);
+			// 	})
+			// 	.catch((err) => {
+			// 		console.log('err : ', err);
+			// 	});
 		}
 		console.log('conversation dialog useEffect');
-	}, [auth]);
+	}, [authStatus]);
 	function handleClickConv(convId: string) {
 		return () => {
 			onClose();

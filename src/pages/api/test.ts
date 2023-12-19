@@ -4,12 +4,9 @@ import {
 	StreamingTextResponse,
 	experimental_StreamData,
 } from 'ai';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth';
 import { Configuration, OpenAIApi } from 'openai-edge';
 import { authOptions } from './auth/[...nextauth]';
-import { getToken, decode } from 'next-auth/jwt';
-import { extractToken } from '@/utils/functions';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 type Data = {
 	name: string;
@@ -18,22 +15,23 @@ const configuration = new Configuration({
 	apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
-export const runtime = 'edge';
 
-export default async function POST(request: Request) {
+export default async function hanlder(
+	request: NextApiRequest,
+	response: NextApiResponse,
+) {
 	console.log('get called');
 
 	try {
-		const jwt = extractToken(request.headers.get('cookie'));
-		console.log('cookie: ', jwt);
-		const decoded = await decode({
-			token: jwt ?? '',
-			secret: process.env.NEXTAUTH_SECRET ?? '',
-		});
-		console.log('decoded: ', decoded);
-		const json = await request.json();
+		response.write('');
+		// const jwt = extractToken(request.headers.get('cookie'));
+		// console.log('cookie: ', jwt);
+		// const decoded = await decode({
+		// 	token: jwt ?? '',
+		// 	secret: process.env.NEXTAUTH_SECRET ?? '',
+		// });
+		// console.log('decoded: ', decoded);
 
-		console.log('json: ', json);
 		const res = await openai.createChatCompletion({
 			model: 'gpt-4-1106-preview',
 			messages: [

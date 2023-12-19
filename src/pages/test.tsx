@@ -6,41 +6,33 @@ import { useChat, type Message } from 'ai/react';
 import { useSession, signIn, signOut, getSession } from 'next-auth/react';
 import type { GetServerSideProps } from 'next';
 import { TUserFromDB } from '@/types/types';
-import { getUserInfoFromSession, selectConversation } from '@/models';
-
-export const getServerSideProps = (async (context: any) => {
-	const session = await getSession(context);
-	console.log('session : ', session);
-
-	return {
-		props: {
-			test: 'test',
-		},
-	};
-}) satisfies GetServerSideProps<{ test: string }>;
+import axiosAPI from '@/utils/axiosAPI';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { PassThrough } from 'stream';
 const TestPage: NextPage = () => {
 	const { status, data } = useSession();
 	const [jwtToken, setjwtToken] = useState<string>('');
 	// console.log('status: ', status);
 	// console.log('data: ', data);
-	const {
-		messages,
-		append,
-		data: useChatData,
-	} = useChat({
-		api: '/api/test?convStringId=testid',
-		body: {
-			previewToken: 'test data',
-		},
-		initialMessages: [],
-		onFinish(response) {
-			console.log('onfinish: ', response);
-			console.log('data: ', useChatData);
-		},
-		onResponse(response) {
-			console.log('on response: ', response);
-		},
-	});
+	const [answer, setAnswer] = useState<string>('');
+	// const {
+	// 	messages,
+	// 	append,
+	// 	data: useChatData,
+	// } = useChat({
+	// 	api: '/api/aitest?convStringId=testid',
+	// 	body: {
+	// 		previewToken: 'test data',
+	// 	},
+	// 	initialMessages: [],
+	// 	onFinish(response) {
+	// 		console.log('onfinish: ', response);
+	// 		console.log('data: ', useChatData);
+	// 	},
+	// 	onResponse(response) {
+	// 		console.log('on response: ', response);
+	// 	},
+	// });
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 	// useEffect(() => {
 	// 	axios.get('/api/sqltest').then((response) => {
@@ -80,16 +72,74 @@ const TestPage: NextPage = () => {
 			console.log('no file');
 		}
 	}
+	function onData(data: string, ctrl: AbortController) {
+		// if (!answerNode.current) {
+		//   return
+		// }
+		try {
+			let parsedData = JSON.parse(data);
+			let text = parsedData.choices[0].delta.content;
+			console.log('text: ', text);
+			let finishReason = parsedData.choices[0]['finish_reason'];
+			if (finishReason === 'stop') {
+				ctrl.abort();
+			}
+			if (text) {
+				// answerNode.current.innerText = answerNode.current.innerText + text
+				setAnswer((pre) => {
+					return pre + text;
+				});
+			}
+		} catch (err) {
+			console.log(`Failed to parse data: ${data}`);
+			if (data !== '[DONE]') {
+				// setError(`Failed to parse the response`)
+				window.alert('failed to parse the response');
+			}
+		}
+	}
 	function test2() {
 		console.log('test2 clicked');
-		axios
-			.get('/api/sqltest')
-			.then((response) => {
-				console.log('response : ', response);
-			})
-			.catch((err) => {
+		let result = '';
+		let receivedData = '';
+		let lastProcessedIndex = 0;
+		const ctrl = new AbortController();
+		fetchEventSource('/api/aitest', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: 'test body',
+			openWhenHidden: true,
+			signal: ctrl.signal,
+			onmessage(msg) {
+				console.log('msg: ', msg);
+				if (msg.event === 'FatalError') {
+					console.log('msg.data');
+				}
+				try {
+					onData(msg.data, ctrl);
+				} catch (err) {
+					console.log('aborting');
+					ctrl.abort();
+				}
+			},
+			onerror(err) {
 				console.log('err: ', err);
-			});
+			},
+		});
+	}
+	function test3() {
+		axios.post(
+			'/api/openaiTest',
+			{ test: 'data' },
+			{
+				onDownloadProgress(evt) {
+					console.log('on download progress: ', evt);
+					console.log('');
+				},
+			},
+		);
 	}
 	function postgresTest() {
 		axios
@@ -107,42 +157,44 @@ const TestPage: NextPage = () => {
 				<title>Terms</title>
 			</Head>
 			Messages:{' '}
-			{messages.map((message, index) => {
+			{/* {messages.map((message, index) => {
 				return <div key={index}>{message.content}</div>;
-			})}
+			})} */}
+			{answer}
 			<hr />
 			<button
 				onClick={() => {
-					const temp = 'temptoken';
-					console.log('temp: ', temp);
+					// const temp = 'temptoken';
+					// console.log('temp: ', temp);
+					// // setjwtToken(temp);
+					// const newHeader = new Headers();
+					// newHeader.append('authorization', `Bearer ${temp}`);
 					// setjwtToken(temp);
-					const newHeader = new Headers();
-					newHeader.append('authorization', `Bearer ${temp}`);
-					setjwtToken(temp);
-					append(
-						{ id: '123', content: 'asd', role: 'user' },
-						{
-							options: {
-								headers: {
-									Authorization: 'newauth',
-								},
-								body: {
-									test: 'data2',
-								},
-							},
-						},
-					)
-						.then((response) => {
-							console.log('append response:', response);
-						})
-						.catch((err) => {
-							console.log('append err: ', err);
-						});
+					// append(
+					// 	{ id: '123', content: 'asd', role: 'user' },
+					// 	{
+					// 		options: {
+					// 			headers: {
+					// 				Authorization: 'newauth',
+					// 			},
+					// 			body: {
+					// 				test: 'data2',
+					// 			},
+					// 		},
+					// 	},
+					// )
+					// 	.then((response) => {
+					// 		console.log('append response:', response);
+					// 	})
+					// 	.catch((err) => {
+					// 		console.log('append err: ', err);
+					// 	});
 				}}
 			>
 				test1
 			</button>
 			<button onClick={test2}>test2</button>
+			<button onClick={test3}>test3</button>
 			<button
 				onClick={() => {
 					signIn();

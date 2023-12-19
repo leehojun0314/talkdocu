@@ -1,5 +1,5 @@
 import { sql } from '@vercel/postgres';
-export const runtime = 'edge';
+// export const runtime = 'edge';
 export default async function GET(request: Request) {
 	try {
 		const result =

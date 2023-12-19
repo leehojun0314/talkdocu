@@ -30,14 +30,14 @@ import { useSelector } from 'react-redux';
 const jsonwebtoken = require('jsonwebtoken');
 // import { generateJWT } from '@/utils/functions';
 import { DefaultSession, Session } from 'next-auth';
-
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 export default function useChatViewV3() {
 	const { status: authStatus, data: authData } = useSession();
 	// const newAuthData: TExtendedAuthData | null = authData;
 	const [conversation, setConversation] = useState<TConversation>();
 	const [messages, setMessages] = useState<TMessage[]>([]);
-	const [questions, setQuestions] = useState<TQuestion[]>();
-	const [isLoadingQuestion, setIsLoadingQuestion] = useState<boolean>(false);
+	// const [questions, setQuestions] = useState<TQuestion[]>();
+	// const [isLoadingQuestion, setIsLoadingQuestion] = useState<boolean>(false);
 	const [documents, setDocuments] = useState<TDocument[]>([]);
 	const [docuForQuestion, setDocuForQuestion] = useState<number>();
 	const [input, setInput] = useState<string>('');
@@ -95,46 +95,46 @@ export default function useChatViewV3() {
 	//2.2 라우터에 conv 있으면 해당 conv 로드 후 로그인 정보 변경
 	const router = useRouter();
 	const [loadDocuments, toggleLoadDocuments] = useState<boolean>(false);
-	const [JWTToken, setJWTToken] = useState<string>('');
 	//question
-	const {
-		messages: questionMessages,
-		append: appendQuestion,
-		setMessages: setQuestionMessages,
-		data,
-	} = useChat({
-		api: '/api/ai/questions',
+	// const {
+	// 	messages: questionMessages,
+	// 	append: appendQuestion,
+	// 	setMessages: setQuestionMessages,
+	// 	data: questionData,
+	// } = useChat({
+	// 	api: '/api/ai/questions',
 
-		body: {
-			convId: router.query.convId,
-			docuId: docuForQuestion,
-		},
-		async onFinish(response) {
-			console.log('on finish');
-			console.log('data: ', data);
-			setQuestionMessages([]);
+	// 	body: {
+	// 		convId: router.query.convId,
+	// 		docuId: docuForQuestion,
+	// 	},
+	// 	async onFinish(response) {
+	// 		console.log('on finish');
+	// 		console.log('response: ', response);
+	// 		console.log('question data:', questionData);
+	// 		setQuestionMessages([]);
 
-			setAnswer({
-				isOpen: false,
-				content: '',
-			});
-			const newQuestionMessage: TMessage = {
-				message: response.content,
-				message_id: messages.length,
-				sender: 'assistant',
-				is_question: 1,
-				question_doc_name: data.questionDocName,
-			};
-			setMessages((pre) => [...pre, newQuestionMessage]);
-		},
-		async onResponse(response) {
-			console.log('use chat on response: ', response);
-		},
-		async onError(error) {
-			console.log('error: ', error);
-			window.alert('OpenAI error occured');
-		},
-	});
+	// 		setAnswer({
+	// 			isOpen: false,
+	// 			content: '',
+	// 		});
+	// 		const newQuestionMessage: TMessage = {
+	// 			message: response.content,
+	// 			message_id: messages.length,
+	// 			sender: 'assistant',
+	// 			is_question: 1,
+	// 			question_doc_name: '', //TODO
+	// 		};
+	// 		setMessages((pre) => [...pre, newQuestionMessage]);
+	// 	},
+	// 	async onResponse(response) {
+	// 		console.log('use chat on response: ', response);
+	// 	},
+	// 	async onError(error) {
+	// 		console.log('error: ', error);
+	// 		window.alert('OpenAI error occured');
+	// 	},
+	// });
 
 	useEffect(() => {
 		console.log('router: ', router);
@@ -163,8 +163,12 @@ export default function useChatViewV3() {
 					setSalutation(response.data.conversation.salutation);
 					setMessages(response.data.messages);
 					setDocuments(response.data.documents);
-					if (documents.length) {
-						setDocuForQuestion(documents[0].document_id);
+					if (response.data.documents.length > 0) {
+						console.log(
+							'documents length is more than 0',
+							response.data.documents[0],
+						);
+						setDocuForQuestion(response.data.documents[0].document_id);
 					}
 					setIsScroll(true);
 					setAddDiaExistFiles(
@@ -181,14 +185,7 @@ export default function useChatViewV3() {
 				});
 		}
 	}, [router, authStatus]);
-	useEffect(() => {
-		if (questionMessages.length) {
-			setAnswer({
-				isOpen: true,
-				content: questionMessages[questionMessages.length - 1].content,
-			});
-		}
-	}, [questionMessages]);
+
 	useEffect(() => {
 		if (loadDocuments) {
 			setIsLoading(true);
@@ -346,30 +343,114 @@ export default function useChatViewV3() {
 	function handleChangeDocuSelect(evt: React.ChangeEvent<HTMLSelectElement>) {
 		setDocuForQuestion(Number(evt.currentTarget.value));
 	}
+	function onData(data: string) {
+		// if (!answerNode.current) {
+		//   return
+		// }
+		try {
+			let text = JSON.parse(data).choices[0].delta.content;
+			if (text) {
+				// answerNode.current.innerText = answerNode.current.innerText + text
+				setAnswer({
+					isOpen: true,
+					content: text,
+				});
+			}
+		} catch (err) {
+			console.log(`Failed to parse data: ${data}`);
+			if (data !== '[DONE]') {
+				// setError(`Failed to parse the response`)
+				window.alert('failed to parse the response');
+			}
+		}
+	}
 	function handleGenerateQuestion_V3(
 		evt: React.MouseEvent<HTMLButtonElement>,
 	) {
-		console.log('generate question');
-
+		console.log('generate question v3');
+		evt.preventDefault();
+		evt.stopPropagation();
+		if (isLoading) {
+			return;
+		}
 		setAnswer({
 			isOpen: true,
 			content: '',
 		});
+		setIsLoading(true);
+		setIsScroll(true);
 
-		appendQuestion(
-			{
-				id: messages.length.toString(),
-				role: 'user',
-				content: input,
+		let receivedData = '';
+		let lastProcessedIndex = 0;
+		let result = '';
+		let questionDocName = '';
+		console.log('docu for question: ', docuForQuestion);
+		axiosAPI({
+			method: 'POST',
+			url: `/api/ai/questions`,
+			data: {
+				convStringId: router.query.convId,
+				docuId: docuForQuestion,
 			},
-			// {
-			// 	options: {
-			// 		headers: {
-			// 			Authorization: response.data,
-			// 		},
-			// 	},
-			// },
-		);
+			onDownloadProgress: (progress) => {
+				receivedData +=
+					progress.event.currentTarget.responseText.slice(
+						lastProcessedIndex,
+					);
+				lastProcessedIndex =
+					progress.event.currentTarget.responseText.length;
+				const rawDataArray = receivedData.split('#');
+				let parsedText = '';
+				rawDataArray.forEach((rawData, index) => {
+					if (index === rawDataArray.length - 1) {
+						receivedData = rawData;
+					} else {
+						const parsedData = JSON.parse(rawData);
+						parsedText += parsedData.text;
+						questionDocName = parsedData.documentName;
+					}
+				});
+				setAnswer((pre) => {
+					return {
+						isOpen: true,
+						content: pre.content + parsedText,
+					};
+				});
+				result += parsedText;
+			},
+		})
+			.then((questionRes) => {
+				console.log('result: ', result);
+				console.log('question res: ', questionRes);
+				setAnswer({ isOpen: false, content: '' });
+
+				// setQuestions(questionRes.data.questions);
+				// const questionsStr = questionRes.data.questions;
+				// const documentForQuestion = questionRes.data.documentName;
+				setMessages((pre) => {
+					return [
+						...pre,
+						{
+							message: result,
+							message_id: pre.length,
+							sender: 'assistant',
+							is_question: 1,
+							question_doc_name: questionDocName,
+						},
+					];
+				});
+			})
+			.catch((err) => {
+				console.log('get question error: ', err);
+				if (err.response?.status === 401) {
+					router.reload();
+				}
+				setAnswer({ isOpen: true, content: err.message });
+			})
+			.finally(() => {
+				setIsLoading(false);
+				// setIsLoadingQuestion(false);
+			});
 	}
 	// function handleGenerateQuestionV2(
 	// 	event: React.MouseEvent<HTMLButtonElement>,
@@ -453,116 +534,116 @@ export default function useChatViewV3() {
 	function handleSubmit_V2(input: string) {
 		console.log('handle submit v2 : ', input);
 	}
-	// function handleSubmit(input: string) {
-	// 	if (!input.length) {
-	// 		return;
-	// 	}
-	// 	if (authStatus === 'authenticated') {
-	// 		//add my message
-	// 		if (messages) {
-	// 			setMessages((pre) => {
-	// 				if (pre) {
-	// 					return [
-	// 						...pre,
-	// 						{
-	// 							message: input,
-	// 							message_id: pre.length,
-	// 							sender: 'user',
-	// 							is_question: 0,
-	// 							question_doc_name: null,
-	// 						},
-	// 					];
-	// 				} else {
-	// 					return pre;
-	// 				}
-	// 			});
-	// 		} else {
-	// 			setMessages([
-	// 				{
-	// 					message: input,
-	// 					message_id: 0,
-	// 					sender: 'user',
-	// 					is_question: 0,
-	// 					question_doc_name: null,
-	// 				},
-	// 			]);
-	// 		}
-	// 		setAnswer({
-	// 			isOpen: true,
-	// 			content: '',
-	// 		});
-	// 		setIsScroll(true);
-	// 		setIsLoading(true);
-	// 		let receivedData = '';
-	// 		let lastProcessedIndex = 0;
-	// 		let result = '';
-	// 		let referenceDocs: TReferenceDoc[] = [];
-	// 		axiosAPI({
-	// 			method: 'POST',
-	// 			url: '/message/v6',
-	// 			data: {
-	// 				text: input,
-	// 				conversationId: router.query.convId,
-	// 			},
-	// 			onDownloadProgress: (progress) => {
-	// 				receivedData +=
-	// 					progress.event.currentTarget.responseText.slice(
-	// 						lastProcessedIndex,
-	// 					);
-	// 				lastProcessedIndex =
-	// 					progress.event.currentTarget.responseText.length;
-	// 				const rawDataArray = receivedData.split('#');
-	// 				let parsedText = '';
-	// 				rawDataArray.forEach((rawData, index) => {
-	// 					if (index === rawDataArray.length - 1) {
-	// 						receivedData = rawData;
-	// 					} else {
-	// 						const parsedData = JSON.parse(rawData);
-	// 						// console.log('parsed data: ', parsedData);
-	// 						parsedText += parsedData.text;
-	// 						referenceDocs = parsedData.referenceDocs;
-	// 					}
-	// 				});
-	// 				// console.log('parsed text: ', parsedText);
-	// 				setAnswer((pre) => {
-	// 					return {
-	// 						isOpen: true,
-	// 						content: pre.content + parsedText,
-	// 					};
-	// 				});
+	function handleSubmit(input: string) {
+		if (!input.length) {
+			return;
+		}
+		if (authStatus === 'authenticated') {
+			//add my message
+			if (messages) {
+				setMessages((pre) => {
+					if (pre) {
+						return [
+							...pre,
+							{
+								message: input,
+								message_id: pre.length,
+								sender: 'user',
+								is_question: 0,
+								question_doc_name: null,
+							},
+						];
+					} else {
+						return pre;
+					}
+				});
+			} else {
+				setMessages([
+					{
+						message: input,
+						message_id: 0,
+						sender: 'user',
+						is_question: 0,
+						question_doc_name: null,
+					},
+				]);
+			}
+			setAnswer({
+				isOpen: true,
+				content: '',
+			});
+			setIsScroll(true);
+			setIsLoading(true);
+			let receivedData = '';
+			let lastProcessedIndex = 0;
+			let result = '';
+			let referenceDocs: TReferenceDoc[] = [];
+			axiosAPI({
+				method: 'POST',
+				url: '/message/v6',
+				data: {
+					text: input,
+					conversationId: router.query.convId,
+				},
+				onDownloadProgress: (progress) => {
+					receivedData +=
+						progress.event.currentTarget.responseText.slice(
+							lastProcessedIndex,
+						);
+					lastProcessedIndex =
+						progress.event.currentTarget.responseText.length;
+					const rawDataArray = receivedData.split('#');
+					let parsedText = '';
+					rawDataArray.forEach((rawData, index) => {
+						if (index === rawDataArray.length - 1) {
+							receivedData = rawData;
+						} else {
+							const parsedData = JSON.parse(rawData);
+							// console.log('parsed data: ', parsedData);
+							parsedText += parsedData.text;
+							referenceDocs = parsedData.referenceDocs;
+						}
+					});
+					// console.log('parsed text: ', parsedText);
+					setAnswer((pre) => {
+						return {
+							isOpen: true,
+							content: pre.content + parsedText,
+						};
+					});
 
-	// 				result += parsedText;
-	// 			},
-	// 		})
-	// 			.then((submitRes) => {
-	// 				console.log('submit res: ', submitRes);
-	// 				return axiosAPI({
-	// 					method: 'GET',
-	// 					url: `/message/v4?convId=${router.query.convId}`,
-	// 				});
-	// 			})
-	// 			.then((getMessageRes) => {
-	// 				console.log('get message res: ', getMessageRes);
+					result += parsedText;
+				},
+			})
+				.then((submitRes) => {
+					console.log('submit res: ', submitRes);
+					return axiosAPI({
+						method: 'GET',
+						url: `/message/v4?convId=${router.query.convId}`,
+					});
+				})
+				.then((getMessageRes) => {
+					console.log('get message res: ', getMessageRes);
 
-	// 				setAnswer({ isOpen: false, content: '' });
+					setAnswer({ isOpen: false, content: '' });
 
-	// 				setMessages(getMessageRes.data.messages);
-	// 			})
-	// 			.catch((err) => {
-	// 				console.log('err:', err);
-	// 				if (err.response?.status === 401) {
-	// 					router.reload();
-	// 				}
-	// 				setAnswer({ isOpen: true, content: 'error occured' });
-	// 			})
-	// 			.finally(() => {
-	// 				setIsLoading(false);
-	// 			});
-	// 	} else {
-	// 		console.log('you are not logged in');
-	// 		router.push('/login');
-	// 	}
-	// }
+					setMessages(getMessageRes.data.messages);
+				})
+				.catch((err) => {
+					console.log('err:', err);
+					if (err.response?.status === 401) {
+						router.reload();
+					}
+					setAnswer({ isOpen: true, content: 'error occured' });
+				})
+				.finally(() => {
+					setIsLoading(false);
+				});
+		} else {
+			console.log('you are not logged in');
+			router.push('/login');
+		}
+	}
 
 	function handleSubmitDebate(input: string) {
 		if (authStatus === 'authenticated') {
@@ -660,12 +741,7 @@ export default function useChatViewV3() {
 	// const [questions, setQuestions] = useState<
 	function handleQuestionClick(question: string) {
 		return (event: React.MouseEvent<HTMLButtonElement>) => {
-			// handleSubmit(question);
-			//todo
-			appendQuestion({
-				role: 'user',
-				content: question,
-			});
+			handleSubmit(question);
 		};
 	}
 

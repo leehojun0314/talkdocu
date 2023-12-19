@@ -82,6 +82,18 @@ export type TMessage =
 		is_question: 0 | 1;
 		question_doc_name: string | null;
 	};
+export type TMessageFromDB = {
+	conversation_id: number;
+	create_time: number | null;
+	message: string;
+	message_id: number;
+	message_order: number;
+	sender: 'assistant' | 'user';
+	user_id: number;
+	is_question: 0 | 1;
+	question_doc_name: string | null;
+};
+
 export type TDocument = {
 	conversation_id: number;
 	document_id: number;
@@ -124,3 +136,12 @@ export type TExtendedMessage = Message & {
 	isQuestion: number;
 	question_doc_name: string;
 };
+export type TStreamCallback = ({
+	text,
+	isEnd,
+	error,
+}: {
+	text: string;
+	isEnd: boolean;
+	error?: unknown;
+}) => Promise<void>;
