@@ -53,6 +53,7 @@ export default function Chats({
 		},
 		[],
 	);
+	console.log('messages in Chats: ', messages);
 	return (
 		<>
 			{salutation && <SalutationFromAI textFromAI={salutation} />}
@@ -94,6 +95,7 @@ export default function Chats({
 						);
 					} else if (message.sender === 'assistant') {
 						if (message.is_question) {
+							console.log('message is question : ', message);
 							return (
 								<AIQuestion
 									key={message.message_id}

@@ -580,7 +580,7 @@ export default function useChatViewV3() {
 			let referenceDocs: TReferenceDoc[] = [];
 			axiosAPI({
 				method: 'POST',
-				url: '/message/v6',
+				url: '/api/ai/message',
 				data: {
 					text: input,
 					conversationId: router.query.convId,
@@ -917,7 +917,7 @@ export default function useChatViewV3() {
 	return {
 		authData,
 		conversation,
-		messages: [],
+		messages,
 		// questions,
 		handleSubmit: handleSubmit_V2,
 		input,
