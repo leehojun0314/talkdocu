@@ -1,3 +1,5 @@
+import { TDocument } from '@/types/types';
+
 // import {v4 : uuidv4} from 'uuid'
 const { v4: uuidv4 } = require('uuid');
 export function generateConvId() {
@@ -22,4 +24,35 @@ export function extractToken(cookieString: string | null) {
 		}
 	}
 	return null; // 해당 키가 없으면 null 반환
+}
+export function referenceDocsToString(
+	docs: {
+		page: number[];
+		documentName: any;
+	}[],
+) {
+	let result = 'Refered : ';
+
+	// group by documentName
+	// const grouped = docs.reduce((groupedDocs : any, doc) => {
+	// 	if (!groupedDocs[doc.documentName]) {
+	// 		groupedDocs[doc.documentName] = [];
+	// 	}
+	// 	groupedDocs[doc.documentName].push(doc.page);
+	// 	return groupedDocs;
+	// },{});
+	const grouped: any = {};
+	for (const doc of docs) {
+		if (!grouped[doc.documentName]) {
+			grouped[doc.documentName] = [];
+		}
+		grouped[doc.documentName].push(doc.page);
+	}
+	// convert to string
+	for (const [docName, pages] of Object.entries(grouped)) {
+		const sortedPages = pages.sort((a, b) => a - b);
+		result += `\n ${docName} (${sortedPages.join(', ')} page)`;
+	}
+
+	return result;
 }
