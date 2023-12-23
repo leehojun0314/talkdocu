@@ -1,4 +1,4 @@
-import { TDocument } from '@/types/types';
+import { TDocument, TGrouped } from '@/types/types';
 
 // import {v4 : uuidv4} from 'uuid'
 const { v4: uuidv4 } = require('uuid');
@@ -27,7 +27,7 @@ export function extractToken(cookieString: string | null) {
 }
 export function referenceDocsToString(
 	docs: {
-		page: number[];
+		page: number;
 		documentName: any;
 	}[],
 ) {
@@ -41,10 +41,10 @@ export function referenceDocsToString(
 	// 	groupedDocs[doc.documentName].push(doc.page);
 	// 	return groupedDocs;
 	// },{});
-	const grouped: any = {};
+	const grouped: TGrouped = {};
 	for (const doc of docs) {
 		if (!grouped[doc.documentName]) {
-			grouped[doc.documentName] = [];
+			grouped[doc.documentName] = [] as number[];
 		}
 		grouped[doc.documentName].push(doc.page);
 	}
@@ -55,4 +55,40 @@ export function referenceDocsToString(
 	}
 
 	return result;
+}
+import { encode } from 'gpt-3-encoder';
+import { ChatCompletionMessageParam } from 'openai/resources';
+function calculateTokens(str: string) {
+	const encoded = encode(str);
+	let tokenCount = 0;
+	for (let token of encoded) {
+		tokenCount++;
+	}
+	return tokenCount;
+}
+export function optimizingPrompt(
+	prompts: Array<any>,
+	exclusives: string,
+	tokenLimit: number,
+): Array<ChatCompletionMessageParam> {
+	let totalTokenCount = 0;
+	let exclusiveToken = calculateTokens(exclusives);
+	const copiedPrompts = JSON.parse(JSON.stringify(prompts));
+	if (copiedPrompts.length) {
+		for (let prompt of copiedPrompts) {
+			const content = prompt.content;
+			totalTokenCount += calculateTokens(content);
+		}
+	}
+
+	while (totalTokenCount > tokenLimit - exclusiveToken) {
+		const item = copiedPrompts.shift();
+		if (item?.content) {
+			totalTokenCount -= calculateTokens(item.content);
+		} else {
+			break;
+		}
+	}
+
+	return copiedPrompts;
 }

@@ -32,6 +32,7 @@ type TChatFrame = {
 		chatMode: TChatMode,
 	) => (evt: React.MouseEvent<HTMLButtonElement>) => void;
 	toggleAdd: () => void;
+	handleConvDiaOpen: () => void;
 };
 
 export const ChatFrame = ({
@@ -47,26 +48,16 @@ export const ChatFrame = ({
 	chatMode,
 	handleChatMode,
 	toggleAdd,
+	handleConvDiaOpen,
 }: TChatFrame) => {
-	const [open, setOpen] = useState(false);
-	const handleClickOpen = () => {
-		setOpen(true);
-	};
-	const handleClose = () => {
-		setOpen(false);
-	};
-
-	const { isLarge } = useCustomMediaQuery();
+	// const { isLarge } = useCustomMediaQuery();
 	return (
 		<Stack css={sx.chat(chatMode)}>
 			{/* <UploadDialog open={open} onClose={handleClose}></UploadDialog> */}
-			{!isLoading && (
-				<ConversationDialog open={open} onClose={handleClose} />
-			)}
 
 			<Stack css={sx.topChat} direction='row' justifyContent='space-between'>
 				<Stack direction='row' alignItems='center' gap='13px'>
-					<Button css={sx.menuBtn} onClick={handleClickOpen}>
+					<Button css={sx.menuBtn} onClick={handleConvDiaOpen}>
 						<Image src={menu} alt='menu' width={18} height={18} />
 					</Button>
 					<Typography color={Color.WhiteText}>
@@ -139,7 +130,13 @@ export const ChatFrame = ({
 				/>
 			)}
 		 */}
-			<div css={sx.chatContent} onScroll={handleScroll} ref={messageBoxRef}>
+			<div
+				css={sx.chatContent}
+				// onScroll={handleScroll}
+				onWheel={handleScroll}
+				ref={messageBoxRef}
+				id='chatScrollBox'
+			>
 				{/* <div css={sx.chatContent} onScroll={handleScroll}> */}
 				{children}
 			</div>

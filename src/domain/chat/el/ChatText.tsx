@@ -5,7 +5,7 @@ import Image from 'next/image';
 import profile from '@/assets/images/ai.png';
 import { Mq } from '@/common/theme/screen';
 import parser from 'html-react-parser';
-import React, { ReactElement } from 'react';
+import React, { LegacyRef, ReactElement, forwardRef, useState } from 'react';
 import ForumIcon from '@mui/icons-material/Forum';
 type chatFromMeType = {
 	textFromMe: string | number;
@@ -20,7 +20,7 @@ export const ChatFromMe = ({ textFromMe, profileUrl }: chatFromMeType) => {
 				color={Color.BlackText}
 				css={sx.textFromMe}
 			>
-				{textFromMe}
+				{parser(convertNewlinesToHTML(String(textFromMe)))}
 			</Typography>
 			{profileUrl && (
 				<Image
@@ -138,8 +138,15 @@ function isEmptyContent(
 		return false;
 	}
 }
-export const AnswerFromAI = ({ textFromAI }: { textFromAI: string }) => {
+export const AnswerFromAI = ({
+	// answerRef,
+	textFromAI,
+}: {
+	// answerRef: React.RefObject<HTMLDivElement> | undefined;
+	textFromAI: string;
+}) => {
 	const message = parser(convertNewlinesToHTML(textFromAI));
+	// console.log('answer ref: ', answerRef);
 	return (
 		<Stack direction='row' gap='10px' css={sx.chatFromaIWrap}>
 			<Image src={profile} alt='profile' width={40} height={40} />
@@ -158,6 +165,7 @@ export const AnswerFromAI = ({ textFromAI }: { textFromAI: string }) => {
 				) : (
 					message
 				)}
+				{/* <div ref={answerRef}></div> */}
 			</Typography>
 		</Stack>
 	);

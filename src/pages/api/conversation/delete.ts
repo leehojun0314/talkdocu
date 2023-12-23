@@ -7,7 +7,7 @@ import {
 	getUserInfoFromSession,
 	selectConvByStrAuth,
 } from '@/models';
-import { deleteParagraphPinecone } from '@/models/pinecone';
+import { deleteParagraphsPinecone } from '@/models/pinecone';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -40,7 +40,7 @@ export default async function handler(
 		// 	//delete from azure storage
 		// 	await deleteBlob(fileUrl);
 		// }
-		const pineconeRes = await deleteParagraphPinecone(selectedConvIntId);
+		const pineconeRes = await deleteParagraphsPinecone(selectedConvIntId);
 		console.log('pinecone delete res: ', pineconeRes);
 		const deleteRes = await deleteConversationModel(
 			selectedConvIntId,
