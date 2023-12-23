@@ -145,3 +145,5 @@ export type TStreamCallback = ({
 	isEnd: boolean;
 	error?: unknown;
 }) => Promise<void>;
+export type TSender = 'user' | 'assistant';
+export type TGrouped = { [docName: string]: number[] };

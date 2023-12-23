@@ -2,7 +2,7 @@ import formidable from 'formidable';
 import { NextApiRequest } from 'next';
 
 export function useFormidable(req: NextApiRequest): Promise<{
-	fields: { conversationName?: string | undefined };
+	fields: { conversationName?: string | undefined; convStringId?: string };
 	files: formidable.Files;
 }> {
 	const form = formidable();

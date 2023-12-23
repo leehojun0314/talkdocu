@@ -23,6 +23,8 @@ import { GetServerSideProps } from 'next';
 import { TConversation, TDocument, TMessage, TUserFromDB } from '@/types/types';
 import { getSession } from 'next-auth/react';
 import { getUserInfoFromSession, selectConversation } from '@/models';
+import { useCallback, useState } from 'react';
+import { ConversationDialog } from './el/ConversationDialog';
 const { publicRuntimeConfig } = getConfig();
 
 export const ChatView = () => {
@@ -75,8 +77,19 @@ export const ChatView = () => {
 		onAlertClose,
 	} = useChatViewV3();
 	const { isLarge } = useCustomMediaQuery();
+	const [isConvDialogOpen, setConvDialog] = useState<boolean>(false);
+	const handleConvDiaOpen = useCallback(() => {
+		setConvDialog(true);
+	}, []);
 	return (
 		<div css={sx.root}>
+			<ConversationDialog
+				open={isConvDialogOpen}
+				onClose={() => {
+					setConvDialog(false);
+				}}
+			/>
+
 			<AlertDialog
 				open={isAlertOpen}
 				onClose={onAlertClose}
@@ -134,6 +147,7 @@ export const ChatView = () => {
 							chatMode={chatMode}
 							handleChatMode={handleChatMode}
 							toggleAdd={toggleAdd}
+							handleConvDiaOpen={handleConvDiaOpen}
 						>
 							{/* <></> */}
 							<Chats
@@ -200,6 +214,7 @@ export const ChatView = () => {
 						chatMode={chatMode}
 						handleChatMode={handleChatMode}
 						toggleAdd={toggleAdd}
+						handleConvDiaOpen={handleConvDiaOpen}
 					>
 						{/* <></> */}
 						<Chats

@@ -9,6 +9,10 @@ import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { configs } from '@/config';
 import createAIChatStream from '@/lib/createAIChat';
 import MessageGenerator from '@/utils/messageGenerator';
+import { Document } from 'langchain/document';
+import { insertMessage } from '@/models/message';
+import { referenceDocsToString } from '@/utils/functions';
+import { insertDebate } from '@/models/debate';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -30,6 +34,7 @@ export default async function handler(
 		response.status(404).send('Invalid parameter');
 		return;
 	}
+	response.setHeader('X-Accel-Buffering', 'no');
 	try {
 		const convIntId = (await selectConvByStr(convStringId)).recordset[0].id;
 		console.log('conv int id: ', convIntId);
@@ -65,7 +70,7 @@ export default async function handler(
 			relatedParagraphs.splice(2);
 		}
 		// console.log('relatedParagraphs : ', relatedParagraphs);
-		const selectedParagraphs = [];
+		const selectedParagraphs: Document[] = [];
 		let totalLength = 0;
 		const maxLength = configs.relatedParagraphLength;
 		for (const paragraph of relatedParagraphs) {
@@ -109,12 +114,12 @@ export default async function handler(
 			if (isEnd) {
 				//내가 보낸 내용 insert
 
-				const insertQuestionRes = await insertMessage({
-					message: userMessage,
-					sender: 'user',
-					convIntId: convIntId,
-					userId: userId,
-				});
+				const insertQuestionRes = await insertMessage(
+					userMessage,
+					convIntId,
+					'user',
+					userId,
+				);
 				//ai가 보낸 내용 insert
 				const referenceDocs = selectedParagraphs.map((p) => {
 					return {
@@ -127,22 +132,22 @@ export default async function handler(
 					(selectedParagraphs.length > 0
 						? '\n' + referenceDocsToString(referenceDocs)
 						: '');
-				const insertAnswerRes = await insertMessage({
-					message: answer,
-					sender: 'assistant',
-					convIntId: convIntId,
-					userId: userId,
-				});
+				const insertAnswerRes = await insertMessage(
+					answer,
+					convIntId,
+					'assistant',
+					userId,
+				);
 				const questionId = insertQuestionRes.recordset[0].message_id;
 				const answerId = insertAnswerRes.recordset[0].message_id;
 
-				await insertDebate({
+				await insertDebate(
 					questionId,
 					answerId,
-					referContent: relatedContent,
+					relatedContent,
 					convIntId,
 					userId,
-				});
+				);
 				response.end('');
 			} else {
 				// res.write(text);
@@ -160,5 +165,8 @@ export default async function handler(
 			}
 		};
 		await createAIChatStream(messages, 'gpt-4', streamCallback);
-	} catch (error) {}
+	} catch (error) {
+		console.log('error: ', error);
+		response.status(500).send(error);
+	}
 }

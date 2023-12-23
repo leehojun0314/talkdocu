@@ -1,5 +1,3 @@
-import { TrootState } from '@/redux/reducers';
-import { login } from '@/redux/reducers/actions';
 import {
 	TChatMode,
 	TConversation,
@@ -7,30 +5,16 @@ import {
 	TDebateMessage,
 	TDocument,
 	TExistFile,
-	TExtendedAuthData,
-	TExtendedMessage,
-	TExtendedSession,
 	TMessage,
 	TOptionDialog,
-	TProvider,
-	TQuestion,
 	TReferenceDoc,
 } from '@/types/types';
 import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
-import { useChat, type Message } from 'ai/react';
 import axios from 'axios';
-import { error } from 'console';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
-// import jsonwebtoken from 'jsonwebtoken';
-const jsonwebtoken = require('jsonwebtoken');
-// import { generateJWT } from '@/utils/functions';
-import { DefaultSession, Session } from 'next-auth';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
 export default function useChatViewV3() {
 	const { status: authStatus, data: authData } = useSession();
 	// const newAuthData: TExtendedAuthData | null = authData;
@@ -49,6 +33,7 @@ export default function useChatViewV3() {
 		isOpen: false,
 		content: '',
 	});
+
 	// const [isQuestionBtn, setQuestionBtn] = useState<boolean>(false);
 	const messageBoxRef = useRef<HTMLDivElement>(null);
 	const [isScroll, setIsScroll] = useState<boolean>(false);
@@ -89,53 +74,8 @@ export default function useChatViewV3() {
 	function onAlertClose() {
 		setIsAlertOpen(false);
 	}
-	//1. 로그인 체크
-	//2. 라우터 체크
-	//2.1 라우터에 conv 없으면 로그인 정보의 last_conv 참조 (deprecated)
-	//2.2 라우터에 conv 있으면 해당 conv 로드 후 로그인 정보 변경
 	const router = useRouter();
 	const [loadDocuments, toggleLoadDocuments] = useState<boolean>(false);
-	//question
-	// const {
-	// 	messages: questionMessages,
-	// 	append: appendQuestion,
-	// 	setMessages: setQuestionMessages,
-	// 	data: questionData,
-	// } = useChat({
-	// 	api: '/api/ai/questions',
-
-	// 	body: {
-	// 		convId: router.query.convId,
-	// 		docuId: docuForQuestion,
-	// 	},
-	// 	async onFinish(response) {
-	// 		console.log('on finish');
-	// 		console.log('response: ', response);
-	// 		console.log('question data:', questionData);
-	// 		setQuestionMessages([]);
-
-	// 		setAnswer({
-	// 			isOpen: false,
-	// 			content: '',
-	// 		});
-	// 		const newQuestionMessage: TMessage = {
-	// 			message: response.content,
-	// 			message_id: messages.length,
-	// 			sender: 'assistant',
-	// 			is_question: 1,
-	// 			question_doc_name: '', //TODO
-	// 		};
-	// 		setMessages((pre) => [...pre, newQuestionMessage]);
-	// 	},
-	// 	async onResponse(response) {
-	// 		console.log('use chat on response: ', response);
-	// 	},
-	// 	async onError(error) {
-	// 		console.log('error: ', error);
-	// 		window.alert('OpenAI error occured');
-	// 	},
-	// });
-
 	useEffect(() => {
 		console.log('router: ', router);
 		if (!router.isReady) {
@@ -149,9 +89,11 @@ export default function useChatViewV3() {
 			window.alert('You need to login first.');
 			router.push('/login');
 			return;
-		} else if (authStatus === 'loading') {
-			setIsLoading(true);
-		} else if (authStatus === 'authenticated') {
+		}
+		// else if (authStatus === 'loading') {
+		// 	setIsLoading(true);
+		// }
+		else if (authStatus === 'authenticated') {
 			axios
 				.get(`/api/conversation/getOne?convStringId=${router.query.convId}`)
 				.then((response) => {
@@ -162,20 +104,21 @@ export default function useChatViewV3() {
 					setConversation(response.data.conversation);
 					setSalutation(response.data.conversation.salutation);
 					setMessages(response.data.messages);
-					setDocuments(response.data.documents);
-					if (response.data.documents.length > 0) {
+					const tempDocuments: TDocument[] = response.data.documents;
+					setDocuments(tempDocuments);
+					if (tempDocuments.length > 0) {
 						console.log(
 							'documents length is more than 0',
-							response.data.documents[0],
+							tempDocuments[0],
 						);
-						setDocuForQuestion(response.data.documents[0].document_id);
+						setDocuForQuestion(tempDocuments[0].document_id);
+						setAddDiaExistFiles(
+							tempDocuments.map((el) => {
+								return { file: el, status: 'exist' };
+							}),
+						);
 					}
 					setIsScroll(true);
-					setAddDiaExistFiles(
-						documents.map((el) => {
-							return { file: el, status: 'exist' };
-						}),
-					);
 				})
 				.catch((error) => {
 					console.log('error: ', error);
@@ -190,7 +133,7 @@ export default function useChatViewV3() {
 		if (loadDocuments) {
 			setIsLoading(true);
 			axios
-				.get(`/api/conversation/getOne`)
+				.get(`/api/conversation/getOne?convStringId=${router.query.convId}`)
 				.then((response) => {
 					const documents: TDocument[] = response.data.documents;
 					setDocuments(documents);
@@ -215,12 +158,14 @@ export default function useChatViewV3() {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [loadDocuments]);
-
 	const scrollToBottom = useCallback(() => {
-		if (messageBoxRef.current) {
-			messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
-		}
-	}, [messageBoxRef]);
+		setTimeout(() => {
+			if (messageBoxRef.current) {
+				messageBoxRef.current.scrollTop =
+					messageBoxRef.current.scrollHeight;
+			}
+		}, 0);
+	}, [messageBoxRef, isBottom]);
 	const scrollToTop = useCallback(() => {
 		if (messageBoxRef.current) {
 			messageBoxRef.current.scrollTop = 0;
@@ -262,10 +207,16 @@ export default function useChatViewV3() {
 	}, [isBottomDebate, answer, isLoading, scrollToBottomDebate]);
 
 	const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
-		const target = event.target as HTMLDivElement;
-		const isBottom =
-			target.scrollHeight - target.scrollTop === target.clientHeight;
-
+		let isBottom;
+		if (messageBoxRef.current) {
+			const target = messageBoxRef.current;
+			const scrollTop = Math.round(target.scrollTop);
+			const clientHeight = target.clientHeight;
+			const scrollHeight = target.scrollHeight;
+			isBottom = scrollTop + clientHeight >= scrollHeight;
+		} else {
+			isBottom = false;
+		}
 		if (isBottom) {
 			// 여기에 필요한 작업을 추가하세요.
 			setIsBottom(true);
@@ -273,6 +224,7 @@ export default function useChatViewV3() {
 			setIsBottom(false);
 		}
 	}, []);
+
 	const handleScrollDebate = useCallback(
 		(event: React.UIEvent<HTMLDivElement>) => {
 			const target = event.target as HTMLDivElement;
@@ -343,27 +295,7 @@ export default function useChatViewV3() {
 	function handleChangeDocuSelect(evt: React.ChangeEvent<HTMLSelectElement>) {
 		setDocuForQuestion(Number(evt.currentTarget.value));
 	}
-	function onData(data: string) {
-		// if (!answerNode.current) {
-		//   return
-		// }
-		try {
-			let text = JSON.parse(data).choices[0].delta.content;
-			if (text) {
-				// answerNode.current.innerText = answerNode.current.innerText + text
-				setAnswer({
-					isOpen: true,
-					content: text,
-				});
-			}
-		} catch (err) {
-			console.log(`Failed to parse data: ${data}`);
-			if (data !== '[DONE]') {
-				// setError(`Failed to parse the response`)
-				window.alert('failed to parse the response');
-			}
-		}
-	}
+
 	function handleGenerateQuestion_V3(
 		evt: React.MouseEvent<HTMLButtonElement>,
 	) {
@@ -384,7 +316,6 @@ export default function useChatViewV3() {
 		let lastProcessedIndex = 0;
 		let result = '';
 		let questionDocName = '';
-		console.log('docu for question: ', docuForQuestion);
 		axiosAPI({
 			method: 'POST',
 			url: `/api/ai/questions`,
@@ -410,6 +341,8 @@ export default function useChatViewV3() {
 						questionDocName = parsedData.documentName;
 					}
 				});
+				// setAnswer({ isOpen: true, content: parsedText });
+				console.log('parsed TExt:', parsedText);
 				setAnswer((pre) => {
 					return {
 						isOpen: true,
@@ -420,13 +353,7 @@ export default function useChatViewV3() {
 			},
 		})
 			.then((questionRes) => {
-				console.log('result: ', result);
-				console.log('question res: ', questionRes);
 				setAnswer({ isOpen: false, content: '' });
-
-				// setQuestions(questionRes.data.questions);
-				// const questionsStr = questionRes.data.questions;
-				// const documentForQuestion = questionRes.data.documentName;
 				setMessages((pre) => {
 					return [
 						...pre,
@@ -445,95 +372,14 @@ export default function useChatViewV3() {
 				if (err.response?.status === 401) {
 					router.reload();
 				}
-				setAnswer({ isOpen: true, content: err.message });
+				setAnswer({ isOpen: true, content: '' });
 			})
 			.finally(() => {
 				setIsLoading(false);
 				// setIsLoadingQuestion(false);
 			});
 	}
-	// function handleGenerateQuestionV2(
-	// 	event: React.MouseEvent<HTMLButtonElement>,
-	// ) {
-	// 	event.preventDefault();
-	// 	event.stopPropagation();
-	// 	if (isLoading) {
-	// 		return;
-	// 	}
-	// 	setAnswer({
-	// 		isOpen: true,
-	// 		content: '',
-	// 	});
-	// 	setIsScroll(true);
-	// 	setIsLoading(true);
-	// 	let receivedData = '';
-	// 	let lastProcessedIndex = 0;
-	// 	let result = '';
-	// 	let questionDocName = '';
-	// 	axiosAPI({
-	// 		method: 'POST',
-	// 		url: `/message/questions/v3?convStringId=${router.query.convId}&docuId=${docuForQuestion}`,
-	// 		onDownloadProgress: (progress) => {
-	// 			receivedData +=
-	// 				progress.event.currentTarget.responseText.slice(
-	// 					lastProcessedIndex,
-	// 				);
-	// 			lastProcessedIndex =
-	// 				progress.event.currentTarget.responseText.length;
-	// 			const rawDataArray = receivedData.split('#');
-	// 			let parsedText = '';
-	// 			rawDataArray.forEach((rawData, index) => {
-	// 				if (index === rawDataArray.length - 1) {
-	// 					receivedData = rawData;
-	// 				} else {
-	// 					const parsedData = JSON.parse(rawData);
-	// 					parsedText += parsedData.text;
-	// 					questionDocName = parsedData.documentName;
-	// 				}
-	// 			});
-	// 			setAnswer((pre) => {
-	// 				return {
-	// 					isOpen: true,
-	// 					content: pre.content + parsedText,
-	// 				};
-	// 			});
-	// 			result += parsedText;
-	// 		},
-	// 	})
-	// 		.then((questionRes) => {
-	// 			setAnswer({ isOpen: false, content: '' });
 
-	// 			setQuestions(questionRes.data.questions);
-	// 			const questionsStr = questionRes.data.questions;
-	// 			const documentForQuestion = questionRes.data.documentName;
-	// 			setMessages((pre : Message[]) => {
-	// 				return [
-	// 					...pre,
-	// 					{
-	// 						message: result,
-	// 						id: pre.length.toString(),
-	// 						sender: 'assistant',
-	// 						is_question: 1,
-	// 						question_doc_name: questionDocName,
-	// 					} as TExtendedMessage,
-	// 				];
-	// 			});
-	// 		})
-	// 		.catch((err) => {
-	// 			console.log('get question error: ', err);
-	// 			if (err.response?.status === 401) {
-	// 				router.reload();
-	// 			}
-	// 			setAnswer({ isOpen: true, content: err.message });
-	// 		})
-	// 		.finally(() => {
-	// 			setIsLoading(false);
-	// 			// setIsLoadingQuestion(false);
-	// 		});
-	// }
-	function handleSubmit_V2(input: string) {
-		console.log('handle submit v2 : ', input);
-	}
 	function handleSubmit(input: string) {
 		if (!input.length) {
 			return;
@@ -578,12 +424,13 @@ export default function useChatViewV3() {
 			let lastProcessedIndex = 0;
 			let result = '';
 			let referenceDocs: TReferenceDoc[] = [];
+
 			axiosAPI({
 				method: 'POST',
 				url: '/api/ai/message',
 				data: {
 					text: input,
-					conversationId: router.query.convId,
+					convStringId: router.query.convId,
 				},
 				onDownloadProgress: (progress) => {
 					receivedData +=
@@ -611,7 +458,6 @@ export default function useChatViewV3() {
 							content: pre.content + parsedText,
 						};
 					});
-
 					result += parsedText;
 				},
 			})
@@ -619,22 +465,24 @@ export default function useChatViewV3() {
 					console.log('submit res: ', submitRes);
 					return axiosAPI({
 						method: 'GET',
-						url: `/message/v4?convId=${router.query.convId}`,
+						url: `/api/message/getMessages?convStringId=${router.query.convId}`,
 					});
 				})
 				.then((getMessageRes) => {
 					console.log('get message res: ', getMessageRes);
 
 					setAnswer({ isOpen: false, content: '' });
-
-					setMessages(getMessageRes.data.messages);
+					setMessages(getMessageRes.data);
+					if (isBottom) {
+						scrollToBottom();
+					}
 				})
 				.catch((err) => {
 					console.log('err:', err);
 					if (err.response?.status === 401) {
 						router.reload();
 					}
-					setAnswer({ isOpen: true, content: 'error occured' });
+					setAnswer({ isOpen: true, content: '' });
 				})
 				.finally(() => {
 					setIsLoading(false);
@@ -665,9 +513,11 @@ export default function useChatViewV3() {
 			});
 			setIsScroll(true);
 			setIsLoading(true);
+
+			console.log('hi');
 			axiosAPI({
 				method: 'POST',
-				url: '/debate/message',
+				url: '/api/debate/sendDebate',
 				data: {
 					text: input,
 					convStringId: router.query.convId,
@@ -676,6 +526,7 @@ export default function useChatViewV3() {
 				},
 				onDownloadProgress: (progress) => {
 					const text = progress.event.currentTarget.response;
+					console.log('debate progres text:', text);
 					setAnswer({
 						isOpen: true,
 						content: text,
@@ -683,52 +534,24 @@ export default function useChatViewV3() {
 				},
 			})
 				.then((submitRes) => {
-					console.log('submit res: ', submitRes);
 					return axiosAPI({
 						method: 'GET',
-						url: `/debate/message?answerId=${debate.answer_id}`,
+						url: `/api/debate/getOne?answerId=${debate.answer_id}`,
 					});
 				})
 				.then((getMessageRes) => {
-					console.log('get message res: ', getMessageRes);
-					// const message =
-					// 	result +
-					// 	(referenceDocs.length > 0
-					// 		? '\n' + referenceDocsToString(referenceDocs)
-					// 		: '');
 					setAnswer({ isOpen: false, content: '' });
-					// setMessages((pre) => {
-					// 	if (pre) {
-					// 		return [
-					// 			...pre,
-					// 			{
-					// 				message: message,
-					// 				message_id: pre.length,
-					// 				sender: 'assistant',
-					// 				is_question: 0,
-					// 				question_doc_name: null,
-					// 			},
-					// 		];
-					// 	} else {
-					// 		return [
-					// 			{
-					// 				message: message,
-					// 				message_id: 1,
-					// 				sender: 'assistant',
-					// 				is_question: 0,
-					// 				question_doc_name: null,
-					// 			},
-					// 		];
-					// 	}
-					// });
 					setDebateMessages(getMessageRes.data.messages);
+					if (isBottomDebate) {
+						scrollToBottomDebate();
+					}
 				})
 				.catch((err) => {
 					console.log('err:', err);
 					if (err.response?.status === 401) {
 						router.reload();
 					}
-					setAnswer({ isOpen: true, content: 'error occured' });
+					setAnswer({ isOpen: true, content: 'Error occured' });
 				})
 				.finally(() => {
 					setIsLoading(false);
@@ -853,7 +676,7 @@ export default function useChatViewV3() {
 
 				await axiosAPI({
 					method: 'POST',
-					url: '/conversation/add/v2',
+					url: '/api/conversation/addFile',
 					data: formData,
 					onDownloadProgress: (progress) => {
 						receivedData +=
@@ -919,7 +742,7 @@ export default function useChatViewV3() {
 		conversation,
 		messages,
 		// questions,
-		handleSubmit: handleSubmit_V2,
+		handleSubmit,
 		input,
 		setInput,
 		answer,
@@ -963,18 +786,4 @@ export default function useChatViewV3() {
 		alertContent,
 		onAlertClose,
 	};
-}
-function generateJWT(user: Session | null, provider: TProvider) {
-	if (user) {
-		const token = jsonwebtoken.sign(
-			{ user, provider },
-			process.env.JWT_SECRET ?? 'qwe',
-			{
-				expiresIn: '10sec',
-			},
-		);
-		return token;
-	} else {
-		return null;
-	}
 }

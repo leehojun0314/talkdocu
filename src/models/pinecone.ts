@@ -3,6 +3,13 @@ import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { Document } from 'langchain/document';
 import { Pinecone } from '@pinecone-database/pinecone';
 import { TParagraph } from '@/types/types';
+function getIndex() {
+	const client = new Pinecone({
+		apiKey: process.env.PINECONE_API_KEY || '',
+		environment: process.env.PINECONE_ENVIRONMENT || '',
+	});
+	return client.Index(process.env.PINECONE_INDEX || '');
+}
 export async function upsertParagraph({
 	paragraphs,
 	convIntId,
@@ -69,14 +76,17 @@ async function upsertBatchParagraphs({
 		return error;
 	}
 }
-export async function deleteParagraphPinecone(convIntId: number) {
-	const client = new Pinecone({
-		apiKey: process.env.PINECONE_API_KEY || '',
-		environment: process.env.PINECONE_ENVIRONMENT || '',
-	});
-	const pineconeIndex = client.Index(process.env.PINECONE_INDEX || '');
+export async function deleteParagraphsPinecone(convIntId: number) {
+	const pineconeIndex = getIndex();
 	const deleteRes = await pineconeIndex.deleteMany({
 		convIntId: { $eq: Number(convIntId) },
+	});
+	return deleteRes;
+}
+export async function deleteParagraphPinecone_single(docuId: number) {
+	const pineconeIndex = getIndex();
+	const deleteRes = await pineconeIndex.deleteOne({
+		docuId: { $eq: docuId },
 	});
 	return deleteRes;
 }

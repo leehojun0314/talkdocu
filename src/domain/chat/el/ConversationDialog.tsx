@@ -41,6 +41,8 @@ export const ConversationDialog = ({
 	const router = useRouter();
 	useEffect(() => {
 		if (authStatus === 'authenticated') {
+			console.log('conversation dialog useEffect');
+
 			axios
 				.get('/api/conversation/getMany')
 				.then((response) => {
@@ -70,7 +72,6 @@ export const ConversationDialog = ({
 			// 		console.log('err : ', err);
 			// 	});
 		}
-		console.log('conversation dialog useEffect');
 	}, [authStatus]);
 	function handleClickConv(convId: string) {
 		return () => {
