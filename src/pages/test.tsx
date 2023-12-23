@@ -1,14 +1,8 @@
 import axios from 'axios';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import React, { useEffect, useState } from 'react';
-import { useChat, type Message } from 'ai/react';
+import React, { useState } from 'react';
 import { useSession, signIn, signOut, getSession } from 'next-auth/react';
-import type { GetServerSideProps } from 'next';
-import { TUserFromDB } from '@/types/types';
-import axiosAPI from '@/utils/axiosAPI';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { PassThrough } from 'stream';
 const TestPage: NextPage = () => {
 	const { status, data } = useSession();
 	const [jwtToken, setjwtToken] = useState<string>('');
@@ -98,37 +92,7 @@ const TestPage: NextPage = () => {
 			}
 		}
 	}
-	function test2() {
-		console.log('test2 clicked');
-		let result = '';
-		let receivedData = '';
-		let lastProcessedIndex = 0;
-		const ctrl = new AbortController();
-		fetchEventSource('/api/aitest', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: 'test body',
-			openWhenHidden: true,
-			signal: ctrl.signal,
-			onmessage(msg) {
-				console.log('msg: ', msg);
-				if (msg.event === 'FatalError') {
-					console.log('msg.data');
-				}
-				try {
-					onData(msg.data, ctrl);
-				} catch (err) {
-					console.log('aborting');
-					ctrl.abort();
-				}
-			},
-			onerror(err) {
-				console.log('err: ', err);
-			},
-		});
-	}
+
 	function test3() {
 		axios.post(
 			'/api/openaiTest',
@@ -193,7 +157,6 @@ const TestPage: NextPage = () => {
 			>
 				test1
 			</button>
-			<button onClick={test2}>test2</button>
 			<button onClick={test3}>test3</button>
 			<button
 				onClick={() => {
