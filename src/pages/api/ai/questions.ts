@@ -19,6 +19,8 @@ export default async function hanlder(
 	}
 	response.setHeader('Content-Type', 'application/json');
 	response.setHeader('X-Accel-Buffering', 'no');
+	response.setHeader('Transfer-Encoding', 'chunked');
+
 	try {
 		// const jwt = await getToken({ req: request });
 		const session: TExtendedSession = await getServerSession(
