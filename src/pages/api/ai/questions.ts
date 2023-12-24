@@ -17,6 +17,8 @@ export default async function hanlder(
 		response.status(404).send('bad request');
 		return;
 	}
+	response.setHeader('Content-Type', 'application/json');
+	response.setHeader('X-Accel-Buffering', 'no');
 	try {
 		// const jwt = await getToken({ req: request });
 		const session: TExtendedSession = await getServerSession(
