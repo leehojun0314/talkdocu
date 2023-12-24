@@ -22,7 +22,8 @@ export default function axiosAPI(params: TaxiosAPIParams) {
 	// 	},
 	// );
 	return axios({
-		url: API_ENDPOINT + params.url,
+		// url: API_ENDPOINT + params.url,
+		url: '/api' + params.url,
 		method: params.method,
 		data: params.data,
 		headers: {

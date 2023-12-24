@@ -9,7 +9,6 @@ import {
 	TOptionDialog,
 	TReferenceDoc,
 } from '@/types/types';
-import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
@@ -316,7 +315,7 @@ export default function useChatViewV3() {
 		let lastProcessedIndex = 0;
 		let result = '';
 		let questionDocName = '';
-		axiosAPI({
+		axios({
 			method: 'POST',
 			url: `/api/ai/questions`,
 			data: {
@@ -425,7 +424,7 @@ export default function useChatViewV3() {
 			let result = '';
 			let referenceDocs: TReferenceDoc[] = [];
 
-			axiosAPI({
+			axios({
 				method: 'POST',
 				url: '/api/ai/message',
 				data: {
@@ -463,7 +462,7 @@ export default function useChatViewV3() {
 			})
 				.then((submitRes) => {
 					console.log('submit res: ', submitRes);
-					return axiosAPI({
+					return axios({
 						method: 'GET',
 						url: `/api/message/getMessages?convStringId=${router.query.convId}`,
 					});
@@ -515,7 +514,7 @@ export default function useChatViewV3() {
 			setIsLoading(true);
 
 			console.log('hi');
-			axiosAPI({
+			axios({
 				method: 'POST',
 				url: '/api/debate/sendDebate',
 				data: {
@@ -534,7 +533,7 @@ export default function useChatViewV3() {
 				},
 			})
 				.then((submitRes) => {
-					return axiosAPI({
+					return axios({
 						method: 'GET',
 						url: `/api/debate/getOne?answerId=${debate.answer_id}`,
 					});
@@ -631,7 +630,7 @@ export default function useChatViewV3() {
 				setAddDiaProgressMessage('Preparing');
 				let receivedData = '';
 				let lastProcessedIndex = 0;
-				await axiosAPI({
+				await axios({
 					method: 'DELETE',
 					url: '/conversation/file',
 					data: {
@@ -674,7 +673,7 @@ export default function useChatViewV3() {
 				let receivedData = '';
 				let lastProcessedIndex = 0;
 
-				await axiosAPI({
+				await axios({
 					method: 'POST',
 					url: '/api/conversation/addFile',
 					data: formData,
