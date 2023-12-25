@@ -17,7 +17,8 @@ export default async function hanlder(
 		response.status(404).send('bad request');
 		return;
 	}
-	response.setHeader('Content-Type', 'application/json');
+	// response.setHeader('Content-Type', 'application/json');
+	response.setHeader('Content-Type', 'text/event-stream;charset=utf-8');
 	response.setHeader('X-Accel-Buffering', 'no');
 	response.setHeader('Transfer-Encoding', 'chunked');
 
