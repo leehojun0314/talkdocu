@@ -1,32 +1,38 @@
 import axios from 'axios';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useChat, type Message } from 'ai/react';
 import { useSession, signIn, signOut, getSession } from 'next-auth/react';
+import type { GetServerSideProps } from 'next';
+import { TUserFromDB } from '@/types/types';
+import axiosAPI from '@/utils/axiosAPI';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { PassThrough } from 'stream';
 const TestPage: NextPage = () => {
 	const { status, data } = useSession();
 	const [jwtToken, setjwtToken] = useState<string>('');
 	// console.log('status: ', status);
 	// console.log('data: ', data);
 	const [answer, setAnswer] = useState<string>('');
-	// const {
-	// 	messages,
-	// 	append,
-	// 	data: useChatData,
-	// } = useChat({
-	// 	api: '/api/aitest?convStringId=testid',
-	// 	body: {
-	// 		previewToken: 'test data',
-	// 	},
-	// 	initialMessages: [],
-	// 	onFinish(response) {
-	// 		console.log('onfinish: ', response);
-	// 		console.log('data: ', useChatData);
-	// 	},
-	// 	onResponse(response) {
-	// 		console.log('on response: ', response);
-	// 	},
-	// });
+	const {
+		messages,
+		append,
+		data: useChatData,
+	} = useChat({
+		api: '/api/test?convStringId=testid',
+		body: {
+			previewToken: 'test data',
+		},
+		initialMessages: [],
+		onFinish(response) {
+			console.log('onfinish: ', response);
+			console.log('data: ', useChatData);
+		},
+		onResponse(response) {
+			console.log('on response: ', response);
+		},
+	});
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 	// useEffect(() => {
 	// 	axios.get('/api/sqltest').then((response) => {
@@ -92,10 +98,40 @@ const TestPage: NextPage = () => {
 			}
 		}
 	}
-
+	function aiTest() {
+		console.log('test2 clicked');
+		let result = '';
+		let receivedData = '';
+		let lastProcessedIndex = 0;
+		const ctrl = new AbortController();
+		fetchEventSource('/api/aitest', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'text/event-stream;charset=utf-8',
+			},
+			body: 'test body',
+			openWhenHidden: true,
+			signal: ctrl.signal,
+			onmessage(msg) {
+				console.log('msg: ', msg);
+				if (msg.event === 'FatalError') {
+					console.log('msg.data');
+				}
+				try {
+					onData(msg.data, ctrl);
+				} catch (err) {
+					console.log('aborting');
+					ctrl.abort();
+				}
+			},
+			onerror(err) {
+				console.log('err: ', err);
+			},
+		});
+	}
 	function test3() {
 		axios.post(
-			'/api/openaiTest',
+			'/api/aitest',
 			{ test: 'data' },
 			{
 				onDownloadProgress(evt) {
@@ -115,15 +151,44 @@ const TestPage: NextPage = () => {
 				console.log('error: ', err);
 			});
 	}
+	function fetchAI() {
+		const fetchData = async () => {
+			try {
+				const response = await fetch('/api/aitest');
+				if (!response.body) {
+					throw new Error('No readable stream available');
+				}
+
+				const reader = response.body.getReader();
+				const decoder = new TextDecoder('utf-8');
+				let receivedData = '';
+
+				reader.read().then(function processText({ done, value }) {
+					if (done) {
+						//   setData(receivedData);
+						console.log('received data: ', receivedData);
+						return;
+					}
+
+					receivedData += decoder.decode(value, { stream: true });
+					reader.read().then(processText);
+				});
+			} catch (error) {
+				//   setError(error.message);
+				//   setLoading(false);
+				console.log('error: ', error);
+			}
+		};
+	}
 	return (
 		<>
 			<Head>
 				<title>Terms</title>
 			</Head>
 			Messages:{' '}
-			{/* {messages.map((message, index) => {
+			{messages.map((message, index) => {
 				return <div key={index}>{message.content}</div>;
-			})} */}
+			})}
 			{answer}
 			<hr />
 			<button
@@ -134,29 +199,30 @@ const TestPage: NextPage = () => {
 					// const newHeader = new Headers();
 					// newHeader.append('authorization', `Bearer ${temp}`);
 					// setjwtToken(temp);
-					// append(
-					// 	{ id: '123', content: 'asd', role: 'user' },
-					// 	{
-					// 		options: {
-					// 			headers: {
-					// 				Authorization: 'newauth',
-					// 			},
-					// 			body: {
-					// 				test: 'data2',
-					// 			},
-					// 		},
-					// 	},
-					// )
-					// 	.then((response) => {
-					// 		console.log('append response:', response);
-					// 	})
-					// 	.catch((err) => {
-					// 		console.log('append err: ', err);
-					// 	});
+					append(
+						{ id: '123', content: 'asd', role: 'user' },
+						{
+							options: {
+								headers: {
+									Authorization: 'newauth',
+								},
+								body: {
+									test: 'data2',
+								},
+							},
+						},
+					)
+						.then((response) => {
+							console.log('append response:', response);
+						})
+						.catch((err) => {
+							console.log('append err: ', err);
+						});
 				}}
 			>
 				test1
 			</button>
+			<button onClick={aiTest}>aiTest</button>
 			<button onClick={test3}>test3</button>
 			<button
 				onClick={() => {
