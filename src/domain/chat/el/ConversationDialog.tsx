@@ -9,7 +9,7 @@ import arrow from '@/assets/icons/arrowRight_purple.png';
 import { documentModel } from './model';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 import { TrootState } from '@/redux/reducers';
 import axiosAPI from '@/utils/axiosAPI';
 import { useRouter } from 'next/router';

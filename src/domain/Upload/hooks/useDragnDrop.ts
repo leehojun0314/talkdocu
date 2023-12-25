@@ -7,7 +7,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 const fileSizes = {
 	'1gb': 1024 * 1024 * 1024,
 	'1mb': 1024 * 1024,

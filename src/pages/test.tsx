@@ -11,7 +11,6 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { PassThrough } from 'stream';
 const TestPage: NextPage = () => {
 	const { status, data } = useSession();
-	const [jwtToken, setjwtToken] = useState<string>('');
 	// console.log('status: ', status);
 	// console.log('data: ', data);
 	const [answer, setAnswer] = useState<string>('');
@@ -24,6 +23,7 @@ const TestPage: NextPage = () => {
 		body: {
 			previewToken: 'test data',
 		},
+
 		initialMessages: [],
 		onFinish(response) {
 			console.log('onfinish: ', response);
@@ -33,6 +33,7 @@ const TestPage: NextPage = () => {
 			console.log('on response: ', response);
 		},
 	});
+	console.log('messages: ', messages);
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 	// useEffect(() => {
 	// 	axios.get('/api/sqltest').then((response) => {
@@ -186,10 +187,10 @@ const TestPage: NextPage = () => {
 				<title>Terms</title>
 			</Head>
 			Messages:{' '}
-			{messages.map((message, index) => {
+			{/* {messages.map((message, index) => {
 				return <div key={index}>{message.content}</div>;
-			})}
-			{answer}
+			})} */}
+			{messages.length && messages[messages.length - 1].content}
 			<hr />
 			<button
 				onClick={() => {

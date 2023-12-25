@@ -4,19 +4,21 @@ import { css } from '@emotion/react';
 import { Dialog, Typography } from '@mui/material';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { TrootState } from '@/redux/reducers';
+import { useSession } from 'next-auth/react';
 type PcFooterType = {
 	position: string;
 };
 
 export const PcFooter = ({ position }: PcFooterType) => {
 	const [isMyaccOpen, setIsMyaccOpen] = useState<boolean>(false);
-	const auth = useSelector((state: TrootState) => state);
+	// const auth = useSelector((state: TrootState) => state);
+	const { data, status } = useSession();
 	const navModels = [
 		// { name: 'My Account', link: '/' },
 		{ name: 'Contact', link: 'mailto:info@talkdocu.com' },
@@ -66,8 +68,8 @@ export const PcFooter = ({ position }: PcFooterType) => {
 				<DialogTitle>My Account</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						<Typography>Name : {auth.userData?.user_name}</Typography>
-						<Typography>Email : {auth.userData?.user_email}</Typography>
+						<Typography>Name : {data?.user?.name}</Typography>
+						<Typography>Email : {data?.user?.email}</Typography>
 					</DialogContentText>
 				</DialogContent>
 			</Dialog>
