@@ -9,6 +9,9 @@ import { authOptions } from './auth/[...nextauth]';
 import { NextApiRequest, NextApiResponse } from 'next';
 // import { extractToken } from '@/utils/functions';
 // import { decode } from 'next-auth/jwt';
+import * as jose from 'jose';
+import type { RequestContext } from '@vercel/edge';
+import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
 
 type Data = {
 	name: string;
@@ -18,17 +21,15 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 export const runtime = 'edge';
-export default async function POST(request: Request) {
-	console.log('get called');
 
+export default async function POST(request: Request, context: RequestContext) {
+	console.log('get called');
+	// context.waitUntil(getAlbum().then((json) => console.log({ json })));
 	try {
-		const jwt = extractToken(request.headers.get('cookie'));
-		console.log('cookie: ', jwt);
-		// const decoded = await decode({
-		// 	token: jwt ?? '',
-		// 	secret: process.env.NEXTAUTH_SECRET ?? '',
-		// });
-		// console.log('decoded: ', decoded);
+		const userInfo = await getUserInfoEdge(request);
+		console.log('user info; ', userInfo);
+		const body = await request.json();
+		console.log('body: ', body);
 		const res = await openai.createChatCompletion({
 			model: 'gpt-4-1106-preview',
 			messages: [
@@ -49,12 +50,10 @@ export default async function POST(request: Request) {
 			experimental_streamData: true,
 		});
 
-		const dataObj = JSON.stringify({ test: 'data' });
-		// console.log('data: ', data);
 		return new StreamingTextResponse(stream, undefined, data);
 	} catch (error) {
 		console.log('error: ', error);
-		return new Error('Error occured');
+		return new Response('Error occured');
 	}
 }
 // const POST = async (req: Response) => {

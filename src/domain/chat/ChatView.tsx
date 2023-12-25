@@ -8,7 +8,6 @@ import character from '@/assets/images/chat_chr.png';
 import Image from 'next/image';
 import { Button } from '@mui/material';
 import GoogleAd from '@/common/el/GoogleAds/GoogleAd';
-import useChatViewV2 from './hooks/useChatView_v2';
 import getConfig from 'next/config';
 import { useCustomMediaQuery } from '@/common/theme/screen';
 import OptionDialog from './el/OptionDialog';

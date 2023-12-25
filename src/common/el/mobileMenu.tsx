@@ -5,7 +5,6 @@ import Link from 'next/link';
 import close from '@/assets/icons/close.svg';
 import Image from 'next/image';
 import { Color } from '../theme/colors';
-import { useSelector } from 'react-redux';
 import { TrootState } from '@/redux/reducers';
 import AlertDialog from './Dialog/alertDialog';
 import useAlert from '../hooks/useAlert';

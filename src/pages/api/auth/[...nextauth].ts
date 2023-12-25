@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { Awaitable } from 'next-auth';
 import FacebookProvider from 'next-auth/providers/facebook';
 import GoogleProvider from 'next-auth/providers/google';
 import TwitterProvider from 'next-auth/providers/twitter';
@@ -6,6 +6,8 @@ import KakaoProvider from 'next-auth/providers/kakao';
 import AppleProvider from 'next-auth/providers/apple';
 import NaverProvider from 'next-auth/providers/naver';
 import { NextAuthOptions } from 'next-auth';
+import * as jose from 'jose';
+import { JWT } from 'next-auth/jwt';
 export const authOptions: NextAuthOptions = {
 	// Configure one or more authentication providers
 	providers: [
@@ -49,6 +51,36 @@ export const authOptions: NextAuthOptions = {
 		strategy: 'jwt',
 		maxAge: 1000 * 60 * 5,
 	},
+	jwt: {
+		async encode({ token, secret, maxAge }) {
+			console.log('token: ', token);
+			console.log('secret: ', secret);
+			console.log('max Age:', maxAge);
+			const joseToken = await new jose.SignJWT(token)
+				.setExpirationTime('1hour')
+				.setProtectedHeader({ alg: 'HS256' })
+				.setIssuedAt()
+				.setJti(process.env.JWT_SECRET ?? '')
+				.sign(new TextEncoder().encode(process.env.NEXTAUTH_SECRET));
+			console.log('jose token ;', joseToken);
+			const decoded = await jose.jwtVerify(
+				joseToken,
+				new TextEncoder().encode(process.env.NEXTAUTH_SECRET),
+			);
+			console.log('decoded: ', decoded);
+			return joseToken;
+		},
+		async decode({ token, secret }) {
+			console.log('decode@@@@@@@@@@@@@@@@@@@@@');
+			console.log('token: ', token);
+			console.log('secret: ', secret);
+			const { payload } = await jose.jwtVerify(
+				String(token),
+				new TextEncoder().encode(String(secret)),
+			);
+			return { ...payload };
+		},
+	},
 	secret: process.env.NEXTAUTH_SECRET ?? '',
 	callbacks: {
 		async jwt({ token, account, session }) {
@@ -56,6 +88,7 @@ export const authOptions: NextAuthOptions = {
 			if (account?.provider) {
 				token.provider = account.provider;
 			}
+			console.log('token : ', token);
 			return token;
 		},
 		async redirect(params) {

@@ -6,9 +6,9 @@ import {
 } from 'ai';
 import { Configuration, OpenAIApi } from 'openai-edge';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { extractToken } from '@/utils/functions';
 import jose from 'jose';
 import { decode } from 'next-auth/jwt';
+import { extractToken } from '@/utils/extractToken';
 type Data = {
 	name: string;
 };
