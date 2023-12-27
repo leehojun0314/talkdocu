@@ -208,7 +208,7 @@ const TestPage: NextPage = () => {
 									Authorization: 'newauth',
 								},
 								body: {
-									test: 'data2',
+									message: 'data2',
 								},
 							},
 						},

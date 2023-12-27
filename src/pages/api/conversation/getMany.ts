@@ -18,9 +18,7 @@ export default async function handler(
 			response,
 			authOptions,
 		);
-		console.log('session: ', session);
 		const user: TUserFromDB = await getUserInfoFromSession(session);
-		console.log('user: ', user);
 
 		const { recordset } = await selectConversations(user);
 

@@ -1,0 +1,61 @@
+import createAIChat_edge from '@/lib/createAIChat_edge';
+import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
+import MessageGenerator from '@/utils/messageGenerator';
+import { RequestContext } from '@vercel/edge';
+import { ChatCompletionRequestMessage } from 'openai-edge';
+
+export const runtime = 'edge';
+export default async function POST(request: Request, context: RequestContext) {
+	try {
+		const userInfo = await getUserInfoEdge(request);
+		console.log('userInfo: ', userInfo);
+		if (!userInfo) {
+			throw new Error('Invalid user');
+		}
+		const body = await request.json();
+		const convStringId = body.convStringId;
+		const docuId = body.docuId;
+
+		if (!convStringId || !docuId) {
+			throw new Error('Parameter Error');
+		}
+		const data = JSON.stringify({
+			checkFromMe: 'me',
+			convStringId,
+			docuId,
+		});
+		const paraRes = await fetch(
+			process.env.API_ENDPOINT + '/api/conversation/getParagraphQuestion',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: data,
+				mode: 'same-origin',
+				cache: 'no-cache',
+			},
+		);
+		console.log('paraRes: ', paraRes);
+		const { joinedParagraphs } = await paraRes.json();
+		console.log('joinedParagraphs in question v2: ', joinedParagraphs);
+		const prompt = MessageGenerator.presetQuestion(
+			joinedParagraphs as string,
+		);
+
+		const messages: ChatCompletionRequestMessage[] = [];
+		messages.push({
+			role: 'user',
+			content: prompt.content as string,
+		});
+
+		const res = await createAIChat_edge(messages, 'gpt-3.5-turbo');
+
+		return res;
+	} catch (error) {
+		console.log('error: ', error);
+		return new Response('Error occured', {
+			status: 500,
+		});
+	}
+}

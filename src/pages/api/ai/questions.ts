@@ -31,6 +31,10 @@ export default async function hanlder(
 		);
 		const user: TUserFromDB = await getUserInfoFromSession(session);
 		console.log('user : ', user);
+		if (!user) {
+			response.status(401).send('Invalid user');
+			return;
+		}
 		// const body = await request.json();
 		const body = request.body;
 		console.log('body: ', body);
@@ -50,7 +54,7 @@ export default async function hanlder(
 			.slice(0, configs.relatedParagraphLength);
 		const docuRes = await selectDocument(docuId, convIntId);
 		console.log('docu Res:', docuRes);
-
+		const docuName = docuRes.recordset[0].document_name;
 		const questionStreamCallback: TStreamCallback = async ({
 			text,
 			isEnd,
@@ -70,19 +74,19 @@ export default async function hanlder(
 					docuId,
 				});
 				response.end('');
-				await insertQuestion(convIntId, text, user.user_id, docuId);
+				await insertQuestion(convIntId, text, user.user_id, docuName);
 			} else {
 				console.log('text: ', text);
 				const writeFinal =
 					JSON.stringify({
 						text,
-						documentName: docuRes.recordset[0].document_name,
+						documentName: docuName,
 					}) + '#';
 				console.log('write final : ', writeFinal);
 				response.write(
 					JSON.stringify({
 						text,
-						documentName: docuRes.recordset[0].document_name,
+						documentName: docuName,
 					}) + '#',
 				);
 			}

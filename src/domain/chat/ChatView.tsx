@@ -24,6 +24,7 @@ import { getSession } from 'next-auth/react';
 import { getUserInfoFromSession, selectConversation } from '@/models';
 import { useCallback, useState } from 'react';
 import { ConversationDialog } from './el/ConversationDialog';
+import useChatViewV4 from './hooks/useChatView_v4';
 const { publicRuntimeConfig } = getConfig();
 
 export const ChatView = () => {
@@ -32,7 +33,8 @@ export const ChatView = () => {
 		conversation,
 		messages,
 		// questions,
-		answer,
+		isAnswerOpen,
+		answerContent,
 		input,
 		messageBoxRef,
 		handleSubmit,
@@ -74,7 +76,7 @@ export const ChatView = () => {
 		isAlertOpen,
 		alertContent,
 		onAlertClose,
-	} = useChatViewV3();
+	} = useChatViewV4();
 	const { isLarge } = useCustomMediaQuery();
 	const [isConvDialogOpen, setConvDialog] = useState<boolean>(false);
 	const handleConvDiaOpen = useCallback(() => {
@@ -156,7 +158,9 @@ export const ChatView = () => {
 								isLoadingDebate={isLoadingDebate}
 								messages={messages}
 								auth={authData}
-								answer={answer}
+								// answer={answer}
+								isAnswerOpen={isAnswerOpen}
+								answerContent={answerContent}
 								docuForQuestion={docuForQuestion}
 								handleChangeDocuSelect={handleChangeDocuSelect}
 								handleGenerateQuestion={handleGenerateQuestion}
@@ -184,7 +188,9 @@ export const ChatView = () => {
 								debate={debate}
 								messages={debateMessages}
 								auth={authData}
-								answer={answer}
+								// answer={answer}
+								isAnswerOpen={isAnswerOpen}
+								answerContent={answerContent}
 							/>
 						</DebateFrame>
 					</div>
@@ -223,7 +229,9 @@ export const ChatView = () => {
 							isLoadingDebate={isLoadingDebate}
 							messages={messages}
 							auth={authData}
-							answer={answer}
+							// answer={answer}
+							isAnswerOpen={isAnswerOpen}
+							answerContent={answerContent}
 							docuForQuestion={docuForQuestion}
 							handleChangeDocuSelect={handleChangeDocuSelect}
 							handleGenerateQuestion={handleGenerateQuestion}
@@ -251,7 +259,9 @@ export const ChatView = () => {
 							debate={debate}
 							messages={debateMessages}
 							auth={authData}
-							answer={answer}
+							// answer={answer}
+							isAnswerOpen={isAnswerOpen}
+							answerContent={answerContent}
 						/>
 					</DebateFrame>
 				</div>
