@@ -20,8 +20,6 @@ export default async function handler(
 		token: request.cookies['next-auth.session-token'],
 		secret: process.env.NEXTAUTH_SECRET ?? '',
 	});
-	console.log('decoded: ', decoded);
-	console.log('session: ', session);
 	const user = await getUserInfoFromSession(session);
 	response.send({ session, user, decoded });
 }

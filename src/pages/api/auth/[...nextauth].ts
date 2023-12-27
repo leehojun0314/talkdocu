@@ -53,27 +53,15 @@ export const authOptions: NextAuthOptions = {
 	},
 	jwt: {
 		async encode({ token, secret, maxAge }) {
-			console.log('token: ', token);
-			console.log('secret: ', secret);
-			console.log('max Age:', maxAge);
 			const joseToken = await new jose.SignJWT(token)
 				.setExpirationTime('1hour')
 				.setProtectedHeader({ alg: 'HS256' })
 				.setIssuedAt()
 				.setJti(process.env.JWT_SECRET ?? '')
 				.sign(new TextEncoder().encode(process.env.NEXTAUTH_SECRET));
-			console.log('jose token ;', joseToken);
-			const decoded = await jose.jwtVerify(
-				joseToken,
-				new TextEncoder().encode(process.env.NEXTAUTH_SECRET),
-			);
-			console.log('decoded: ', decoded);
 			return joseToken;
 		},
 		async decode({ token, secret }) {
-			console.log('decode@@@@@@@@@@@@@@@@@@@@@');
-			console.log('token: ', token);
-			console.log('secret: ', secret);
 			const { payload } = await jose.jwtVerify(
 				String(token),
 				new TextEncoder().encode(String(secret)),
@@ -84,15 +72,12 @@ export const authOptions: NextAuthOptions = {
 	secret: process.env.NEXTAUTH_SECRET ?? '',
 	callbacks: {
 		async jwt({ token, account, session }) {
-			console.log('account : ', account);
 			if (account?.provider) {
 				token.provider = account.provider;
 			}
-			console.log('token : ', token);
 			return token;
 		},
 		async redirect(params) {
-			console.log('params: ', params);
 			return Promise.resolve(params.baseUrl);
 		},
 		async session({ session, token, user }) {

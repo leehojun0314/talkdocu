@@ -19,7 +19,9 @@ type TChats = {
 	isLoadingDebate: boolean;
 	messages: TMessage[];
 	auth: Session | null;
-	answer: { isOpen: boolean; content: string };
+	// answer: { isOpen: boolean; content: string };
+	isAnswerOpen: boolean;
+	answerContent: string;
 	docuForQuestion: number | undefined;
 	handleGenerateQuestion: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	handleChangeDocuSelect: (
@@ -39,7 +41,8 @@ export default function Chats({
 	isLoadingDebate,
 	messages,
 	auth,
-	answer,
+	isAnswerOpen,
+	answerContent,
 	docuForQuestion,
 	handleGenerateQuestion,
 	handleChangeDocuSelect,
@@ -119,7 +122,7 @@ export default function Chats({
 					}
 				})}
 
-			{answer.isOpen && <AnswerFromAI textFromAI={answer.content} />}
+			{isAnswerOpen && <AnswerFromAI textFromAI={answerContent} />}
 		</>
 	);
 }

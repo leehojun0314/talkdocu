@@ -16,13 +16,16 @@ type TChats = {
 	debate: TDebate;
 	messages: TDebateMessage[];
 	auth: Session | null;
-	answer: { isOpen: boolean; content: string };
+	// answer: { isOpen: boolean; content: string };
+	isAnswerOpen: boolean;
+	answerContent: string;
 };
 export default function DebateChats({
 	debate,
 	messages,
 	auth,
-	answer,
+	isAnswerOpen,
+	answerContent,
 }: TChats) {
 	return (
 		<>
@@ -56,7 +59,7 @@ export default function DebateChats({
 					}
 				})}
 
-			{answer.isOpen && <AnswerFromAI textFromAI={answer.content} />}
+			{isAnswerOpen && <AnswerFromAI textFromAI={answerContent} />}
 		</>
 	);
 }
