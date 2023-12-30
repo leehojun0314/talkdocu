@@ -1,9 +1,14 @@
 import { TParagraph } from '@/types/types';
 import { sqlConnectionPool } from '.';
 
-export async function selectParagraph(docuId: number, convIntId: number) {
+export async function selectParagraphDocu(docuId: number, convIntId: number) {
 	return (await sqlConnectionPool.connect()).request()
 		.query`SELECT * FROM Paragraph WHERE conversation_id = ${convIntId} AND document_id = ${docuId}`;
+}
+export async function selectParagraphConv(convIntId: number) {
+	return (await sqlConnectionPool.connect())
+		.request()
+		.query(`SELECT * FROM Paragraph WHERE conversation_id = ${convIntId}`);
 }
 export async function insertParagraphs({
 	paragraphs,

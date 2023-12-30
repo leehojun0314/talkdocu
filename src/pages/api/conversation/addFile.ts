@@ -87,7 +87,7 @@ export default async function handler(
 		// let uploadResults = await uploadBlob_v2(files);
 		console.log('uploaded files: ', files);
 		let fileIndex = 0;
-		for await (let file of Object.values(files)) {
+		for (let file of Object.values(files)) {
 			// const { fileUrl, buffer, originalFilename, fileSize } = uploadResult;
 			if (!file) {
 				break;
@@ -105,7 +105,7 @@ export default async function handler(
 					)}`,
 				}) + '#';
 			console.log('string before sent: ', stringBeforeSent);
-			response.write(stringBeforeSent);
+			// response.write(stringBeforeSent);
 			//insert document in mssql
 			const insertDocumentResult = await insertDocument({
 				documentName: originalFilename,
@@ -144,8 +144,9 @@ export default async function handler(
 			fileIndex++;
 		}
 		await updateConvStatus(convIntId, 'created', user.user_id);
-		response.write(JSON.stringify({ message: 'All files processed' }));
-		response.end();
+		// response.write(JSON.stringify({ message: 'All files processed' }));
+		// response.end();
+		response.status(200).send('add file complete');
 	} catch (error) {
 		console.log('error: ', error);
 		response.status(500).send(error);

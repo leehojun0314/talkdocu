@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
-import { escapeQuotation, generateConvId } from '@/utils/functions';
+import { escapeQuotation } from '@/utils/functions';
 import { getUserInfoFromSession, insertConv, updateConvStatus } from '@/models';
 import fs from 'fs';
 import PdfParse from 'pdf-parse';
@@ -18,6 +18,7 @@ import { useFormidable } from '@/lib/formidable';
 import { pageRender, processFile } from '@/lib/processFile';
 import { insertDocument } from '@/models/document';
 import { insertParagraphs } from '@/models/paragraph';
+import { generateConvId } from '@/lib/generateConvId';
 export const config = {
 	api: {
 		bodyParser: false,
@@ -42,21 +43,15 @@ export default async function handler(
 			response,
 			authOptions,
 		);
-		console.log('session: ', session);
-		console.log('uuid: ', generateConvId());
 		convStringId = generateConvId();
 		const user: TUserFromDB = await getUserInfoFromSession(session);
-		console.log('user : ', user);
 		if (!user.user_id) {
 			throw new Error('Invalid user');
 		}
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const { files, fields } = await useFormidable(request);
-		console.log('files: ', files);
-		console.log('fields:', fields);
 		let isError = { status: false, message: '' };
 		for (let file of Object.values(files)) {
-			console.log('file: ', file);
 			if (file) {
 				isError = await processFile(file[0]);
 				if (isError.status) break;
@@ -74,7 +69,6 @@ export default async function handler(
 			userId: user.user_id,
 			convStringId,
 		});
-		console.log('conversation result: ', conversationResult);
 		convIntId = conversationResult.recordset[0].id;
 		filesFinal = Object.values(files)?.map((fileArr) =>
 			fileArr ? fileArr[0] : null,
@@ -108,7 +102,6 @@ export default async function handler(
 					convIntId: convIntId,
 				});
 				const documentId = insertDocumentResult.recordset[0].document_id;
-				console.log('document id : ', documentId);
 				const pages: string[] = [];
 				const document = await PdfParse(buffer, {
 					pagerender: pageRender(pages),
@@ -129,15 +122,12 @@ export default async function handler(
 						docuName: originalFilename || '',
 					});
 				}
-				console.log('paragraphs: ', paragraphs);
 				await upsertParagraph({
 					paragraphs,
 					convIntId,
 					docuId: documentId,
 				});
-				console.log('upserted paragraphs to pinecon');
 				await insertParagraphs({ paragraphs, convIntId, documentId });
-				console.log('inserted paragraphs');
 			}
 		}
 		await updateConvStatus(convIntId, 'created', userId ?? 0);

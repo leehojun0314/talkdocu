@@ -27,6 +27,14 @@ export type TParagraph = {
 	pageNumber: number;
 	convIntId: number;
 };
+export type TParagraph_DB = {
+	conversation_id: number;
+	document_id: number;
+	order_number: boolean;
+	paragraph_content: string;
+	paragraph_id: number;
+	summary: string | null;
+};
 export type TSession = {
 	expires: string;
 	provider: string;

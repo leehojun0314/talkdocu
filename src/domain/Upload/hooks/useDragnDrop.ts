@@ -181,9 +181,28 @@ function useDragnDrop() {
 			.post('/api/conversation/create', formData)
 			.then((response) => {
 				console.log('response: ', response);
+				toggleOpen(
+					'Upload complete. Please wait until it finishes analyze.',
+					true,
+					() => {
+						toggleOpen('', false, () => {});
+						// window.location.href = '/chat';
+						router.push('/manage');
+					},
+				);
 			})
 			.catch((err) => {
 				console.log('err: ', err);
+				const text = err.response?.data;
+				toggleOpen(
+					typeof text === 'string' && text.length > 0
+						? text
+						: 'Unexpected Error occured.',
+					true,
+					() => {
+						toggleOpen('', false, () => {});
+					},
+				);
 			})
 			.finally(() => {
 				setIsLoading(false);
@@ -195,29 +214,29 @@ function useDragnDrop() {
 		// })
 		// 	.then((response) => {
 		// 		console.log('patch response : ', response);
-		// 		toggleOpen(
-		// 			'Upload complete. Please wait until it finishes analyze.',
-		// 			true,
-		// 			() => {
-		// 				toggleOpen('', false, () => {});
-		// 				// window.location.href = '/chat';
-		// 				router.push('/manage');
-		// 			},
-		// 		);
+		// toggleOpen(
+		// 	'Upload complete. Please wait until it finishes analyze.',
+		// 	true,
+		// 	() => {
+		// 		toggleOpen('', false, () => {});
+		// 		// window.location.href = '/chat';
+		// 		router.push('/manage');
+		// 	},
+		// );
 		// 	})
 		// 	.catch((err) => {
 		// 		console.log('err: ', err);
 		// 		const text = err.response?.data;
 
-		// 		toggleOpen(
-		// 			typeof text === 'string' && text.length > 0
-		// 				? text
-		// 				: 'Unexpected Error occured.',
-		// 			true,
-		// 			() => {
-		// 				toggleOpen('', false, () => {});
-		// 			},
-		// 		);
+		// toggleOpen(
+		// 	typeof text === 'string' && text.length > 0
+		// 		? text
+		// 		: 'Unexpected Error occured.',
+		// 	true,
+		// 	() => {
+		// 		toggleOpen('', false, () => {});
+		// 	},
+		// );
 		// 	})
 		// 	.finally(() => {
 		// 		setIsLoading(false);

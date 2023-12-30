@@ -1,5 +1,6 @@
 import { TMessageFromDB } from '@/types/types';
 import { IResult } from 'mssql';
+import { ChatCompletionRequestMessage } from 'openai-edge';
 import { ChatCompletionMessageParam } from 'openai/resources';
 
 const MessageGenerator = {
