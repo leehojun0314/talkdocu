@@ -30,3 +30,16 @@ export async function selectDocument(docuId: number, convIntId: number) {
 			`SELECT * FROM Document WHERE conversation_id = '${convIntId}' AND document_id = '${docuId}'`,
 		);
 }
+export async function deleteDocument(docuId: number, convIntId: number) {
+	const transaction = (await sqlConnectionPool.connect()).transaction();
+	await transaction.begin();
+	await transaction
+		.request()
+		.input('convIntId', convIntId)
+		.input('docuId', docuId).query(`
+		DELETE FROM Paragraph WHERE document_id=@docuId AND conversation_id=@convIntId;
+		DELETE FROM Document WHERE document_id=@docuId AND conversation_id=@convIntId;
+		`);
+
+	return transaction.commit();
+}

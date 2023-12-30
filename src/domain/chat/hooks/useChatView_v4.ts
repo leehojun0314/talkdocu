@@ -14,17 +14,20 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useChat, useCompletion } from 'ai/react';
+import { useCompletion } from 'ai/react';
+import { configs } from '@/config';
 export default function useChatViewV4() {
 	const { status: authStatus, data: authData } = useSession();
 	// const newAuthData: TExtendedAuthData | null = authData;
 	const [conversation, setConversation] = useState<TConversation>();
 	const [messages, setMessages] = useState<TMessage[]>([]);
-	const [onFinishCalled, setOnFinishCalled] = useState<boolean>(false);
+	const [onQuestionFinishCalled, setQuestionFinishCalled] =
+		useState<boolean>(false);
+
 	const {
 		completion: questionCompletion,
 		setCompletion: setQuestionCompletion,
-		complete,
+		complete: completeQuestion,
 	} = useCompletion({
 		api: '/api/ai/questions_v2',
 		onError(res) {
@@ -34,18 +37,53 @@ export default function useChatViewV4() {
 		onFinish(message) {
 			console.log('on finish: ', message);
 			console.log('completion in on finish: ', questionCompletion);
-			setOnFinishCalled(true);
+			setQuestionFinishCalled(true);
 			// setIsLoading(false);
 			// setIsAnswerOpen(false);
 			// setQuestionCompletion('');
 		},
-		onResponse(response) {
-			console.log('on response: ', response);
+	});
+	const [onMessageFinishCalled, setMessageFinishCalled] =
+		useState<boolean>(false);
+	const [tempReference, setTempReference] = useState<{
+		relatedContent: string;
+		referenceDocs: TReferenceDoc[];
+	}>({ referenceDocs: [], relatedContent: '' });
+
+	const [tempInput, setTempInput] = useState<string>('');
+	const {
+		completion: messageCompletion,
+		setCompletion: setMessageCompletion,
+		complete: messageComplete,
+	} = useCompletion({
+		api: '/api/ai/message_v2',
+		onError(res) {
+			console.log('on error: ', res);
+			setIsLoading(false);
+		},
+		onFinish(message) {
+			console.log('on finish: ', message);
+			console.log('completion in on finish: ', questionCompletion);
+			setMessageFinishCalled(true);
 		},
 	});
-	// console.log('question messages: ', questionMessages);
-	console.log('completion : ', questionCompletion);
-
+	const [onDebateFinishCalled, setDebateFinishCalled] =
+		useState<boolean>(false);
+	const {
+		completion: debateCompletion,
+		setCompletion: setDebateCompletion,
+		complete: debateComplete,
+	} = useCompletion({
+		api: '/api/ai/debate',
+		onError(res) {
+			console.log('res: ', res);
+			setIsLoading(false);
+		},
+		onFinish(message) {
+			console.log('on finish: ', message);
+			setDebateFinishCalled(true);
+		},
+	});
 	// const [questions, setQuestions] = useState<TQuestion[]>();
 	// const [isLoadingQuestion, setIsLoadingQuestion] = useState<boolean>(false);
 	const [documents, setDocuments] = useState<TDocument[]>([]);
@@ -100,9 +138,14 @@ export default function useChatViewV4() {
 	if (questionCompletion) {
 		answerContent = questionCompletion;
 	}
+	if (messageCompletion) {
+		answerContent = messageCompletion;
+	}
+	if (debateCompletion) {
+		answerContent = debateCompletion;
+	}
 	useEffect(() => {
-		if (onFinishCalled) {
-			console.log('answer content: ', answerContent);
+		if (onQuestionFinishCalled) {
 			//send completion to api
 			axios
 				.post('/api/message/insertQuestion', {
@@ -118,12 +161,73 @@ export default function useChatViewV4() {
 					console.log('err : ', err);
 				})
 				.finally(() => {
+					if (isBottom) {
+						scrollToBottom();
+					}
 					setIsLoading(false);
 					setQuestionCompletion('');
 					setIsAnswerOpen(false);
 				});
 		}
-	}, [onFinishCalled, docuForQuestion]);
+		if (onMessageFinishCalled) {
+			axios
+				.post('/api/message/insertMessage', {
+					convStringId: router.query.convId,
+					userMessage: tempInput ? tempInput : input,
+					answerMessage: messageCompletion,
+					referenceDocs: tempReference.referenceDocs,
+					relatedContent: tempReference.relatedContent,
+				})
+				.then((response) => {
+					setMessages(response.data.messages);
+				})
+				.catch((err) => {
+					console.log('insert message error: ', err);
+				})
+				.finally(() => {
+					if (isBottom) {
+						scrollToBottom();
+					}
+					setIsAnswerOpen(false);
+					setMessageCompletion('');
+					setTempReference({
+						referenceDocs: [],
+						relatedContent: '',
+					});
+					setTempInput('');
+					setMessageFinishCalled(false);
+					setIsLoading(false);
+				});
+		}
+		if (onDebateFinishCalled) {
+			axios
+				.post('/api/debate/insertDebate', {
+					userMessage: tempInput,
+					answerMessage: debateCompletion,
+					convStringId: router.query.convId,
+					debateId: debate.debate_id,
+				})
+				.then((response) => {
+					console.log('insert debate response: ', response.data);
+					setDebateMessages(response.data.messages);
+				})
+				.catch((error) => {
+					console.log('insert debate error:', error);
+				})
+				.finally(() => {
+					if (isBottomDebate) {
+						scrollToBottomDebate();
+					}
+					setIsAnswerOpen(false);
+					setDebateCompletion('');
+					setTempInput('');
+					setDebateFinishCalled(false);
+					setIsLoading(false);
+				});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [onQuestionFinishCalled, onMessageFinishCalled, onDebateFinishCalled]);
+
 	useEffect(() => {
 		console.log('router: ', router);
 		if (!router.isReady) {
@@ -237,7 +341,6 @@ export default function useChatViewV4() {
 		}
 	}, [isScroll, isBottom, scrollToBottom]);
 	useEffect(() => {
-		console.log('isbottom && isloading useEffect called');
 		if (isBottom && isLoading) {
 			scrollToBottom();
 		}
@@ -253,7 +356,7 @@ export default function useChatViewV4() {
 		if (isBottomDebate && isLoading) {
 			scrollToBottomDebate();
 		}
-	}, [isBottomDebate, isLoading, scrollToBottomDebate]);
+	}, [isBottomDebate, answerContent, isLoading, scrollToBottomDebate]);
 
 	const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
 		let isBottom;
@@ -276,29 +379,38 @@ export default function useChatViewV4() {
 
 	const handleScrollDebate = useCallback(
 		(event: React.UIEvent<HTMLDivElement>) => {
-			const target = event.target as HTMLDivElement;
-			const isBottom =
-				target.scrollHeight - target.scrollTop === target.clientHeight;
-
-			if (isBottom) {
-				// 여기에 필요한 작업을 추가하세요.
-				setIsBottomDebate(true);
+			let isBottom;
+			if (debateMessageBoxRef.current) {
+				const target = debateMessageBoxRef.current;
+				const scrollTop = Math.round(target.scrollTop);
+				const clientHeight = target.clientHeight;
+				const scrollHeight = target.scrollHeight;
+				isBottom = scrollTop + clientHeight >= scrollHeight;
 			} else {
-				setIsBottomDebate(false);
+				isBottom = false;
 			}
+			setIsBottomDebate(isBottom);
+			// const target = event.target as HTMLDivElement;
+			// const isBottom =
+			// 	target.scrollHeight - target.scrollTop === target.clientHeight;
+
+			// if (isBottom) {
+			// 	// 여기에 필요한 작업을 추가하세요.
+			// 	setIsBottomDebate(true);
+			// } else {
+			// 	setIsBottomDebate(false);
+			// }
 		},
 		[],
 	);
 
 	function handleClickDebate(messageId: number) {
 		return (evt: React.MouseEvent<HTMLButtonElement>) => {
-			console.log('message id : ', messageId);
 			setIsLoading(true);
 			setIsLoadingDebate(true);
 			axios
 				.get(`/api/debate/getOne?answerId=${messageId}`)
 				.then((response) => {
-					console.log('response:', response);
 					setChatMode('Debate');
 					setDebate(response.data.debate as TDebate);
 					setDebateMessages(response.data.messages as TDebateMessage[]);
@@ -371,18 +483,116 @@ export default function useChatViewV4() {
 		// 		},
 		// 	},
 		// );
-		complete('0', {
+		completeQuestion('0', {
 			body: {
 				convStringId: router.query.convId,
 				docuId: docuForQuestion,
 			},
 		});
 	}
-	function handleSubmit(input: string) {}
-
-	function handleSubmitDebate(input: string) {
+	function handleSubmit(input: string) {
+		if (!input.length) {
+			return;
+		}
 		if (authStatus === 'authenticated') {
 			//add my message
+			setMessages((pre) => {
+				if (pre) {
+					return [
+						...pre,
+						{
+							message: tempInput ? tempInput : input,
+							message_id: pre.length,
+							sender: 'user',
+							is_question: 0,
+							question_doc_name: null,
+						},
+					];
+				} else {
+					return [
+						{
+							message: tempInput ? tempInput : input,
+							message_id: 0,
+							sender: 'user',
+							is_question: 0,
+							question_doc_name: null,
+						},
+					];
+				}
+			});
+			setIsAnswerOpen(true);
+			setIsScroll(true);
+			setIsLoading(true);
+			axios
+				.post('/api/paragraph/getParagraph_v2', {
+					convStringId: router.query.convId,
+					text: input,
+				})
+				.then((response) => {
+					console.log('response: ', response.data);
+					const { relatedContent, referenceDocs } = response.data;
+					setTempReference({
+						referenceDocs,
+						relatedContent,
+					});
+					messageComplete(input, {
+						body: {
+							convStringId: router.query.convId,
+							relatedContent,
+						},
+					});
+				})
+				.catch((err) => {
+					console.log('error:', err);
+					// setIsAnswerOpen(false)
+					setIsLoading(false);
+					if (typeof err.response.data === 'string') {
+						window.alert(err.response.data);
+					}
+				});
+		}
+	}
+
+	function handleSubmitDebate(input: string) {
+		if (!input.length) {
+			return;
+		}
+		if (authStatus === 'authenticated') {
+			//add my message
+			setDebateMessages((pre) => {
+				const newEl: TDebateMessage = {
+					id: 0,
+					content: input,
+					sender: 'user',
+					debate_id: debate.debate_id,
+					conversation_id: conversation?.conversation_id,
+					time: null,
+				};
+				return [...pre, newEl];
+			});
+			setTempInput(input);
+			setIsAnswerOpen(true);
+			setIsScrollDebate(true);
+			setIsLoading(true);
+			axios
+				.post('/api/debate/optimizePrompt', {
+					prompts: debateMessages,
+					exclusives: debate.refer_content,
+					tokenLimit: configs.debateTokenLimit,
+				})
+				.then((response) => {
+					debateComplete(input, {
+						body: {
+							debate: debate,
+							optimizedMessages: response.data.optimizedPrompts,
+						},
+					});
+				})
+				.catch((err) => {
+					console.log('error: ', err);
+					setIsLoading(false);
+					setIsAnswerOpen(false);
+				});
 		} else {
 			console.log('you are not logged in');
 			router.push('/login');
@@ -391,6 +601,7 @@ export default function useChatViewV4() {
 	// const [questions, setQuestions] = useState<
 	function handleQuestionClick(question: string) {
 		return (event: React.MouseEvent<HTMLButtonElement>) => {
+			setTempInput(question);
 			handleSubmit(question);
 		};
 	}
@@ -454,115 +665,55 @@ export default function useChatViewV4() {
 		console.log('delete IDs: ', deleteFiles);
 
 		try {
+			let promiseArr = [];
 			if (deleteFiles.length) {
-				setAddDiaProgressMessage('Preparing');
-				let receivedData = '';
-				let lastProcessedIndex = 0;
-				await axios({
-					method: 'DELETE',
-					url: '/conversation/file',
-					data: {
-						deleteFiles: deleteFiles,
-						convStringId: router.query.convId,
-					},
-					onDownloadProgress: (progress) => {
-						receivedData +=
-							progress.event.currentTarget.responseText.slice(
-								lastProcessedIndex,
-							);
-						lastProcessedIndex =
-							progress.event.currentTarget.responseText.length;
-						let rawDataArray = receivedData.split('#');
-						let parsedMessage = '';
-						let parsedProgress = 0;
-						rawDataArray.forEach((rawData, index) => {
-							console.log('raw data: ', rawData);
-							if (index === rawDataArray.length - 1) {
-								receivedData = rawData;
-							} else {
-								let parsedData = JSON.parse(rawData);
-								console.log('parsed data: ', parsedData);
-								parsedMessage = parsedData.message;
-								parsedProgress = Number(parsedData.progress);
-							}
-						});
-						setAddDiaProgress(parsedProgress);
-						setAddDiaProgressMessage(parsedMessage);
-					},
-				});
+				promiseArr.push(
+					axios({
+						method: 'DELETE',
+						url: '/api/conversation/deleteFile',
+						data: {
+							deleteFiles: deleteFiles,
+							convStringId: router.query.convId,
+						},
+					}),
+				);
 			}
 			if (addFiles.length) {
-				setAddDiaProgressMessage('Preparing');
-				const formData = new FormData();
+				let formData = new FormData();
 				for (let i = 0; i < addFiles.length; i++) {
 					formData.append(`file${i}`, addFiles[i]);
 				}
 				formData.append('convStringId', router.query.convId as string);
-				let receivedData = '';
-				let lastProcessedIndex = 0;
-
-				await axios({
-					method: 'POST',
-					url: '/api/conversation/addFile',
-					data: formData,
-					onDownloadProgress: (progress) => {
-						receivedData +=
-							progress.event.currentTarget.responseText.slice(
-								lastProcessedIndex,
-							);
-						lastProcessedIndex =
-							progress.event.currentTarget.responseText.length;
-						let rawDataArray = receivedData.split('#');
-						let parsedMessage = '';
-						let parsedProgress = 0;
-						rawDataArray.forEach((rawData, index) => {
-							if (index === rawDataArray.length - 1) {
-								receivedData = rawData;
-							} else {
-								let parsedData = JSON.parse(rawData);
-								console.log('parsed data: ', parsedData);
-								parsedMessage = parsedData.message;
-								parsedProgress = Number(parsedData.progress);
-							}
-						});
-						setAddDiaProgress(parsedProgress);
-						setAddDiaProgressMessage(parsedMessage);
-					},
-				});
+				promiseArr.push(
+					axios({
+						method: 'POST',
+						url: '/api/conversation/addFile',
+						data: formData,
+					}),
+				);
 			}
-			setIsLoading(false);
-			// window.alert('Your changes have been saved.');
-			setIsAlertOpen(true);
-			setAlertContent('Your changes have been saved.');
-			toggleLoadDocuments(true);
-			setIsAddOpen(false);
-			setAddFiles([]);
-			// router.reload();
+			Promise.all(promiseArr)
+				.then((response) => {
+					console.log('promise all res: ', response);
+				})
+				.catch((err) => {
+					console.log('err: ', err);
+				})
+				.finally(() => {
+					setIsLoading(false);
+					// window.alert('Your changes have been saved.');
+					setIsAlertOpen(true);
+					setAlertContent('Your changes have been saved.');
+					toggleLoadDocuments(true);
+					setIsAddOpen(false);
+					setAddFiles([]);
+				});
 		} catch (error) {
 			console.log('promise catch err: ', error);
 			setIsLoading(false);
 			window.alert('Error occured.');
 			setIsAddOpen(false);
 		}
-		// console.log('promise arr: ', promiseArr);
-		// if (promiseArr.length) {
-		// 	Promise.allSettled(promiseArr)
-		// 		.then((promiseAllRes) => {
-		// 			console.log('promise all res: ', promiseAllRes);
-		// 			setIsLoading(false);
-		// 			window.alert('Your changes have been saved.');
-		// 			router.reload();
-		// 		})
-		// 		.catch((err) => {
-		// 			console.log('promise catch err: ', err);
-		// 			setIsLoading(false);
-		// 			window.alert('Error occured.');
-		// 			setIsAddOpen(false);
-		// 		});
-		// } else {
-		// 	setIsLoading(false);
-		// 	setIsAddOpen(false);
-		// }
 	}
 	return {
 		authData,

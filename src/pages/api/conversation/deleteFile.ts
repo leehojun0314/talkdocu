@@ -7,7 +7,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
 import { TDocument, TUserFromDB } from '@/types/types';
-import { deleteParagraphPinecone_single } from '@/models/pinecone';
+import { deleteDocuPinecone } from '@/models/pinecone';
+import { deleteDocument } from '@/models/document';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -35,33 +36,39 @@ export default async function handler(
 		}
 		await updateConvStatus(convIntId, 'analyzing', userId);
 		let fileIndex = 0;
-		for await (let fileToDelete of filesToDelete) {
-			response.write(
-				JSON.stringify({
-					message: `Deleting ${fileToDelete.document_name}`,
-					status: 'delete',
-					progress: `${Math.floor(
-						(fileIndex / filesToDelete.length) * 100,
-					)}`,
-				}) + '#',
-			);
-			await processFile(fileToDelete);
+		for (let fileToDelete of filesToDelete) {
+			// response.write(
+			// 	JSON.stringify({
+			// 		message: `Deleting ${fileToDelete.document_name}`,
+			// 		status: 'delete',
+			// 		progress: `${Math.floor(
+			// 			(fileIndex / filesToDelete.length) * 100,
+			// 		)}`,
+			// 	}) + '#',
+			// );
+			// deleteFromPinecone(fileToDelete);
+			await deleteFromDB(fileToDelete.document_id, convIntId);
 			fileIndex++;
 		}
 		await updateConvStatus(convIntId, 'created', userId);
-		response.write(
-			JSON.stringify({ message: 'All files have been deleted' }),
-		);
-		response.end();
+		// response.write(
+		// 	JSON.stringify({ message: 'All files have been deleted' }),
+		// );
+		// response.end();
+		response.status(200).send('complete');
 	} catch (error) {
 		console.log('error: ', error);
 		updateConvStatus(convIntId, 'created', userId);
+		response.status(500).send(error);
 	}
 }
-async function processFile(fileToDelete: TDocument) {
+async function deleteFromDB(docuId: number, convIntId: number) {
+	const deleteRes = await deleteDocument(docuId, convIntId);
+	console.log('deleteRes');
+}
+async function deleteFromPinecone(fileToDelete: TDocument) {
 	console.log('file to delete: ', fileToDelete);
-	const deleteParaRes = await deleteParagraphPinecone_single(
-		fileToDelete.document_id,
-	);
+	const deleteParaRes = await deleteDocuPinecone(fileToDelete.document_id);
+
 	console.log('pinecone delete res: ', deleteParaRes);
 }

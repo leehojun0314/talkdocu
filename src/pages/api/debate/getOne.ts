@@ -25,6 +25,11 @@ export default async function handler(
 		const session = await getServerSession(req, res, authOptions);
 		const user: TUserFromDB = await getUserInfoFromSession(session);
 		const debateRes = await selectDebate(answerId, user.user_id);
+		console.log('debate res:', debateRes);
+		if (!debateRes.recordset.length) {
+			res.status(400).send("Debate doesn't exist");
+			return;
+		}
 		const debateMesRes = await selectDebateMessages(
 			debateRes.recordset[0].debate_id,
 			user.user_id,

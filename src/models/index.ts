@@ -231,6 +231,12 @@ export async function selectDebate(answerId: number, userId: number) {
 	WHERE 
 		D.answer_id = @answer_id AND D.user_id = @user_id;`);
 }
+export async function selectDebateById(debateId: number) {
+	return (await sqlConnectionPool.connect())
+		.request()
+		.input('debate_id', debateId).query(`
+	SELECT * FROM Debate WHERE debate_id = @debate_id`);
+}
 export async function selectDebateMessages(debateId: number, userId: number) {
 	return (await sqlConnectionPool.connect())
 		.request()

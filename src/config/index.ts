@@ -4,6 +4,7 @@ export const configs = {
 	createSalutationLength: 3000,
 	salutationPrefixMessage: 'Hello! How can I help you?',
 	vectorResultSimilarityScore: 0.75,
+	closeVectorSimilarityScore: 0.16,
 	promptTokenLimit: 3000,
 	debateTokenLimit: 10000,
 	uploadSizeLimit: '20mb',

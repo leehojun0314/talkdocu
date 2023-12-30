@@ -25,7 +25,7 @@ export default async function POST(request: Request, context: RequestContext) {
 			docuId,
 		});
 		const paraRes = await fetch(
-			process.env.API_ENDPOINT + '/api/conversation/getParagraphQuestion',
+			process.env.API_ENDPOINT + '/api/paragraph/getParagraphQuestion',
 			{
 				method: 'POST',
 				headers: {
@@ -36,9 +36,7 @@ export default async function POST(request: Request, context: RequestContext) {
 				cache: 'no-cache',
 			},
 		);
-		console.log('paraRes: ', paraRes);
 		const { joinedParagraphs } = await paraRes.json();
-		console.log('joinedParagraphs in question v2: ', joinedParagraphs);
 		const prompt = MessageGenerator.presetQuestion(
 			joinedParagraphs as string,
 		);

@@ -64,6 +64,7 @@ async function upsertBatchParagraphs({
 				},
 			});
 		});
+
 		const pineconeIndex = client.Index(process.env.PINECONE_INDEX || '');
 		const result = await PineconeStore.fromDocuments(
 			docs,
@@ -76,17 +77,18 @@ async function upsertBatchParagraphs({
 		return error;
 	}
 }
-export async function deleteParagraphsPinecone(convIntId: number) {
+export async function deleteConvPinecone(convIntId: number) {
 	const pineconeIndex = getIndex();
 	const deleteRes = await pineconeIndex.deleteMany({
-		convIntId: { $eq: Number(convIntId) },
+		convIntId: Number(convIntId),
 	});
 	return deleteRes;
 }
-export async function deleteParagraphPinecone_single(docuId: number) {
+export async function deleteDocuPinecone(docuId: number) {
 	const pineconeIndex = getIndex();
-	const deleteRes = await pineconeIndex.deleteOne({
-		docuId: { $eq: docuId },
+	const deleteRes = await pineconeIndex.deleteMany({
+		docuId: Number(docuId),
 	});
+	console.log('pinecone delete res: ', deleteRes);
 	return deleteRes;
 }

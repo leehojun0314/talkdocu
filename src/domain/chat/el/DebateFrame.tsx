@@ -172,7 +172,7 @@ export const DebateFrame = ({
 				/>
 			)}
 		 */}
-			<div css={sx.chatContent} onScroll={handleScroll} ref={messageBoxRef}>
+			<div css={sx.chatContent} onWheel={handleScroll} ref={messageBoxRef}>
 				{/* <div css={sx.chatContent} onScroll={handleScroll}> */}
 				{children}
 			</div>

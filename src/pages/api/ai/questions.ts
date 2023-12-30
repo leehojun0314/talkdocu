@@ -2,7 +2,7 @@ import { configs } from '@/config';
 import { TExtendedSession, TStreamCallback, TUserFromDB } from '@/types/types';
 import { getUserInfoFromSession, selectConvByStr, selectUser } from '@/models';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { selectParagraph } from '@/models/paragraph';
+import { selectParagraphDocu } from '@/models/paragraph';
 import { selectDocument } from '@/models/document';
 import { insertQuestion } from '@/models/message';
 import createAIChatStream from '@/lib/createAIChat';
@@ -44,7 +44,7 @@ export default async function hanlder(
 		const convIntId = convIntIdRes.recordset[0].id;
 		console.log('conv int id: ', convIntId);
 		console.log('docu id: ', docuId);
-		const selectParaRes = await selectParagraph(docuId, convIntId);
+		const selectParaRes = await selectParagraphDocu(docuId, convIntId);
 		const paragraphs = selectParaRes.recordset;
 		console.log('paragraphs: ', paragraphs);
 		//지문 추출

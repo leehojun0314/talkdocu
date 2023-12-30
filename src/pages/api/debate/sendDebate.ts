@@ -15,11 +15,11 @@ import {
 	selectDebateMessages,
 } from '@/models';
 import MessageGenerator from '@/utils/messageGenerator';
-import { optimizingPrompt } from '@/utils/functions';
 import { configs } from '@/config';
 import { ChatCompletionMessageParam } from 'openai/resources';
 import createAIChatStream from '@/lib/createAIChat';
 import { insertDebateMessage } from '@/models/debate';
+import { optimizingPrompt } from '@/lib/optimizingPrompt';
 
 export default async function handler(
 	request: NextApiRequest,
