@@ -29,6 +29,6 @@ export async function insertMessage(
 		.input('convIntId', convIntId)
 		.input('sender', sender)
 		.input('user_id', userId)
-		.query(`INSERT INTO Message (message, conversation_id, sender, user_id, created_time) OUTPUT INSERTED.message_id
-	VALUES (@message, @convIntId, @sender, @user_id, GETDATE())`);
+		.query(`INSERT INTO Message (message, conversation_id, sender, user_id, is_question, created_time) OUTPUT INSERTED.message_id
+	VALUES (@message, @convIntId, @sender, @user_id, 0, GETDATE())`);
 }
