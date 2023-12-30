@@ -167,6 +167,7 @@ export default function useChatViewV4() {
 					setIsLoading(false);
 					setQuestionCompletion('');
 					setIsAnswerOpen(false);
+					setQuestionFinishCalled(false);
 				});
 		}
 		if (onMessageFinishCalled) {
