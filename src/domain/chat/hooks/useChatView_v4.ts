@@ -497,6 +497,7 @@ export default function useChatViewV4() {
 		}
 		if (authStatus === 'authenticated') {
 			//add my message
+			setTempInput(input);
 			setMessages((pre) => {
 				if (pre) {
 					return [
