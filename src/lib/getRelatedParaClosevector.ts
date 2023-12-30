@@ -29,7 +29,9 @@ export default async function getRelatedParaClosevector(
 		});
 	});
 
-	const embeddings = new OpenAIEmbeddings();
+	const embeddings = new OpenAIEmbeddings({
+		openAIApiKey: process.env.OPENAI_API_KEY,
+	});
 	const vectorStore = await CloseVectorNode.fromDocuments(docs, embeddings);
 	const messageVector = await embeddings.embedQuery(userMessage);
 	const vectorStoreResult = await vectorStore.similaritySearchVectorWithScore(
