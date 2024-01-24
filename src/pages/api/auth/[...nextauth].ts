@@ -35,15 +35,15 @@ export const authOptions: NextAuthOptions = {
 			clientId: process.env.KAKAO_RESTAPI_KEY ?? '',
 			clientSecret: process.env.KAKAO_CLIENT_SECRET ?? '',
 		}),
-		AppleProvider({
-			clientId: process.env.APPLE_CLIENT_ID ?? '',
-			clientSecret: process.env.APPLE_JWT ?? '',
-			authorization: {
-				params: {
-					scope: 'email name',
-				},
-			},
-		}),
+		// AppleProvider({
+		// 	clientId: process.env.APPLE_CLIENT_ID ?? '',
+		// 	clientSecret: process.env.APPLE_JWT ?? '',
+		// 	authorization: {
+		// 		params: {
+		// 			scope: 'email name',
+		// 		},
+		// 	},
+		// }),
 		NaverProvider({
 			clientId: process.env.NAVER_ID ?? '',
 			clientSecret: process.env.NAVER_SECRET ?? '',
