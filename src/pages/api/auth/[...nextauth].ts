@@ -19,6 +19,11 @@ export const authOptions: NextAuthOptions = {
 		GoogleProvider({
 			clientId: process.env.GOOGLE_ID ?? '',
 			clientSecret: process.env.GOOGLE_SECRET ?? '',
+			authorization: {
+				params: {
+					prompt: 'select_account',
+				},
+			},
 		}),
 		TwitterProvider({
 			clientId: process.env.TWITTER_CLIENT_ID ?? '',
