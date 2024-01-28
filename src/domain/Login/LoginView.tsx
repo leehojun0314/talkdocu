@@ -7,7 +7,8 @@ import { Stack } from '@mui/system';
 import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { PcFooter } from '@/common/el/footer/PcFooter';
 import facebook from '@/assets/logos/facebook.png';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 export const LoginView = () => {
 	const title = {
 		main: 'Sign in',
@@ -15,6 +16,23 @@ export const LoginView = () => {
 		desc: 'Please uses it after loggin in with your social account',
 	};
 	const { isExtraSmall, isSmall } = useCustomMediaQuery();
+	const router = useRouter();
+	const { data, status } = useSession();
+	let redirect;
+	if (typeof window !== 'undefined') {
+		redirect = window.sessionStorage.getItem('redirect');
+	}
+	if (status === 'authenticated') {
+		if (redirect) {
+			window.sessionStorage.removeItem('redirect');
+			window.location.href = redirect;
+		} else {
+			window.location.href = '/';
+		}
+	} else if (status === 'loading') {
+		return <div></div>;
+	}
+
 	return (
 		<div css={sx.mbRoot}>
 			<div css={sx.root}>

@@ -240,6 +240,8 @@ export default function useChatViewV4() {
 		}
 		if (authStatus === 'unauthenticated') {
 			window.alert('You need to login first.');
+			window.sessionStorage.setItem('redirect', window.location.href);
+
 			router.push('/login');
 			return;
 		}
@@ -651,6 +653,7 @@ export default function useChatViewV4() {
 		}
 		if (authStatus === 'unauthenticated') {
 			window.alert('You need to login first.');
+			window.sessionStorage.setItem('redirect', window.location.href);
 			router.push('/login');
 			return;
 		}

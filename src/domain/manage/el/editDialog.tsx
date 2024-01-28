@@ -1,4 +1,11 @@
-import { Button, Dialog, Stack, TextField, Typography } from '@mui/material';
+import {
+	Button,
+	CircularProgress,
+	Dialog,
+	Stack,
+	TextField,
+	Typography,
+} from '@mui/material';
 import Image from 'next/image';
 import closeIcon from '@/assets/icons/close.png';
 import { Color } from '@/common/theme/colors';
@@ -19,32 +26,53 @@ function useEditDialog(
 	loadConversation: (callback?: () => void) => void,
 	onClose: () => void,
 ) {
-	const [input, setInput] = useState<string>();
+	const [newName, setNewName] = useState<string>('');
+	const [newSalutation, setNewSalutation] = useState<string>('');
 	const [isLoading, setIsLoading] = useState<boolean>();
 
 	function handleSubmit() {
-		if (input?.length) {
-			axiosAPI({
-				method: 'PATCH',
-				url: '/conversation/name',
-				data: {
-					convId: conversation?.conversation_id,
-					newName: input,
-				},
-			})
-				.then((patchNameRes) => {
-					loadConversation(() => {
-						onClose();
-					});
-				})
-				.catch((err) => {
-					console.log('patch name err : ', err);
-				});
-		} else {
-			window.alert('The name must be more than one character');
+		console.log('conversation: ', conversation);
+		if (!newName && !newSalutation) {
+			onClose();
+			return;
 		}
+		setIsLoading(true);
+		axiosAPI({
+			method: 'PATCH',
+			url: '/conversation/edit',
+			data: {
+				convIntId: conversation?.id,
+				newName: newName ? newName : conversation?.conversation_name,
+				newSalutation: newSalutation
+					? newSalutation
+					: conversation?.salutation,
+			},
+		})
+			.then((patchRes) => {
+				return loadConversation();
+			})
+			.then((loadRes) => {
+				console.log('load res: ', loadRes);
+				setNewName('');
+				setNewSalutation('');
+				setIsLoading(false);
+				window.alert('Updated successfully.');
+				onClose();
+			})
+			.catch((err) => {
+				console.log('patch name err : ', err);
+				setIsLoading(false);
+			});
 	}
-	return { input, setInput, isLoading, setIsLoading, handleSubmit };
+	return {
+		newName,
+		setNewName,
+		newSalutation,
+		setNewSalutation,
+		isLoading,
+		setIsLoading,
+		handleSubmit,
+	};
 }
 export const EditDialog = ({
 	open,
@@ -53,11 +81,14 @@ export const EditDialog = ({
 	handleEditChange,
 }: EditDialogType) => {
 	const { isSmall } = useCustomMediaQuery();
-	const { input, setInput, handleSubmit } = useEditDialog(
-		conversation,
-		handleEditChange,
-		onClose,
-	);
+	const {
+		newName,
+		setNewName,
+		newSalutation,
+		setNewSalutation,
+		handleSubmit,
+		isLoading,
+	} = useEditDialog(conversation, handleEditChange, onClose);
 	return (
 		<Dialog open={open} fullWidth>
 			<Stack p={isSmall ? '40px ' : '60px'}>
@@ -69,7 +100,13 @@ export const EditDialog = ({
 					<Typography variant={isSmall ? 'h5' : 'h2'}>
 						{'Edit chat name'}
 					</Typography>
-					<Button onClick={onClose}>
+					<Button
+						onClick={() => {
+							if (!isLoading) {
+								onClose();
+							}
+						}}
+					>
 						<Image
 							src={closeIcon}
 							alt='close'
@@ -89,9 +126,26 @@ export const EditDialog = ({
 						InputProps={{
 							disableUnderline: true,
 						}}
-						value={input}
+						value={newName}
 						onChange={(event) => {
-							setInput(event.target.value);
+							setNewName(event.target.value);
+						}}
+					/>
+				</Stack>
+				<Stack my='40px' css={sx.fileName} gap='6px'>
+					<Typography color={Color.GrayText} variant='body2'>
+						{'New salutation'}
+					</Typography>
+
+					<TextField
+						variant='standard'
+						placeholder={conversation?.salutation}
+						InputProps={{
+							disableUnderline: true,
+						}}
+						value={newSalutation}
+						onChange={(event) => {
+							setNewSalutation(event.target.value);
 						}}
 					/>
 				</Stack>
@@ -103,12 +157,16 @@ export const EditDialog = ({
 						justifyContent: 'flex-end',
 					}}
 				>
-					<Button onClick={handleSubmit}>
-						<Image src={check} alt='check' width={24} height={24} />
-						<Typography variant='body2' color={Color.Navy}>
-							Edit
-						</Typography>
-					</Button>
+					{isLoading ? (
+						<CircularProgress size={20} />
+					) : (
+						<Button onClick={handleSubmit}>
+							<Image src={check} alt='check' width={24} height={24} />
+							<Typography variant='body2' color={Color.Navy}>
+								Edit
+							</Typography>
+						</Button>
+					)}
 				</div>
 			</Stack>
 		</Dialog>

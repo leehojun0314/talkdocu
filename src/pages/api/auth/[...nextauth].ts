@@ -76,6 +76,15 @@ export const authOptions: NextAuthOptions = {
 	},
 	secret: process.env.NEXTAUTH_SECRET ?? '',
 	callbacks: {
+		// async signIn(params) {
+		// 	if (typeof window !== 'undefined') {
+		// 		const redirectUrl = sessionStorage.getItem('redirectUrl');
+		// 		if (redirectUrl) {
+		// 			return redirectUrl;
+		// 		}
+		// 	}
+		// 	return '/';
+		// },
 		async jwt({ token, account, session }) {
 			console.log('in jwt');
 			console.log('token: ', token);
@@ -85,9 +94,12 @@ export const authOptions: NextAuthOptions = {
 			}
 			return token;
 		},
-		async redirect(params) {
-			return Promise.resolve(params.baseUrl);
-		},
+		// async redirect(params) {
+		// 	const redirect = params.url.search('redirect');
+		// 	console.log('redirect params: ', params);
+		// 	console.log('redirect: ', redirect);
+		// 	return Promise.resolve(params.baseUrl);
+		// },
 		async session({ session, token, user }) {
 			console.log('in session');
 			console.log('session: ', session);

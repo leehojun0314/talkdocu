@@ -146,6 +146,8 @@ function useDragnDrop() {
 				toggleOpen('', false, () => {});
 				// window.location.href = '/login';
 				// router.push('/login');
+				window.sessionStorage.setItem('redirect', window.location.href);
+
 				signIn();
 			});
 			return;

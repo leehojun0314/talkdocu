@@ -69,6 +69,52 @@ export async function updateConvStatus(
 		.input('user_id', userId).query(`
 UPDATE Conversation SET status = @status WHERE id = @convIntId AND user_id = @user_id`);
 }
+export async function updateConv({
+	convIntId,
+	userId,
+	newName,
+	newSalutation,
+}: {
+	convIntId: number;
+	userId: number;
+	newName: string;
+	newSalutation: string;
+}) {
+	try {
+		const sqlPool = await sqlConnectionPool.connect();
+		const transaction = sqlPool.transaction();
+		await transaction.begin();
+
+		// Check if Conversation exists and user_id matches
+		const conversation = await transaction
+			.request()
+			.input('conversation_id', convIntId)
+			.input('user_id', userId).query(`SELECT *
+					FROM Conversation
+					WHERE id = @conversation_id AND user_id = @user_id`);
+
+		if (conversation.recordset.length === 0) {
+			throw new Error('Conversation not found for the given user');
+		}
+
+		// Update Conversation name
+		await transaction
+			.request()
+			.input('conversation_id', convIntId)
+			.input('conversation_name', newName)
+			.input('salutation', newSalutation)
+			.query(
+				'UPDATE Conversation SET conversation_name=@conversation_name, salutation=@salutation WHERE id=@conversation_id',
+			);
+
+		await transaction.commit();
+		console.log('Conversation name updated successfully');
+		return true;
+	} catch (error) {
+		console.error('Error updating conversation name:', error);
+		throw error;
+	}
+}
 // export async function insertDocument({
 // 	documentName,
 // 	documentUrl,

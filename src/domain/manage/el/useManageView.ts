@@ -60,6 +60,7 @@ export const useManageView = () => {
 		}
 		if (status === 'unauthenticated') {
 			window.alert('You need to sign in first.');
+			window.sessionStorage.setItem('redirect', window.location.href);
 			router.push('/login');
 		}
 	}, [status, router]);
@@ -84,60 +85,36 @@ export const useManageView = () => {
 			router.push(`/chat?convId=${conversation.conversation_id}`);
 		};
 	}
-	function loadConversation(callback?: () => void) {
-		// axiosAPI({
-		// 	method: 'GET',
-		// 	url: '/conversation',
-		// })
-		// 	.then((response) => {
-		// 		const tempConversations: TConversation[] = response.data;
-		// 		setConversations(tempConversations);
-
-		// 		//check analyze
-		// 		const analyzingConv = tempConversations.filter(
-		// 			(conv) => conv.status === 'analyzing',
-		// 		);
-		// 		if (analyzingConv.length > 0) {
-		// 			setIsAnalyzing(true);
-		// 		} else {
-		// 			setIsAnalyzing(false);
-		// 		}
-		// 	})
-		// 	.catch((err) => {
-		// 		// window.alert('error occured');
-		// 		router.push('/');
-		// 	})
-		// 	.finally(() => {
-		// 		// setIsLoadingConv(false);
-		// 		if (callback) {
-		// 			callback();
-		// 		}
-		// 	});
-		axios
-			.get('/api/conversation/getMany')
-			.then((response) => {
-				const tempConversations: TConversation[] =
-					response.data.conversations;
-				setConversations(tempConversations);
-				//check analyze
-				const analyzingConv = tempConversations.filter((conv) => {
-					return conv.status === 'analyzing';
+	async function loadConversation(callback?: () => void) {
+		return new Promise((resolve, reject) => {
+			axios
+				.get('/api/conversation/getMany')
+				.then((response) => {
+					const tempConversations: TConversation[] =
+						response.data.conversations;
+					setConversations(tempConversations);
+					//check analyze
+					const analyzingConv = tempConversations.filter((conv) => {
+						return conv.status === 'analyzing';
+					});
+					if (analyzingConv.length > 0) {
+						setIsAnalyzing(true);
+					} else {
+						setIsAnalyzing(false);
+					}
+					resolve(true);
+				})
+				.catch((err) => {
+					console.log('err:', err);
+					reject(false);
+				})
+				.finally(() => {
+					if (callback) {
+						callback();
+					}
+					setIsLoadingConv(false);
 				});
-				if (analyzingConv.length > 0) {
-					setIsAnalyzing(true);
-				} else {
-					setIsAnalyzing(false);
-				}
-			})
-			.catch((err) => {
-				console.log('err:', err);
-			})
-			.finally(() => {
-				if (callback) {
-					callback();
-				}
-				setIsLoadingConv(false);
-			});
+		});
 	}
 	const handleDetailOpen = (conversation: TConversation) => {
 		return () => {
@@ -204,32 +181,6 @@ export const useManageView = () => {
 					toggleOpenAlert('', false, () => {});
 				});
 			});
-		// axiosAPI({
-		// 	method: 'DELETE',
-		// 	url: `/conversation?convId=${selectedConv?.conversation_id}`,
-		// })
-		// 	.then((deleteRes) => {
-		// 		loadConversation(() => {
-		// 			handleDeleteClose();
-		// 			handleDetailClose();
-		// 			toggleOpenAlert(
-		// 				'The conversation has been deleted.',
-		// 				true,
-		// 				() => {
-		// 					setIsLoading(false);
-		// 					toggleOpenAlert('', false, () => {});
-		// 				},
-		// 			);
-		// 		});
-		// 	})
-		// 	.catch((err) => {
-		// 		console.log('delete err : ', err);
-		// 		toggleOpenAlert(err.message, true, () => {
-		// 			setIsLoading(false);
-		// 			toggleOpenAlert('', false, () => {});
-		// 		});
-		// 	})
-		// 	.finally(() => {});
 	}
 
 	return {

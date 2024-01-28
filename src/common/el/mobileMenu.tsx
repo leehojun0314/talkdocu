@@ -65,6 +65,11 @@ export const MobileMenu = ({
 											() => {
 												onClose();
 												toggleOpen('', false, () => {});
+												window.sessionStorage.setItem(
+													'redirect',
+													window.location.href,
+												);
+
 												signIn();
 											},
 										);

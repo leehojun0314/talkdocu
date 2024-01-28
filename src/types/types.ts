@@ -35,6 +35,7 @@ export type TParagraph_DB = {
 	paragraph_id: number;
 	summary: string | null;
 };
+
 export type TSession = {
 	expires: string;
 	provider: string;
