@@ -3,11 +3,11 @@ import FacebookProvider from 'next-auth/providers/facebook';
 import GoogleProvider from 'next-auth/providers/google';
 import TwitterProvider from 'next-auth/providers/twitter';
 import KakaoProvider from 'next-auth/providers/kakao';
-import AppleProvider from 'next-auth/providers/apple';
 import NaverProvider from 'next-auth/providers/naver';
 import { NextAuthOptions } from 'next-auth';
 import * as jose from 'jose';
-import { JWT } from 'next-auth/jwt';
+import { insertUser, selectUser } from '@/models';
+import { TProvider } from '@/types/types';
 export const authOptions: NextAuthOptions = {
 	// Configure one or more authentication providers
 	providers: [
@@ -85,11 +85,34 @@ export const authOptions: NextAuthOptions = {
 		// 	}
 		// 	return '/';
 		// },
+		async signIn(params) {
+			const { recordset } = await selectUser(
+				params.user.email as string,
+				params?.account?.provider as TProvider,
+			);
+			if (
+				!recordset.length &&
+				params.user &&
+				params.user.name &&
+				params.account
+			) {
+				const insertUserRes = await insertUser(
+					params.user.name as string,
+					params.user.email as string,
+					params.user.image as string,
+					params.account.provider as TProvider,
+					params.account.providerAccountId as string,
+				);
+				console.log('insert User res: ', insertUserRes);
+			}
+			return true;
+		},
 		async jwt({ token, account, session }) {
 			if (account?.provider) {
 				token.provider = account.provider;
 				token.authId = account.providerAccountId;
 			}
+
 			return token;
 		},
 		// async redirect(params) {

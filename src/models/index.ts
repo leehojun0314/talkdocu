@@ -1,7 +1,6 @@
 import { configs } from '@/config';
 import {
 	TExtendedSession,
-	TParagraph,
 	TProvider,
 	TStatus,
 	TUserFromDB,
