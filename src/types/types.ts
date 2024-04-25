@@ -6,6 +6,7 @@ export type TStatus = 'created' | 'error' | 'deleted' | 'analyzing';
 export type TExtendedSession =
 	| (Session & {
 			provider?: TProvider;
+			authId?: string;
 	  })
 	| null;
 // export interface TExtendedSession extends Session {

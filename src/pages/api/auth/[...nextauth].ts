@@ -86,11 +86,9 @@ export const authOptions: NextAuthOptions = {
 		// 	return '/';
 		// },
 		async jwt({ token, account, session }) {
-			console.log('in jwt');
-			console.log('token: ', token);
-			console.log('account: ', account);
 			if (account?.provider) {
 				token.provider = account.provider;
+				token.authId = account.providerAccountId;
 			}
 			return token;
 		},
@@ -101,12 +99,10 @@ export const authOptions: NextAuthOptions = {
 		// 	return Promise.resolve(params.baseUrl);
 		// },
 		async session({ session, token, user }) {
-			console.log('in session');
-			console.log('session: ', session);
-			console.log('token: ', token);
 			return {
 				...session,
 				provider: token.provider,
+				authId: token.authId,
 			};
 		},
 	},

@@ -1,6 +1,6 @@
 import { configs } from '@/config';
 import { TExtendedSession, TStreamCallback, TUserFromDB } from '@/types/types';
-import { getUserInfoFromSession, selectConvByStr, selectUser } from '@/models';
+import { getUserInfoFromSession, selectConvByStr } from '@/models';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { selectParagraphDocu } from '@/models/paragraph';
 import { selectDocument } from '@/models/document';

@@ -25,19 +25,53 @@ export const sqlConnectionPool = new mssql.ConnectionPool({
 export async function selectUser(userEmail: string, provider?: TProvider) {
 	return (await sqlConnectionPool.connect())
 		.request()
+		.input('user_email', userEmail)
+		.input('provider', provider)
 		.query(
-			`SELECT * FROM UserTable WHERE user_email = '${userEmail}' AND auth_type = '${provider}'`,
+			`SELECT * FROM UserTable WHERE user_email = @user_email AND auth_type = @provider`,
 		);
+}
+export async function insertUser(
+	userName: string,
+	userEmail: string,
+	profileImg: string,
+	authType: TProvider,
+	authId: string,
+) {
+	return (await sqlConnectionPool.connect())
+		.request()
+		.input('user_name', userName)
+		.input('user_email', userEmail)
+		.input('profile_img', profileImg)
+		.input('auth_type', authType)
+		.input('auth_id', authId).query(`
+	INSERT INTO UserTable (user_name, user_email, profile_img, auth_type, auth_id, last_login)
+	OUTPUT INSERTED.*
+	VALUES (@user_name, @user_email, @profile_img, @auth_type, @auth_id, GETDATE())
+	`);
 }
 export async function getUserInfoFromSession(session: TExtendedSession | null) {
 	const { recordset } = await selectUser(
 		session?.user?.email ?? '',
 		session?.provider,
 	);
-	if (recordset[0] === null || !recordset[0].user_id) {
-		throw new Error('Invalid user');
+	console.log('recordset:', recordset);
+
+	console.log('session:', session);
+	if (!recordset.length && session?.user && session?.user?.name) {
+		console.log('new user');
+		const insertedUser = await insertUser(
+			session.user.name as string,
+			session.user.email as string,
+			session.user.image as string,
+			session.provider as TProvider,
+			session.authId as string,
+		);
+		console.log('inserted User:', insertedUser);
+		return insertedUser.recordset[0];
+	} else {
+		return recordset[0];
 	}
-	return recordset[0];
 }
 export async function insertConv({
 	conversationName,
