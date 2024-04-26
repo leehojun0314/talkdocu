@@ -44,22 +44,22 @@ export const SNSModels = [
 			window.location.href = authUrl;
 		},
 	},
-	{
-		provider: 'facebook',
-		logo: facebook,
-		text: 'Sign in with Facebook',
-		bgColor: '#2374F2',
-		textColor: Color.WhiteText,
-		hoverColor: '#2064d1',
-		onclick: () => {
-			const clientId = publicRuntimeConfig.FACEBOOK_CLIENT_ID;
-			const redirectUrl = `${window.location.origin}/callback/facebook`;
-			const state = generateRandomString(8);
-			const scope = 'email';
-			const authUrl = `https://www.facebook.com/v16.0/dialog/oauth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=${state}&scope=${scope}`;
-			window.location.href = authUrl;
-		},
-	},
+	// {
+	// 	provider: 'facebook',
+	// 	logo: facebook,
+	// 	text: 'Sign in with Facebook',
+	// 	bgColor: '#2374F2',
+	// 	textColor: Color.WhiteText,
+	// 	hoverColor: '#2064d1',
+	// 	onclick: () => {
+	// 		const clientId = publicRuntimeConfig.FACEBOOK_CLIENT_ID;
+	// 		const redirectUrl = `${window.location.origin}/callback/facebook`;
+	// 		const state = generateRandomString(8);
+	// 		const scope = 'email';
+	// 		const authUrl = `https://www.facebook.com/v16.0/dialog/oauth?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=${state}&scope=${scope}`;
+	// 		window.location.href = authUrl;
+	// 	},
+	// },
 	{
 		provider: 'naver',
 		logo: naver,

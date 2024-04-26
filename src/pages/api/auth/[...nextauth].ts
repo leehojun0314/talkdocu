@@ -11,10 +11,15 @@ import { TProvider } from '@/types/types';
 export const authOptions: NextAuthOptions = {
 	// Configure one or more authentication providers
 	providers: [
-		FacebookProvider({
-			clientId: process.env.FACEBOOK_CLIENT_ID ?? '',
-			clientSecret: process.env.FACEBOOK_SECRET ?? '',
-		}),
+		// FacebookProvider({
+		// 	clientId: process.env.FACEBOOK_CLIENT_ID ?? '',
+		// 	clientSecret: process.env.FACEBOOK_SECRET ?? '',
+		// 	authorization: {
+		// 		params: {
+		// 			prompt: 'select_account',
+		// 		},
+		// 	},
+		// }),
 
 		GoogleProvider({
 			clientId: process.env.GOOGLE_ID ?? '',
@@ -25,15 +30,20 @@ export const authOptions: NextAuthOptions = {
 				},
 			},
 		}),
-		TwitterProvider({
-			clientId: process.env.TWITTER_CLIENT_ID ?? '',
-			clientSecret: process.env.TWITTER_SECRET ?? '',
-			version: '2.0',
-		}),
+		// TwitterProvider({
+		// 	clientId: process.env.TWITTER_CLIENT_ID ?? '',
+		// 	clientSecret: process.env.TWITTER_SECRET ?? '',
+		// 	version: '2.0',
+		// }),
 
 		KakaoProvider({
 			clientId: process.env.KAKAO_RESTAPI_KEY ?? '',
 			clientSecret: process.env.KAKAO_CLIENT_SECRET ?? '',
+			authorization: {
+				params: {
+					prompt: 'select_account',
+				},
+			},
 		}),
 		// AppleProvider({
 		// 	clientId: process.env.APPLE_CLIENT_ID ?? '',
@@ -47,6 +57,12 @@ export const authOptions: NextAuthOptions = {
 		NaverProvider({
 			clientId: process.env.NAVER_ID ?? '',
 			clientSecret: process.env.NAVER_SECRET ?? '',
+			authorization: {
+				params: {
+					// prompt: 'select_account',
+					auth_type: 'reauthenticate',
+				},
+			},
 		}),
 	],
 	pages: {
