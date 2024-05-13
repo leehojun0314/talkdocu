@@ -44,12 +44,12 @@ function useDragnDrop() {
 			}
 			const totalSize = files.reduce((total, file) => total + file.size, 0);
 
-			if (!checkFileSize(totalSize, fileSizes['1mb'] * 50)) {
-				toggleOpen('The limit of file size is under 50mb', true, () => {
-					toggleOpen('', false, () => {});
-				});
-				return;
-			}
+			// if (!checkFileSize(totalSize, fileSizes['1mb'] * 50)) {
+			// 	toggleOpen('The limit of file size is under 50mb', true, () => {
+			// 		toggleOpen('', false, () => {});
+			// 	});
+			// 	return;
+			// }
 			for (let i = 0; i < files.length; i++) {
 				if (!checkFileExtension(files[i].name, ['pdf'])) {
 					toggleOpen('You can only upload PDF files.', true, () => {
@@ -108,12 +108,12 @@ function useDragnDrop() {
 
 			//check total size
 			const totalSize = files.reduce((total, file) => total + file.size, 0);
-			if (!checkFileSize(totalSize, fileSizes['1mb'] * 50)) {
-				toggleOpen('The limit of file size is under 50mb', true, () => {
-					toggleOpen('', false, () => {});
-				});
-				return;
-			}
+			// if (!checkFileSize(totalSize, fileSizes['1mb'] * 50)) {
+			// 	toggleOpen('The limit of file size is under 50mb', true, () => {
+			// 		toggleOpen('', false, () => {});
+			// 	});
+			// 	return;
+			// }
 
 			//check file type
 			for (let i = 0; i < files.length; i++) {
