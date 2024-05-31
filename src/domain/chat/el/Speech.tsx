@@ -1,5 +1,6 @@
 import {
 	Button,
+	CircularProgress,
 	css,
 	Dialog,
 	DialogContent,
@@ -45,7 +46,8 @@ export default function Speech() {
 	const [recognition, setRecognition] =
 		useState<globalThis.SpeechRecognition | null>(null);
 	const [transcript, setTranscript] = useState<string>('');
-
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	console.log('is loading: ', isLoading);
 	useEffect(() => {
 		if (router.isReady && visualizerRef.current && audio) {
 			const an = new AudioMotionAnalyzer(
@@ -67,6 +69,8 @@ export default function Speech() {
 		newRecognition.continuous = true;
 		setRecognition(newRecognition);
 		const newAudio = new Audio();
+		newAudio.onended = onAISpeakEnd;
+		newAudio.onplaying = onAIStartSpeaking;
 		setAudio(newAudio);
 	}, []);
 
@@ -130,6 +134,7 @@ export default function Speech() {
 		const current = evt.resultIndex;
 		const slicedTranscript = evt.results[current][0].transcript;
 		console.log('sliced transcript : ', slicedTranscript);
+		setIsLoading(true);
 		setTranscript(slicedTranscript);
 		setMode('speaking');
 	}
@@ -141,7 +146,9 @@ export default function Speech() {
 		setIsListening(true);
 		setTranscript('');
 	}, []);
-
+	const onAIStartSpeaking = useCallback(() => {
+		setIsLoading(false);
+	}, []);
 	function handleListening() {
 		if (mode === 'listening') {
 			setIsListening(!isListening);
@@ -246,10 +253,26 @@ export default function Speech() {
 							</>
 						)}
 					</Visualizer> */}
+					{isLoading ? (
+						<div css={sx.loading}>
+							<CircularProgress
+								size={24}
+								color={'secondary'}
+								style={{ marginTop: 40 }}
+							/>
+						</div>
+					) : (
+						''
+					)}
+
 					<div
 						id='visualizer'
 						ref={visualizerRef}
-						style={{ width: 100, height: 100 }}
+						style={{
+							width: 100,
+							height: 100,
+							display: isLoading ? 'none' : 'block',
+						}}
 					></div>
 					{transcript ? <div>prompt: {transcript}</div> : ''}
 				</div>
@@ -278,8 +301,12 @@ const sx = {
 	dialog: css`
 		top: 50px;
 		border-radius: 25px;
+		min-height: 260px;
 		&::backdrop {
 			background-color: rgba(0, 0, 0, 0.5);
 		}
+	`,
+	loading: css`
+		height: 100px;
 	`,
 };
