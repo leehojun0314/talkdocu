@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useChat, type Message } from 'ai/react';
 import { useSession, signIn, signOut, getSession } from 'next-auth/react';
 import type { GetServerSideProps } from 'next';
@@ -9,6 +9,10 @@ import { TUserFromDB } from '@/types/types';
 import axiosAPI from '@/utils/axiosAPI';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { PassThrough } from 'stream';
+import ModeIndicator from '@/domain/chat/el/ModeIndicator';
+import { useVisualizer, Visualizer } from 'react-sound-visualizer';
+import { AudioMotionAnalyzer } from 'audiomotion-analyzer';
+import { visualizerOptions } from '@/config';
 const TestPage: NextPage = () => {
 	const { status, data } = useSession();
 	// console.log('status: ', status);
@@ -35,6 +39,10 @@ const TestPage: NextPage = () => {
 	});
 	console.log('messages: ', messages);
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const visualizerRef = useRef<HTMLDivElement>(null);
+	const [audio, setAudio] = useState<MediaStream | null>(null);
+	// const { start } = useVisualizer(audio, canvasRef.current, {});
 	// useEffect(() => {
 	// 	axios.get('/api/sqltest').then((response) => {
 	// 		console.log('sql useEffectresponse: ', response);
@@ -181,6 +189,135 @@ const TestPage: NextPage = () => {
 			}
 		};
 	}
+	const audioRef = useRef<HTMLAudioElement>(null);
+	const [analyzer, setAnalyzer] = useState<AudioMotionAnalyzer | null>(null);
+	useEffect(() => {
+		if (audioRef.current && visualizerRef) {
+			const an = new AudioMotionAnalyzer(
+				visualizerRef.current as HTMLDivElement,
+				visualizerOptions,
+			);
+			setAnalyzer(an);
+			// an.connectInput(audioRef.current);
+			// return () => {
+			// 	if (audioRef.current) {
+			// 		an.connectedSources.forEach((source) => {
+			// 			an.disconnectInput(source);
+			// 		});
+			// 	}
+			// };
+			const url = 'http://localhost:9000/getAudio';
+			const audio = new Audio(url);
+			audio.src = url;
+			audio.crossOrigin = 'anonymous';
+			// if (!audioRef.current) return;
+			// audioRef.current.src = url;
+			// audioRef.current.crossOrigin = 'anonymous';
+
+			// const sourceNode = audioContext.createMediaElementSource(
+			// 	audioRef.current,
+			// );
+			// const audioContext = new AudioContext();
+			// const audio = new Audio(url);
+			// audio.crossOrigin = 'anonymous';
+			// // audio.loop = true
+			// const sourceNode = audioContext.createMediaElementSource(audio);
+			// const mediaStreamDestination =
+			// 	audioContext.createMediaStreamDestination();
+			// sourceNode.connect(mediaStreamDestination);
+			// audio
+			// 	.play()
+			// 	.then(() => {
+			// 		if (start) {
+			// 			start();
+			// 		}
+			// 	})
+			// 	.catch((err) => {
+			// 		console.log('err: ', err);
+			// 	});
+			// // const mediaStream = mediaStreamDestination.stream;
+			// // setAudio(mediaStream);
+			// audioRef.current.onended = () => {
+			// 	console.log('on ended call');
+			// 	analyzer?.connectedSources.forEach((source) => {
+			// 		console.log('connected source: ', source);
+			// 		analyzer.disconnectInput(source);
+			// 	});
+			// };
+
+			// audioRef.current.play();
+			an.connectInput(audio);
+		}
+	}, [audioRef, visualizerRef]);
+	const [url, setUrl] = useState<string>('');
+	function fetchAudio() {
+		try {
+			if (audioRef.current && visualizerRef) {
+				// an.connectInput(audioRef.current);
+				// an.connectOutput();
+				// return () => {
+				// 	if (audioRef.current) {
+				// 		an.connectedSources.forEach((source) => {
+				// 			an.disconnectInput(source);
+				// 		});
+				// 	}
+				// };
+				const url = 'http://localhost:9000/getAudio';
+				const audio = new Audio(url);
+				audio.src = url;
+				audio.crossOrigin = 'anonymous';
+				// if (!audioRef.current) return;
+				// audioRef.current.src = url;
+				// audioRef.current.crossOrigin = 'anonymous';
+
+				// const sourceNode = audioContext.createMediaElementSource(
+				// 	audioRef.current,
+				// );
+				// const audioContext = new AudioContext();
+				// const audio = new Audio(url);
+				// audio.crossOrigin = 'anonymous';
+				// // audio.loop = true
+				// const sourceNode = audioContext.createMediaElementSource(audio);
+				// const mediaStreamDestination =
+				// 	audioContext.createMediaStreamDestination();
+				// sourceNode.connect(mediaStreamDestination);
+				// audio
+				// 	.play()
+				// 	.then(() => {
+				// 		if (start) {
+				// 			start();
+				// 		}
+				// 	})
+				// 	.catch((err) => {
+				// 		console.log('err: ', err);
+				// 	});
+				// // const mediaStream = mediaStreamDestination.stream;
+				// // setAudio(mediaStream);
+				// audioRef.current.onended = () => {
+				// 	console.log('on ended call');
+				// 	analyzer?.connectedSources.forEach((source) => {
+				// 		console.log('connected source: ', source);
+				// 		analyzer.disconnectInput(source);
+				// 	});
+				// };
+
+				// audioRef.current.play();
+				analyzer?.connectInput(audio);
+				audio.play();
+				// an.destroy();
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+	async function fetchMic() {
+		const stream = await navigator.mediaDevices.getUserMedia({
+			audio: true,
+			video: false,
+		});
+		const micStream = analyzer?.audioCtx.createMediaStreamSource(stream);
+		analyzer?.connectInput(micStream as MediaStreamAudioSourceNode);
+	}
 	return (
 		<>
 			<Head>
@@ -192,6 +329,18 @@ const TestPage: NextPage = () => {
 			})} */}
 			{messages.length && messages[messages.length - 1].content}
 			<hr />
+			{/* <ModeIndicator mode={'listening'} /> */}
+			{/* <canvas ref={canvasRef} width={350} height={50} /> */}
+			{/* <Visualizer audio={audio} mode='current' autoStart>
+				{({ canvasRef }) => (
+					<>
+					</>
+				)}
+			</Visualizer> */}
+			<div ref={visualizerRef}></div>
+			<audio ref={audioRef}></audio>
+			<button onClick={fetchAudio}>Fetch audio</button>
+			<button onClick={fetchMic}>Fetch mic</button>
 			<button
 				onClick={() => {
 					// const temp = 'temptoken';

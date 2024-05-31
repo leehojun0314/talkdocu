@@ -34,3 +34,8 @@ export function referenceDocsToString(
 
 	return result;
 }
+
+export function hasSpecialChars(str: string) {
+	const specialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+	return specialChars.test(str);
+}

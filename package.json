@@ -21,10 +21,12 @@
 		"@vercel/analytics": "^1.1.0",
 		"@vercel/edge": "^1.1.1",
 		"ai": "^2.2.15",
+		"audiomotion-analyzer": "^4.5.0",
 		"axios": "^1.3.5",
 		"closevector-node": "^0.1.0-alpha.10",
 		"eslint": "8.36.0",
 		"eslint-config-next": "13.2.4",
+		"eventsource-parser": "^1.1.2",
 		"firebase-admin": "^11.11.1",
 		"formidable": "^3.5.1",
 		"gpt-3-encoder": "^1.1.4",
@@ -42,6 +44,8 @@
 		"react-dom": "18.2.0",
 		"react-dropzone": "^14.2.3",
 		"react-redux": "^8.0.5",
+		"react-sound-visualizer": "^1.1.1",
+		"react-speech-recognition": "^3.10.0",
 		"redux": "^4.2.1",
 		"typescript": "5.0.2",
 		"uuid": "^9.0.1"
@@ -54,6 +58,7 @@
 		"@types/formidable": "^3.4.4",
 		"@types/jsonwebtoken": "^9.0.5",
 		"@types/pdf-parse": "^1.1.3",
+		"@types/react-speech-recognition": "^3.9.5",
 		"@vercel/node": "^3.0.7"
 	}
 }

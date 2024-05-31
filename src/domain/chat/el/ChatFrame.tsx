@@ -16,6 +16,7 @@ import { Mq, useCustomMediaQuery } from '@/common/theme/screen';
 import { ConversationDialog } from './ConversationDialog';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import { TChatMode, TConversation } from '@/types/types';
+import Speech from './Speech';
 
 type TChatFrame = {
 	children: React.ReactElement;
@@ -207,6 +208,7 @@ export const ChatFrame = ({
 						</div>
 					)}
 				</Button>
+				<Speech />
 			</div>
 		</Stack>
 	);
@@ -287,7 +289,7 @@ const sx = {
 		border: solid 1px #fff;
 		/* padding-left: 5px; */
 		display: grid;
-		grid-template-columns: 64px auto 64px;
+		grid-template-columns: 64px auto 64px 64px;
 		grid-template-rows: auto;
 		min-height: 64px;
 	`,
@@ -314,6 +316,7 @@ const sx = {
 		padding: 20px;
 		height: 100%;
 		border-left: solid 1px #fff;
+		border-right: solid 1px #fff;
 		width: 63.99px;
 		flex: 1;
 		display: flex;

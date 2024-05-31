@@ -12,7 +12,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import * as jose from 'jose';
 import type { RequestContext } from '@vercel/edge';
 import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
-
 type Data = {
 	name: string;
 };

@@ -157,3 +157,4 @@ export type TStreamCallback = ({
 }) => Promise<void>;
 export type TSender = 'user' | 'assistant';
 export type TGrouped = { [docName: string]: number[] };
+export type TSpeechMode = 'listening' | 'speaking';
