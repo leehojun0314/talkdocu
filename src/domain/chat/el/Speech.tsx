@@ -98,11 +98,14 @@ export default function Speech() {
 		try {
 			console.log('get user media called');
 			const stream = await navigator.mediaDevices.getUserMedia({
-				audio: true,
+				audio: {
+					echoCancellation: true,
+				},
 				video: false,
 			});
 			const micStream = analyzer?.audioCtx.createMediaStreamSource(stream);
 			analyzer?.connectInput(micStream as MediaStreamAudioSourceNode);
+			analyzer?.disconnectOutput();
 			return () => {
 				stream.getAudioTracks().forEach((track) => {
 					if (track.readyState === 'live') {
@@ -111,6 +114,7 @@ export default function Speech() {
 				});
 
 				analyzer?.disconnectInput(micStream);
+				analyzer?.connectOutput();
 			};
 		} catch (error) {
 			console.log('get user media error:', error);
