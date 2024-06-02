@@ -359,7 +359,8 @@ const TestPage: NextPage = () => {
 					</>
 				)}
 			</Visualizer> */}
-			Browser supports speech recognition: {browserSupportsSpeechRecognition}
+			Browser supports speech recognition:{' '}
+			{browserSupportsSpeechRecognition ? 'true' : 'false'}
 			transcript: {transcript}
 			<Button onClick={stopRecognition}>Stop Recognition</Button>
 			<Button onClick={startRecognition}>Start recognition</Button>
