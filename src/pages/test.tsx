@@ -10,9 +10,13 @@ import axiosAPI from '@/utils/axiosAPI';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { PassThrough } from 'stream';
 import ModeIndicator from '@/domain/chat/el/ModeIndicator';
-import { useVisualizer, Visualizer } from 'react-sound-visualizer';
+// import { useVisualizer, Visualizer } from 'react-sound-visualizer';
 import { AudioMotionAnalyzer } from 'audiomotion-analyzer';
 import { visualizerOptions } from '@/config';
+import { Button } from '@mui/material';
+import SpeechRecognition, {
+	useSpeechRecognition,
+} from 'react-speech-recognition';
 const TestPage: NextPage = () => {
 	const { status, data } = useSession();
 	// console.log('status: ', status);
@@ -318,11 +322,29 @@ const TestPage: NextPage = () => {
 		const micStream = analyzer?.audioCtx.createMediaStreamSource(stream);
 		analyzer?.connectInput(micStream as MediaStreamAudioSourceNode);
 	}
+	const { browserSupportsSpeechRecognition, transcript } =
+		useSpeechRecognition({});
+
+	async function startRecognition() {
+		return SpeechRecognition.startListening()
+			.then((res) => {
+				console.log('start recognition res: ', res);
+			})
+			.catch((err) => {
+				console.log('start recognition err: ', err);
+			});
+	}
+	function stopRecognition() {
+		SpeechRecognition.stopListening()
+			.then((res) => {
+				console.log('stop recognition res: ', res);
+			})
+			.catch((err) => {
+				console.log('stop recognition error:', err);
+			});
+	}
 	return (
 		<>
-			<Head>
-				<title>Terms</title>
-			</Head>
 			Messages:{' '}
 			{/* {messages.map((message, index) => {
 				return <div key={index}>{message.content}</div>;
@@ -337,6 +359,10 @@ const TestPage: NextPage = () => {
 					</>
 				)}
 			</Visualizer> */}
+			Browser supports speech recognition: {browserSupportsSpeechRecognition}
+			transcript: {transcript}
+			<Button onClick={stopRecognition}>Stop Recognition</Button>
+			<Button onClick={startRecognition}>Start recognition</Button>
 			<div ref={visualizerRef}></div>
 			<audio ref={audioRef}></audio>
 			<button onClick={fetchAudio}>Fetch audio</button>
