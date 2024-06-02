@@ -323,8 +323,16 @@ const TestPage: NextPage = () => {
 		analyzer?.connectInput(micStream as MediaStreamAudioSourceNode);
 	}
 	const { browserSupportsSpeechRecognition, transcript } =
-		useSpeechRecognition({});
+		useSpeechRecognition();
 
+	useEffect(() => {
+		const recognition = SpeechRecognition.getRecognition();
+		if (recognition) {
+			recognition.onspeechend = (event) => {
+				console.log('speech end called: ', event);
+			};
+		}
+	}, [browserSupportsSpeechRecognition]);
 	async function startRecognition() {
 		return SpeechRecognition.startListening()
 			.then((res) => {
@@ -359,8 +367,8 @@ const TestPage: NextPage = () => {
 					</>
 				)}
 			</Visualizer> */}
-			Browser supports speech recognition:{' '}
-			{browserSupportsSpeechRecognition ? 'true' : 'false'}
+			{/* Browser supports speech recognition: */}
+			{/* {!!browserSupportsSpeechRecognition ? 'true' : 'false'} */}
 			transcript: {transcript}
 			<Button onClick={stopRecognition}>Stop Recognition</Button>
 			<Button onClick={startRecognition}>Start recognition</Button>

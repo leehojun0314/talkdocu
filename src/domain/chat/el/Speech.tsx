@@ -15,7 +15,9 @@ import ModeIndicator from './ModeIndicator';
 import { useRouter } from 'next/router';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { visualizerOptions } from '@/config';
-import { useSpeechRecognition } from 'react-speech-recognition';
+import SpeechRecognition, {
+	useSpeechRecognition,
+} from 'react-speech-recognition';
 export default function Speech() {
 	const router = useRouter();
 	const [isSpeechOpen, setSpeechOpen] = useState<boolean>(false);
@@ -26,11 +28,12 @@ export default function Speech() {
 	const visualizerRef = useRef<HTMLDivElement | null>(null);
 	const [analyzer, setAnalyzer] = useState<AudioMotionAnalyzer | null>(null);
 	useState<MediaStreamAudioDestinationNode>();
-	const [recognition, setRecognition] =
-		useState<globalThis.SpeechRecognition | null>(null);
-	const [transcript, setTranscript] = useState<string>('');
+	// const [recognition, setRecognition] =
+	// 	useState<globalThis.SpeechRecognition | null>(null);
+	// const [transcript, setTranscript] = useState<string>('');
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	// const { browserSupportsSpeechRecognition } = useSpeechRecognition();
+	const { browserSupportsSpeechRecognition, transcript, resetTranscript } =
+		useSpeechRecognition();
 	useEffect(() => {
 		if (router.isReady && visualizerRef.current && audio) {
 			const an = new AudioMotionAnalyzer(
@@ -46,31 +49,59 @@ export default function Speech() {
 		}
 	}, [visualizerRef, router, audio]);
 	useEffect(() => {
-		const newRecognition =
-			new window.webkitSpeechRecognition() || new window.SpeechRecognition();
-		newRecognition.onresult = onRecognition;
-		newRecognition.onspeechend = onSpeechEnd;
+		// const newRecognition =
+		// new window.webkitSpeechRecognition() || new window.SpeechRecognition();
+		// newRecognition.onresult = onRecognition;
+		// newRecognition.onspeechend = onSpeechEnd;
+
 		// newRecognition.continuous = true;
-		setRecognition(newRecognition);
+
+		// setRecognition(newRecognition);
+		const recognition = SpeechRecognition.getRecognition();
+		if (recognition) {
+			recognition.onspeechend = onSpeechEnd;
+		}
+
 		const newAudio = new Audio();
 		newAudio.onended = onAISpeakEnd;
 		newAudio.onplaying = onAIStartSpeaking;
 		setAudio(newAudio);
 	}, []);
-
+	useEffect(() => {
+		if (!isSpeechOpen) {
+			if (mode === 'speaking') {
+				if (audio) {
+					audio.pause();
+				}
+				setIsLoading(false);
+				setMode('listening');
+				resetTranscript();
+			} else {
+				const recognition = SpeechRecognition.getRecognition();
+				if (recognition) {
+					recognition.abort();
+				}
+				setIsListening(false);
+			}
+		}
+	}, [audio, isSpeechOpen, mode]);
 	const handleClose = useCallback(() => {
 		setSpeechOpen(false);
 		dialogRef.current?.close();
 	}, [dialogRef]);
 	const handleOpen = useCallback(() => {
-		console.log('recognition: ', recognition);
-		if (recognition) {
+		// console.log('recognition: ', recognition);
+		console.log(
+			'browser support recognition: ',
+			browserSupportsSpeechRecognition,
+		);
+		if (browserSupportsSpeechRecognition) {
 			setSpeechOpen(true);
 			dialogRef.current?.showModal();
 		} else {
-			window.alert('The browser is incompatible');
+			window.alert('The browser does not support recognition api.');
 		}
-	}, [recognition]);
+	}, [browserSupportsSpeechRecognition]);
 	const getUserMedia = useCallback(async () => {
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({
@@ -104,34 +135,51 @@ export default function Speech() {
 			const streamUrl = `${window.location.origin}/api/ai/speech?prompt=${prompt}&convStringId=${router.query.convId}`;
 			if (audio) {
 				audio.src = streamUrl;
+
 				audio.play();
 			}
 		},
 		[audio, router],
 	);
-	function onRecognition(evt: SpeechRecognitionEvent) {
-		const current = evt.resultIndex;
-		const slicedTranscript = evt.results[current][0].transcript;
-		setIsLoading(true);
-		setTranscript(slicedTranscript);
-		setMode('speaking');
+	function onRecognition() {
+		// const current = evt.resultIndex;
+		// const slicedTranscript = evt.results[current][0].transcript;
+		// setIsLoading(true);
+		// setTranscript(slicedTranscript);
+		// setMode('speaking');
 	}
-	function onSpeechEnd(this: SpeechRecognition, evt: Event) {
+	const onSpeechEnd = useCallback(() => {
+		console.log('on speech end');
+		// console.log('transcript: ', transcript);
+		// if (transcript.length > 0) {
 		setIsListening(false);
-	}
+		setIsLoading(true);
+		setMode('speaking');
+		// }
+	}, []);
+
 	const onAISpeakEnd = useCallback(() => {
 		setMode('listening');
 		setIsListening(true);
-		setTranscript('');
+		// setTranscript('');
+		// SpeechRecognition.
+		resetTranscript();
 	}, []);
 	const onAIStartSpeaking = useCallback(() => {
 		setIsLoading(false);
 	}, []);
-	function handleListening() {
+	const handleListening = useCallback(() => {
+		console.log('handle listening : ', mode, isListening);
 		if (mode === 'listening') {
 			setIsListening(!isListening);
+			// if (transcript.length > 0) {
+			// 	setIsListening(true);
+			// 	setMode('speaking');
+			// } else {
+			// 	setIsListening(false);
+			// }
 		}
-	}
+	}, [isListening, mode]);
 	useEffect(() => {
 		if (isSpeechOpen) {
 			switch (mode) {
@@ -139,9 +187,18 @@ export default function Speech() {
 					if (!audio) return;
 					if (!isListening) return;
 					const stopTrack = getUserMedia();
-					if (recognition) {
+					if (browserSupportsSpeechRecognition) {
 						console.log('start recognition');
-						recognition.start();
+						// recognition.start();
+						SpeechRecognition.startListening()
+							.then((res) => {
+								console.log('start recognition res: ', res);
+								onRecognition();
+							})
+							.catch((err) => {
+								console.log('start listening error: ', err);
+								window.alert('Error occured on recognizing speech.');
+							});
 					}
 
 					return () => {
@@ -153,28 +210,32 @@ export default function Speech() {
 							.catch((err) => {
 								console.log('stop track err: ', err);
 							});
-						if (recognition) {
-							console.log('stop recognition');
-							recognition.stop();
-						}
-						setIsListening(false);
+						// if (recognition) {
+						// recognition.stop();
+						// }
+						SpeechRecognition.stopListening().then(() => {
+							console.log('stop recognition: ');
+						});
 					};
 				}
 				case 'speaking': {
-					if (audio) {
+					if (audio && transcript) {
 						getDisplayMedia(transcript);
 						return () => {};
+					}
+					if (!transcript) {
 					}
 				}
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		isSpeechOpen,
 		mode,
 		audio,
 		isListening,
-		recognition,
-		transcript,
+		// recognition,
+		browserSupportsSpeechRecognition,
 		getDisplayMedia,
 		getUserMedia,
 	]);
@@ -235,7 +296,7 @@ export default function Speech() {
 							display: isLoading ? 'none' : 'block',
 						}}
 					></div>
-					{transcript ? <div>prompt: {transcript}</div> : ''}
+					<div>{transcript ? <div>prompt: {transcript}</div> : ''}</div>
 				</div>
 			</dialog>
 		</>
@@ -270,4 +331,5 @@ const sx = {
 	loading: css`
 		height: 100px;
 	`,
+	transcriptContainer: css``,
 };
