@@ -2,37 +2,20 @@ import {
 	Button,
 	CircularProgress,
 	css,
-	Dialog,
-	DialogContent,
 	DialogTitle,
-	Divider,
 	IconButton,
-	styled,
 } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import microphone from '@/assets/icons/microphone_white.svg';
 import CloseIcon from '@mui/icons-material/Close';
-
 import Image from 'next/image';
 import { Color } from '@/common/theme/colors';
 import { TSpeechMode } from '@/types/types';
 import ModeIndicator from './ModeIndicator';
-// import { Visualizer } from 'react-sound-visualizer';
 import { useRouter } from 'next/router';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { visualizerOptions } from '@/config';
-// import { Speech } from 'openai/resources/audio/speech';
-// import SpeechRecognition, {
-// 	useSpeechRecognition,
-// } from 'react-speech-recognition';
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-	'& .MuiDialogContent-root': {
-		padding: theme.spacing(2),
-	},
-	'& .MuiDialogActions-root': {
-		padding: theme.spacing(1),
-	},
-}));
+import { useSpeechRecognition } from 'react-speech-recognition';
 export default function Speech() {
 	const router = useRouter();
 	const [isSpeechOpen, setSpeechOpen] = useState<boolean>(false);
@@ -47,7 +30,7 @@ export default function Speech() {
 		useState<globalThis.SpeechRecognition | null>(null);
 	const [transcript, setTranscript] = useState<string>('');
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	console.log('is loading: ', isLoading);
+	// const { browserSupportsSpeechRecognition } = useSpeechRecognition();
 	useEffect(() => {
 		if (router.isReady && visualizerRef.current && audio) {
 			const an = new AudioMotionAnalyzer(
@@ -63,10 +46,11 @@ export default function Speech() {
 		}
 	}, [visualizerRef, router, audio]);
 	useEffect(() => {
-		const newRecognition = new window.webkitSpeechRecognition();
+		const newRecognition =
+			new window.webkitSpeechRecognition() || new window.SpeechRecognition();
 		newRecognition.onresult = onRecognition;
 		newRecognition.onspeechend = onSpeechEnd;
-		newRecognition.continuous = true;
+		// newRecognition.continuous = true;
 		setRecognition(newRecognition);
 		const newAudio = new Audio();
 		newAudio.onended = onAISpeakEnd;
@@ -79,6 +63,7 @@ export default function Speech() {
 		dialogRef.current?.close();
 	}, [dialogRef]);
 	const handleOpen = useCallback(() => {
+		console.log('recognition: ', recognition);
 		if (recognition) {
 			setSpeechOpen(true);
 			dialogRef.current?.showModal();
@@ -86,17 +71,8 @@ export default function Speech() {
 			window.alert('The browser is incompatible');
 		}
 	}, [recognition]);
-
-	function handleSwitch() {
-		if (mode === 'listening') {
-			setMode('speaking');
-		} else if (mode === 'speaking') {
-			setMode('listening');
-		}
-	}
 	const getUserMedia = useCallback(async () => {
 		try {
-			console.log('get user media called');
 			const stream = await navigator.mediaDevices.getUserMedia({
 				audio: {
 					echoCancellation: true,
@@ -125,7 +101,6 @@ export default function Speech() {
 	}, [analyzer]);
 	const getDisplayMedia = useCallback(
 		async (prompt: string) => {
-			console.log('prompt: ', prompt);
 			const streamUrl = `${window.location.origin}/api/ai/speech?prompt=${prompt}&convStringId=${router.query.convId}`;
 			if (audio) {
 				audio.src = streamUrl;
@@ -137,7 +112,6 @@ export default function Speech() {
 	function onRecognition(evt: SpeechRecognitionEvent) {
 		const current = evt.resultIndex;
 		const slicedTranscript = evt.results[current][0].transcript;
-		console.log('sliced transcript : ', slicedTranscript);
 		setIsLoading(true);
 		setTranscript(slicedTranscript);
 		setMode('speaking');
@@ -165,7 +139,6 @@ export default function Speech() {
 					if (!audio) return;
 					if (!isListening) return;
 					const stopTrack = getUserMedia();
-					console.log(recognition);
 					if (recognition) {
 						console.log('start recognition');
 						recognition.start();
@@ -174,7 +147,7 @@ export default function Speech() {
 					return () => {
 						stopTrack
 							.then((response) => {
-								console.log('stop track response: ', response);
+								console.log('track stoped');
 								response();
 							})
 							.catch((err) => {
@@ -190,11 +163,7 @@ export default function Speech() {
 				case 'speaking': {
 					if (audio) {
 						getDisplayMedia(transcript);
-						return () => {
-							// if (streamDest) {
-							// 	source?.disconnect(streamDest);
-							// }
-						};
+						return () => {};
 					}
 				}
 			}
@@ -215,16 +184,11 @@ export default function Speech() {
 				<Image src={microphone} alt='microphone icon' width={24} />
 			</Button>
 			<dialog
-				// open={isSpeechOpen}
 				open={isSpeechOpen}
-				// fullWidth
 				onClose={handleClose}
-				// scroll={'body'}
-				// style={sx.dialog}
 				css={sx.dialog}
 				ref={dialogRef}
 			>
-				{/* <audio style={{ display: 'none' }} ref={audio}></audio> */}
 				<DialogTitle
 					sx={{ m: '0 auto', p: 2 }}
 					id='customized-dialog-title'
@@ -249,14 +213,7 @@ export default function Speech() {
 						isListening={isListening}
 						handleListening={handleListening}
 					/>
-					{/* <button onClick={handleSwitch}>switch mode</button> */}
-					{/* <Visualizer audio={audio} mode='current' autoStart>
-						{({ canvasRef }) => (
-							<>
-								<canvas ref={canvasRef} width={350} height={50} />
-							</>
-						)}
-					</Visualizer> */}
+
 					{isLoading ? (
 						<div css={sx.loading}>
 							<CircularProgress
