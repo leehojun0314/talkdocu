@@ -321,6 +321,7 @@ const TestPage: NextPage = () => {
 		});
 		const micStream = analyzer?.audioCtx.createMediaStreamSource(stream);
 		analyzer?.connectInput(micStream as MediaStreamAudioSourceNode);
+		analyzer?.disconnectOutput();
 	}
 	const { browserSupportsSpeechRecognition, transcript } =
 		useSpeechRecognition();

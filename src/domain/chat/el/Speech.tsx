@@ -67,7 +67,10 @@ export default function Speech() {
 		newAudio.onplaying = onAIStartSpeaking;
 		setAudio(newAudio);
 	}, []);
-	useEffect(() => {
+
+	const handleClose = useCallback(() => {
+		setSpeechOpen(false);
+		dialogRef.current?.close();
 		if (!isSpeechOpen) {
 			if (mode === 'speaking') {
 				if (audio) {
@@ -84,10 +87,6 @@ export default function Speech() {
 				setIsListening(false);
 			}
 		}
-	}, [audio, isSpeechOpen, mode]);
-	const handleClose = useCallback(() => {
-		setSpeechOpen(false);
-		dialogRef.current?.close();
 	}, [dialogRef]);
 	const handleOpen = useCallback(() => {
 		// console.log('recognition: ', recognition);
@@ -102,6 +101,34 @@ export default function Speech() {
 			window.alert('The browser does not support recognition api.');
 		}
 	}, [browserSupportsSpeechRecognition]);
+	// async function getUserMedia() {
+	// 	try {
+	// 		const stream = await navigator.mediaDevices.getUserMedia({
+	// 			audio: {
+	// 				echoCancellation: true,
+	// 			},
+	// 			video: false,
+	// 		});
+	// 		const micStream = analyzer?.audioCtx.createMediaStreamSource(stream);
+	// 		analyzer?.connectInput(micStream as MediaStreamAudioSourceNode);
+	// 		analyzer?.disconnectOutput();
+	// 		return () => {
+	// 			stream.getAudioTracks().forEach((track) => {
+	// 				if (track.readyState === 'live') {
+	// 					track.stop();
+	// 				}
+	// 			});
+
+	// 			analyzer?.disconnectInput(micStream);
+	// 			analyzer?.connectOutput();
+	// 		};
+	// 	} catch (error) {
+	// 		console.log('get user media error:', error);
+	// 		return () => {
+	// 			console.log('error return');
+	// 		};
+	// 	}
+	// }
 	const getUserMedia = useCallback(async () => {
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({
@@ -113,6 +140,7 @@ export default function Speech() {
 			const micStream = analyzer?.audioCtx.createMediaStreamSource(stream);
 			analyzer?.connectInput(micStream as MediaStreamAudioSourceNode);
 			analyzer?.disconnectOutput();
+			console.log('mic connected');
 			return () => {
 				stream.getAudioTracks().forEach((track) => {
 					if (track.readyState === 'live') {
@@ -122,9 +150,11 @@ export default function Speech() {
 
 				analyzer?.disconnectInput(micStream);
 				analyzer?.connectOutput();
+				console.log('mic disconnected');
 			};
 		} catch (error) {
 			console.log('get user media error:', error);
+			window.alert('Error getting user media.');
 			return () => {
 				console.log('error return');
 			};
@@ -186,36 +216,40 @@ export default function Speech() {
 				case 'listening': {
 					if (!audio) return;
 					if (!isListening) return;
-					const stopTrack = getUserMedia();
-					if (browserSupportsSpeechRecognition) {
-						console.log('start recognition');
-						// recognition.start();
-						SpeechRecognition.startListening()
-							.then((res) => {
-								console.log('start recognition res: ', res);
-								onRecognition();
-							})
-							.catch((err) => {
-								console.log('start listening error: ', err);
-								window.alert('Error occured on recognizing speech.');
-							});
-					}
+
+					console.log('start recognition');
+					// recognition.start();
+					const stopTrack = SpeechRecognition.startListening()
+						.then((res) => {
+							console.log('start recognition res: ', res);
+							onRecognition();
+							return getUserMedia();
+						})
+						.catch((err) => {
+							console.log('start listening error: ', err);
+							window.alert('Error occured on recognizing speech.');
+						});
+					// const stopTrack = getUserMedia();
 
 					return () => {
-						stopTrack
-							.then((response) => {
-								console.log('track stoped');
-								response();
-							})
-							.catch((err) => {
-								console.log('stop track err: ', err);
-							});
+						// stopTrack
+						// 	.then(() => {
+						// 		console.log('track stoped');
+						// 	})
+						// 	.catch((err) => {
+						// 		console.log('stop track err: ', err);
+						// 	});
 						// if (recognition) {
 						// recognition.stop();
 						// }
-						SpeechRecognition.stopListening().then(() => {
-							console.log('stop recognition: ');
-						});
+						SpeechRecognition.stopListening()
+							.then(() => {
+								console.log('stop recognition: ');
+								return stopTrack;
+							})
+							.then((stopTrackRes) => {
+								if (stopTrackRes) stopTrackRes();
+							});
 					};
 				}
 				case 'speaking': {
@@ -224,6 +258,7 @@ export default function Speech() {
 						return () => {};
 					}
 					if (!transcript) {
+						onAISpeakEnd();
 					}
 				}
 			}
