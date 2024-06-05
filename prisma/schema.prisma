@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("POSTGRES_URL")
+}
+
+model Conversation {
+  id                Int          @id @default(autoincrement())
+  created_at        DateTime?
+  end_time          DateTime?
+  user_id           Int?
+  conversation_name String?
+  salutation        String?
+  fileUrl           String?
+  status            String?       @db.VarChar(50)
+  visibility        Boolean?
+  conversation_id   String?       @db.VarChar(255)
+  messages          Message[]
+  questions         Question[]
+  debates           Debate[]
+  debate_messages   Debate_Message[]
+  paragraphs        Paragraph[]
+  documents         Document[]
+  user              UserTable?    @relation(fields: [user_id], references: [user_id])
+}
+
+model Debate {
+  debate_id       Int              @id @default(autoincrement())
+  question_id     Int?
+  answer_id       Int?
+  refer_content   String?
+  conversation_id Int?
+  user_id         Int?
+  messages        Debate_Message[]
+  conversation    Conversation?   @relation(fields: [conversation_id], references: [id])
+  user            UserTable?      @relation(fields: [user_id], references: [user_id])
+}
+
+model Debate_Message {
+  id              Int            @id @default(autoincrement())
+  content         String?
+  sender          String?        @db.VarChar(255)
+  time            DateTime?
+  debate_id       Int?
+  conversation_id Int?
+  user_id         Int?
+  debate          Debate?        @relation(fields: [debate_id], references: [debate_id])
+  conversation    Conversation?  @relation(fields: [conversation_id], references: [id])
+  user            UserTable?     @relation(fields: [user_id], references: [user_id])
+}
+
+model Document {
+  document_id     Int           @id @default(autoincrement())
+  document_name   String        @db.VarChar(255)
+  document_url    String?       @db.VarChar(255)
+  conversation_id Int?
+  document_size   BigInt?
+  conversation    Conversation? @relation(fields: [conversation_id], references: [id])
+  paragraphs      Paragraph[]
+}
+
+model Message {
+  message_id      Int           @id @default(autoincrement())
+  message         String?
+  created_time    DateTime?
+  conversation_id Int?
+  sender          String?       @db.VarChar(10)
+  message_order   Int?
+  user_id         Int?
+  is_question     Boolean
+  question_doc_name String?     @db.VarChar(50)
+  conversation    Conversation? @relation(fields: [conversation_id], references: [id])
+  user            UserTable?    @relation(fields: [user_id], references: [user_id])
+}
+
+model Paragraph {
+  paragraph_id      Int           @id @default(autoincrement())
+  conversation_id   Int?
+  paragraph_content String?
+  order_number      Int?
+  summary           String?
+  document_id       Int?
+  conversation      Conversation? @relation(fields: [conversation_id], references: [id])
+  document          Document?     @relation(fields: [document_id], references: [document_id])
+}
+
+model Question {
+  question_id      Int           @id @default(autoincrement())
+  question_content String?
+  question_order   Int?
+  conversation_id  Int?
+  conversation     Conversation? @relation(fields: [conversation_id], references: [id])
+}
+
+model UserTable {
+  user_id       Int            @id @default(autoincrement())
+  user_name     String?        @db.VarChar(50)
+  user_email    String?
+  last_conv     Int?
+  profile_img   String?
+  auth_type     String?        @db.VarChar(50)
+  auth_id       String?        @db.VarChar(200)
+  last_login    DateTime?
+  conversations Conversation[]
+  messages      Message[]
+  debates       Debate[]
+  debate_messages Debate_Message[]
+}
