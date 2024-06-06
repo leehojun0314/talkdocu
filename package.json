@@ -13,6 +13,7 @@
 		"@microsoft/fetch-event-source": "^2.0.1",
 		"@pinecone-database/pinecone": "^1.1.2",
 		"@prisma/client": "^5.15.0",
+		"@prisma/extension-accelerate": "^1.1.0",
 		"@reduxjs/toolkit": "^1.9.3",
 		"@types/mssql": "^9.1.1",
 		"@types/node": "18.15.10",

@@ -2,11 +2,13 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
 import { TUserFromDB } from '@/types/types';
-import {
-	getUserInfoFromSession,
-	selectDebate,
-	selectDebateMessages,
-} from '@/models';
+import { getUserInfoFromSession } from '@/models/user';
+import { selectDebate, selectDebateMessages } from '@/models/debate';
+// import {
+// 	getUserInfoFromSession,
+// 	selectDebate,
+// 	selectDebateMessages,
+// } from '@/models';
 
 export default async function handler(
 	req: NextApiRequest,
@@ -26,17 +28,17 @@ export default async function handler(
 		const user: TUserFromDB = await getUserInfoFromSession(session);
 		const debateRes = await selectDebate(answerId, user.user_id);
 		console.log('debate res:', debateRes);
-		if (!debateRes.recordset.length) {
+		if (!debateRes) {
 			res.status(400).send("Debate doesn't exist");
 			return;
 		}
 		const debateMesRes = await selectDebateMessages(
-			debateRes.recordset[0].debate_id,
+			debateRes.debate_id,
 			user.user_id,
 		);
 		res.send({
-			debate: debateRes.recordset[0],
-			messages: debateMesRes.recordset,
+			debate: debateRes,
+			messages: debateMesRes,
 		});
 	} catch (error) {
 		console.log('error: ', error);

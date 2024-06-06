@@ -2,12 +2,13 @@ import { TExtendedSession, TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
+
+import { deleteConvPinecone } from '@/models/pinecone';
+import { getUserInfoFromSession } from '@/models/user';
 import {
 	deleteConversationModel,
-	getUserInfoFromSession,
 	selectConvByStrAuth,
-} from '@/models';
-import { deleteConvPinecone } from '@/models/pinecone';
+} from '@/models/conversation';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -25,11 +26,11 @@ export default async function handler(
 			authOptions,
 		);
 		const user: TUserFromDB = await getUserInfoFromSession(session);
-		const { recordset } = await selectConvByStrAuth(
+		const conversation = await selectConvByStrAuth(
 			convStringId,
 			user.user_id,
 		);
-		const selectedConvIntId: number = recordset[0].id;
+		const selectedConvIntId: number = conversation.id;
 		if (!selectedConvIntId) {
 			throw new Error('Invalid conversation id or user id');
 		}

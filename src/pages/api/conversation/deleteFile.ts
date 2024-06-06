@@ -1,14 +1,11 @@
-import {
-	getUserInfoFromSession,
-	selectConvByStr,
-	updateConvStatus,
-} from '@/models';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
 import { TDocument, TUserFromDB } from '@/types/types';
 import { deleteDocuPinecone } from '@/models/pinecone';
 import { deleteDocument } from '@/models/document';
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConvByStr, updateConvStatus } from '@/models/conversation';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -30,7 +27,7 @@ export default async function handler(
 	}
 	let convIntId;
 	try {
-		convIntId = (await selectConvByStr(convStringId)).recordset[0].id;
+		convIntId = (await selectConvByStr(convStringId)).id;
 		if (!convIntId) {
 			throw new Error('Invalid conversation id');
 		}
@@ -58,7 +55,9 @@ export default async function handler(
 		response.status(200).send('complete');
 	} catch (error) {
 		console.log('error: ', error);
-		updateConvStatus(convIntId, 'created', userId);
+		if (convIntId) {
+			updateConvStatus(convIntId, 'error', userId);
+		}
 		response.status(500).send(error);
 	}
 }

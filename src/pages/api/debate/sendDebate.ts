@@ -8,18 +8,24 @@ import {
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
-import {
-	getUserInfoFromSession,
-	selectConvByStr,
-	selectDebate,
-	selectDebateMessages,
-} from '@/models';
+// import {
+// 	getUserInfoFromSession,
+// 	selectConvByStr,
+// 	selectDebate,
+// 	selectDebateMessages,
+// } from '@/models';
 import MessageGenerator from '@/utils/messageGenerator';
 import { configs } from '@/config';
 import { ChatCompletionMessageParam } from 'openai/resources';
 import createAIChatStream from '@/lib/createAIChat';
-import { insertDebateMessage } from '@/models/debate';
+import {
+	insertDebateMessage,
+	selectDebate,
+	selectDebateMessages,
+} from '@/models/debate';
 import { optimizingPrompt } from '@/lib/optimizingPrompt';
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConvByStr } from '@/models/conversation';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -50,16 +56,17 @@ export default async function handler(
 		return;
 	}
 	try {
-		const convIntId = (await selectConvByStr(convStringId)).recordset[0].id;
-		const debate: TDebate = (await selectDebate(answerId, user.user_id))
-			.recordset[0];
-		const debateMessages: TDebateMessage[] = (
-			await selectDebateMessages(debateId, user.user_id)
-		).recordset;
+		const convIntId = (await selectConvByStr(convStringId)).id;
+		const debate: TDebate = await selectDebate(answerId, user.user_id);
+
+		const debateMessages: TDebateMessage[] = await selectDebateMessages(
+			debateId,
+			user.user_id,
+		);
 		const prompt: Array<ChatCompletionMessageParam> = [];
 		prompt.push(MessageGenerator.systemMessage(debate.refer_content));
-		prompt.push(MessageGenerator.userMessage(debate.question_content));
-		prompt.push(MessageGenerator.assistantMessage(debate.answer_content));
+		prompt.push(MessageGenerator.userMessage(debate.question.message));
+		prompt.push(MessageGenerator.assistantMessage(debate.answer.message));
 		const optimizedHistory = optimizingPrompt(
 			debateMessages,
 			debate.refer_content,

@@ -2,7 +2,8 @@ import { TExtendedSession, TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
-import { selectConversations, getUserInfoFromSession } from '@/models';
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConversations } from '@/models/conversation';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -20,9 +21,9 @@ export default async function handler(
 		);
 		const user: TUserFromDB = await getUserInfoFromSession(session);
 
-		const { recordset } = await selectConversations(user);
+		const conversations = await selectConversations(user.user_id);
 
-		response.status(200).send({ conversations: recordset });
+		response.status(200).send({ conversations });
 	} catch (error) {
 		console.log(error);
 		response.status(500).send(error);

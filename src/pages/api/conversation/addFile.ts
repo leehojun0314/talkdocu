@@ -1,8 +1,3 @@
-import {
-	getUserInfoFromSession,
-	selectConvByStrAuth,
-	updateConvStatus,
-} from '@/models';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
@@ -17,6 +12,8 @@ import { upsertParagraph } from '@/models/pinecone';
 import { escapeQuotation } from '@/utils/functions';
 import { insertDocument } from '@/models/document';
 import { configs } from '@/config';
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConvByStrAuth, updateConvStatus } from '@/models/conversation';
 export const config = {
 	api: {
 		bodyParser: false,
@@ -51,8 +48,7 @@ export default async function handler(
 		if (!convStringId) {
 			throw new Error('Invalid conversation parameter');
 		}
-		convIntId = (await selectConvByStrAuth(convStringId, user.user_id))
-			.recordset[0].id;
+		convIntId = (await selectConvByStrAuth(convStringId, user.user_id)).id;
 		if (!convIntId) {
 			throw new Error('User is not the owner of the conversation.');
 		}
@@ -68,6 +64,9 @@ export default async function handler(
 		response.status(500).send(error);
 	}
 	try {
+		if (!convIntId) {
+			throw new Error('Conversation int id not found');
+		}
 		await updateConvStatus(convIntId, 'analyzing', user.user_id);
 		let isError = { status: false, message: '' };
 		if (!files) {
@@ -113,7 +112,7 @@ export default async function handler(
 				documentSize: fileSize,
 				convIntId,
 			});
-			const documentId = insertDocumentResult.recordset[0].document_id;
+			const documentId = insertDocumentResult.document_id;
 			console.log('documentid : ', documentId);
 			const pages: any[] = [];
 			const document = await PdfParse(buffer, {

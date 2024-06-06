@@ -2,13 +2,17 @@ import { TExtendedSession, TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
-import {
-	selectConversations,
-	getUserInfoFromSession,
-	selectConversation,
-	selectDocuments,
-	selectMessages,
-} from '@/models';
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConversation } from '@/models/conversation';
+import { selectDocuments } from '@/models/document';
+import { selectMessages } from '@/models/message';
+// import {
+// 	selectConversations,
+// 	getUserInfoFromSession,
+// 	selectConversation,
+// 	selectDocuments,
+// 	selectMessages,
+// } from '@/models';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -30,17 +34,14 @@ export default async function handler(
 			authOptions,
 		);
 		const user: TUserFromDB = await getUserInfoFromSession(session);
-		const convRes = await selectConversation(user, convStringId);
-		const docRes = await selectDocuments(convRes.recordset[0].id);
-		const mesRes = await selectMessages(
-			convRes.recordset[0].id,
-			user.user_id,
-		);
+		const convRes = await selectConversation(user.user_id, convStringId);
+		const docRes = await selectDocuments(convRes.id);
+		const mesRes = await selectMessages(convRes.id, user.user_id);
 
 		response.status(200).send({
-			conversation: convRes.recordset[0],
-			documents: docRes.recordset,
-			messages: mesRes.recordset,
+			conversation: convRes,
+			documents: docRes,
+			messages: mesRes,
 		});
 	} catch (error) {
 		console.log(error);

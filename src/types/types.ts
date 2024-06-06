@@ -31,10 +31,8 @@ export type TParagraph = {
 export type TParagraph_DB = {
 	conversation_id: number;
 	document_id: number;
-	order_number: boolean;
 	paragraph_content: string;
 	paragraph_id: number;
-	summary: string | null;
 };
 
 export type TSession = {
@@ -47,14 +45,13 @@ export type TSession = {
 	};
 };
 export type TUserFromDB = {
-	auth_id: string;
-	auth_type: string;
-	last_conv: number | null;
-	last_login: string;
-	profile_img: string;
-	user_email: string;
 	user_id: number;
 	user_name: string;
+	user_email: string;
+	profile_img: string | null;
+	auth_type: string | null;
+	auth_id: string | null;
+	last_login: Date | null;
 };
 export type TConversation = {
 	id: number;
@@ -108,8 +105,7 @@ export type TDocument = {
 	conversation_id: number;
 	document_id: number;
 	document_name: string;
-	document_size: string;
-	document_url: string;
+	document_size: bigint;
 };
 export type TReferenceDoc = {
 	page: number;
@@ -124,16 +120,20 @@ export type TDebate = {
 	question_id: number;
 	answer_id: number;
 	refer_content: string;
-	question_content: string;
-	answer_content: string;
+	question: {
+		message: string;
+	};
+	answer: {
+		message: string;
+	};
 };
 export type TDebateMessage = {
 	id: number;
-	content: string;
+	content: string | null;
 	sender: 'assistant' | 'user';
-	time: number | null | undefined;
+	time: Date;
 	debate_id: number;
-	conversation_id: number | string | undefined;
+	conversation_id: number;
 	// user_id: number | undefined;
 };
 export type TExistFile = {

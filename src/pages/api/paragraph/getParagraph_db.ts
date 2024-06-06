@@ -1,9 +1,10 @@
-import { getUserInfoFromSession, selectConvByStr } from '@/models';
 import { TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
 import { selectParagraphConv } from '@/models/paragraph';
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConvByStr } from '@/models/conversation';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -27,8 +28,7 @@ export default async function handler(
 		return;
 	}
 	try {
-		const convIntId = (await selectConvByStr(convStringId as string))
-			.recordset[0].id;
+		const convIntId = (await selectConvByStr(convStringId as string)).id;
 		if (!convIntId) {
 			response.status(500).send('Invalid conv id');
 			return;

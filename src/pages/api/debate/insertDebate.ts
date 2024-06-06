@@ -1,13 +1,14 @@
-import {
-	getUserInfoFromSession,
-	selectConvByStr,
-	selectDebateMessages,
-} from '@/models';
-import { insertDebateMessage } from '@/models/debate';
+import // getUserInfoFromSession,
+// selectConvByStr,
+// selectDebateMessages,
+'@/models';
+import { insertDebateMessage, selectDebateMessages } from '@/models/debate';
 import { TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConvByStr } from '@/models/conversation';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -30,7 +31,7 @@ export default async function handler(
 			response.status(401).send('Unauthorized');
 			return;
 		}
-		const convIntId = (await selectConvByStr(convStringId)).recordset[0].id;
+		const convIntId = (await selectConvByStr(convStringId)).id;
 		if (!convIntId) {
 			response.status(400).send('Invalid conv id');
 			return;
@@ -49,9 +50,7 @@ export default async function handler(
 			convIntId,
 			user.user_id,
 		);
-		const newMessages = (await selectDebateMessages(debateId, user.user_id))
-			.recordset;
-
+		const newMessages = await selectDebateMessages(debateId, user.user_id);
 		response.send({ messages: newMessages });
 	} catch (error) {
 		console.log('error: ', error);

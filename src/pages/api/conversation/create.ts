@@ -3,7 +3,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
 import { escapeQuotation } from '@/utils/functions';
-import { getUserInfoFromSession, insertConv, updateConvStatus } from '@/models';
 import fs from 'fs';
 import PdfParse from 'pdf-parse';
 import { upsertParagraph } from '@/models/pinecone';
@@ -19,6 +18,8 @@ import { pageRender, processFile } from '@/lib/processFile';
 import { insertDocument } from '@/models/document';
 import { insertParagraphs } from '@/models/paragraph';
 import { generateConvId } from '@/lib/generateConvId';
+import { getUserInfoFromSession } from '@/models/user';
+import { insertConv, updateConvStatus } from '@/models/conversation';
 export const config = {
 	api: {
 		bodyParser: false,
@@ -69,7 +70,7 @@ export default async function handler(
 			userId: user.user_id,
 			convStringId,
 		});
-		convIntId = conversationResult.recordset[0].id;
+		convIntId = conversationResult.id;
 		filesFinal = Object.values(files)?.map((fileArr) =>
 			fileArr ? fileArr[0] : null,
 		);
@@ -86,6 +87,9 @@ export default async function handler(
 		if (!filesFinal) {
 			throw new Error('files final does not exist');
 		}
+		if (!convIntId) {
+			throw new Error('Conversation int id not found');
+		}
 		for await (let file of Object.values(filesFinal)) {
 			const extendedFile = file as unknown as TExtendedFile;
 			if (extendedFile?.filepath) {
@@ -101,7 +105,7 @@ export default async function handler(
 					documentSize: fileSize,
 					convIntId: convIntId,
 				});
-				const documentId = insertDocumentResult.recordset[0].document_id;
+				const documentId = insertDocumentResult.document_id;
 				const pages: string[] = [];
 				const document = await PdfParse(buffer, {
 					pagerender: pageRender(pages),

@@ -1,6 +1,5 @@
 import { configs } from '@/config';
 import { TExtendedSession, TStreamCallback, TUserFromDB } from '@/types/types';
-import { getUserInfoFromSession, selectConvByStr } from '@/models';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { selectParagraphDocu } from '@/models/paragraph';
 import { selectDocument } from '@/models/document';
@@ -9,6 +8,8 @@ import createAIChatStream from '@/lib/createAIChat';
 import MessageGenerator from '@/utils/messageGenerator';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConvByStr } from '@/models/conversation';
 export default async function hanlder(
 	request: NextApiRequest,
 	response: NextApiResponse,
@@ -41,11 +42,11 @@ export default async function hanlder(
 		const convStringId = body.convStringId;
 		const docuId = body.docuId;
 		const convIntIdRes = await selectConvByStr(convStringId);
-		const convIntId = convIntIdRes.recordset[0].id;
+		const convIntId = convIntIdRes.id;
 		console.log('conv int id: ', convIntId);
 		console.log('docu id: ', docuId);
 		const selectParaRes = await selectParagraphDocu(docuId, convIntId);
-		const paragraphs = selectParaRes.recordset;
+		const paragraphs = selectParaRes;
 		console.log('paragraphs: ', paragraphs);
 		//지문 추출
 		const joinedParagraph = paragraphs
@@ -54,7 +55,7 @@ export default async function hanlder(
 			.slice(0, configs.relatedParagraphLength);
 		const docuRes = await selectDocument(docuId, convIntId);
 		console.log('docu Res:', docuRes);
-		const docuName = docuRes.recordset[0].document_name;
+		const docuName = docuRes.document_name;
 		const questionStreamCallback: TStreamCallback = async ({
 			text,
 			isEnd,

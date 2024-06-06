@@ -1,5 +1,5 @@
 import { configs } from '@/config';
-import { selectConvByStr } from '@/models';
+import { selectConvByStr } from '@/models/conversation';
 import { selectParagraphDocu } from '@/models/paragraph';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -17,10 +17,10 @@ export default async function handler(
 		return;
 	}
 	try {
-		const convIntId = (await selectConvByStr(convStringId)).recordset[0].id;
+		const convIntId = (await selectConvByStr(convStringId)).id;
 		console.log('conv int id: ', convIntId);
-		const paragraphs = (await selectParagraphDocu(docuId, convIntId))
-			.recordset;
+		const paragraphs = await selectParagraphDocu(docuId, convIntId);
+
 		const joinedParagraphs = paragraphs
 			.map((p) => p.paragraph_content)
 			.join(' ')
