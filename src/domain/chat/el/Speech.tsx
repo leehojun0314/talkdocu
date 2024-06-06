@@ -72,7 +72,17 @@ export default function Speech() {
 	const handleClose = useCallback(() => {
 		setSpeechOpen(false);
 		dialogRef.current?.close();
-	}, [dialogRef]);
+		if (mode === 'speaking') {
+			if (audio && !audio.paused) {
+				audio.pause();
+			}
+			if (isLoading) {
+				setIsLoading(false);
+			}
+			setMode('listening');
+		}
+		setIsListening(false);
+	}, [dialogRef, audio, mode, isLoading]);
 	const handleOpen = useCallback(() => {
 		// console.log('recognition: ', recognition);
 		console.log(
