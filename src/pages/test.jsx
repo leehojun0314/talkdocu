@@ -1,3 +1,4 @@
+'use client';
 import axios from 'axios';
 import { NextPage } from 'next';
 import React, { useEffect, useRef, useState } from 'react';
@@ -7,8 +8,48 @@ import { Button } from '@mui/material';
 import SpeechRecognition, {
 	useSpeechRecognition,
 } from 'react-speech-recognition';
-const TestPage: NextPage = () => {
-	const visualizerRef = useRef<HTMLDivElement>(null);
+import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+import 'pdfjs-dist/build/pdf.worker.entry';
+const PdfTextExtractor = () => {
+	const [text, setText] = useState('');
+
+	const handleFileChange = async (event) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			const fileReader = new FileReader();
+			fileReader.onload = async () => {
+				const typedArray = new Uint8Array(fileReader.result);
+				const pdf = await pdfjsLib.getDocument(typedArray).promise;
+				const textPromises = [];
+				for (let i = 1; i <= pdf.numPages; i++) {
+					const page = await pdf.getPage(i);
+					const textContent = await page.getTextContent();
+					const pageText = textContent.items
+						.map((item) => {
+							if ('str' in item) {
+								return item.str;
+							}
+							return '';
+						})
+						.join(' ');
+					textPromises.push(Promise.resolve(pageText));
+				}
+				const allText = await Promise.all(textPromises);
+				setText(allText.join('\n'));
+			};
+			fileReader.readAsArrayBuffer(file);
+		}
+	};
+
+	return (
+		<div>
+			<input type='file' onChange={handleFileChange} />
+			<pre>{text}</pre>
+		</div>
+	);
+};
+const TestPage = () => {
+	const visualizerRef = useRef(null);
 	function postgresTest() {
 		axios
 			.get('/api/postgresTest')
@@ -48,12 +89,12 @@ const TestPage: NextPage = () => {
 			}
 		};
 	}
-	const audioRef = useRef<HTMLAudioElement>(null);
-	const [analyzer, setAnalyzer] = useState<AudioMotionAnalyzer | null>(null);
+	const audioRef = useRef(null);
+	const [analyzer, setAnalyzer] = useState();
 	useEffect(() => {
 		if (audioRef.current && visualizerRef) {
 			const an = new AudioMotionAnalyzer(
-				visualizerRef.current as HTMLDivElement,
+				visualizerRef.current,
 				visualizerOptions,
 			);
 			setAnalyzer(an);
@@ -108,7 +149,7 @@ const TestPage: NextPage = () => {
 			an.connectInput(audio);
 		}
 	}, [audioRef, visualizerRef]);
-	const [url, setUrl] = useState<string>('');
+	const [url, setUrl] = useState();
 	function fetchAudio() {
 		try {
 			if (audioRef.current && visualizerRef) {
@@ -139,7 +180,7 @@ const TestPage: NextPage = () => {
 			video: false,
 		});
 		const micStream = analyzer?.audioCtx.createMediaStreamSource(stream);
-		analyzer?.connectInput(micStream as MediaStreamAudioSourceNode);
+		analyzer?.connectInput(micStream);
 		analyzer?.disconnectOutput();
 	}
 	const { browserSupportsSpeechRecognition, transcript } =
@@ -196,6 +237,7 @@ const TestPage: NextPage = () => {
 				logout
 			</button> */}
 			<Button onClick={postgresTest}>postgres test</Button>
+			<PdfTextExtractor />
 		</>
 	);
 };
