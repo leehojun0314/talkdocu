@@ -7,7 +7,9 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-// import { useSelector } from 'react-redux';
+import { getDocument } from 'pdfjs-dist';
+import 'pdfjs-dist/build/pdf.worker.entry';
+import { extractTextFromFile } from '@/lib/extractTextFromPDF';
 const fileSizes = {
 	'1gb': 1024 * 1024 * 1024,
 	'1mb': 1024 * 1024,
@@ -33,23 +35,9 @@ function useDragnDrop() {
 	const router = useRouter();
 	const { getRootProps, isDragActive } = useDropzone({
 		onDrop: async (files) => {
-			console.log('files: ', files);
-			console.log('on drop');
-			// const file = files[0];
-			// if (!file?.name) {
-			// 	return false;
-			// }
 			if (!files.length) {
 				return false;
 			}
-			const totalSize = files.reduce((total, file) => total + file.size, 0);
-
-			// if (!checkFileSize(totalSize, fileSizes['1mb'] * 50)) {
-			// 	toggleOpen('The limit of file size is under 50mb', true, () => {
-			// 		toggleOpen('', false, () => {});
-			// 	});
-			// 	return;
-			// }
 			for (let i = 0; i < files.length; i++) {
 				if (!checkFileExtension(files[i].name, ['pdf'])) {
 					toggleOpen('You can only upload PDF files.', true, () => {
@@ -61,7 +49,6 @@ function useDragnDrop() {
 			setSelectedFiles((pre) => {
 				return [...pre, ...files];
 			});
-			// setSelectedFile(file);
 		},
 		accept: {
 			'application/pdf': ['.pdf'],
@@ -87,33 +74,20 @@ function useDragnDrop() {
 	}
 	function handleInputChange(evt: React.ChangeEvent<HTMLInputElement>) {
 		if (evt.currentTarget.files?.length) {
-			// const file = evt.currentTarget.files[0];
-			// console.log('file: ', file);
-			// if (!checkFileExtension(file.name, ['pdf'])) {
-			// 	toggleOpen('You can only upload PDF files.', true, () => {
-			// 		toggleOpen('', false, () => {});
-			// 	});
-			// } else if (!checkFileSize(file.size, fileSizes['1mb'] * 10)) {
-			// 	toggleOpen('The limit of file size is under 10mb', true, () => {
-			// 		toggleOpen('', false, () => {});
-			// 	});
-			// } else {
-			// 	setSelectedFile(file);
-			// }
 			const files = Array.from(evt.currentTarget.files);
 			//check is empty
 			if (!files.length) {
-				return false;
+				return;
 			}
 
 			//check total size
-			const totalSize = files.reduce((total, file) => total + file.size, 0);
-			// if (!checkFileSize(totalSize, fileSizes['1mb'] * 50)) {
-			// 	toggleOpen('The limit of file size is under 50mb', true, () => {
-			// 		toggleOpen('', false, () => {});
-			// 	});
-			// 	return;
-			// }
+			// const totalSize = files.reduce((total, file) => total + file.size, 0);
+			// // if (!checkFileSize(totalSize, fileSizes['1mb'] * 50)) {
+			// // 	toggleOpen('The limit of file size is under 50mb', true, () => {
+			// // 		toggleOpen('', false, () => {});
+			// // 	});
+			// // 	return;
+			// // }
 
 			//check file type
 			for (let i = 0; i < files.length; i++) {
@@ -152,11 +126,6 @@ function useDragnDrop() {
 			});
 			return;
 		}
-		// if (!selectedFile) {
-		// 	window.alert('파일을 선택해주세요.');
-		// 	setIsLoading(false);
-		// 	return;
-		// }
 		if (!selectedFiles.length) {
 			// window.alert('Please select a file');
 			toggleOpen('Please select a file. ', true, () => {
@@ -209,45 +178,56 @@ function useDragnDrop() {
 			.finally(() => {
 				setIsLoading(false);
 			});
-		// axiosAPI({
-		// 	method: 'POST',
-		// 	url: '/conversation/v10',
-		// 	data: formData,
-		// })
-		// 	.then((response) => {
-		// 		console.log('patch response : ', response);
-		// toggleOpen(
-		// 	'Upload complete. Please wait until it finishes analyze.',
-		// 	true,
-		// 	() => {
-		// 		toggleOpen('', false, () => {});
-		// 		// window.location.href = '/chat';
-		// 		router.push('/manage');
-		// 	},
-		// );
-		// 	})
-		// 	.catch((err) => {
-		// 		console.log('err: ', err);
-		// 		const text = err.response?.data;
+	}
+	async function handleSubmit2(event: React.MouseEvent<HTMLButtonElement>) {
+		event.preventDefault();
+		console.log('submit clicked');
+		setIsLoading(true);
+		if (status === 'loading') {
+			return;
+		}
+		if (status === 'unauthenticated') {
+			toggleOpen('You need to login first.', true, () => {
+				setIsLoading(false);
+				toggleOpen('', false, () => {});
+				// window.location.href = '/login';
+				// router.push('/login');
+				window.sessionStorage.setItem('redirect', window.location.href);
 
-		// toggleOpen(
-		// 	typeof text === 'string' && text.length > 0
-		// 		? text
-		// 		: 'Unexpected Error occured.',
-		// 	true,
-		// 	() => {
-		// 		toggleOpen('', false, () => {});
-		// 	},
-		// );
-		// 	})
-		// 	.finally(() => {
-		// 		setIsLoading(false);
-		// 	});
+				signIn();
+			});
+			return;
+		}
+		if (!selectedFiles.length) {
+			// window.alert('Please select a file');
+			toggleOpen('Please select a file. ', true, () => {
+				setIsLoading(false);
+				toggleOpen('', false, () => {});
+			});
+			return;
+		}
+		console.log('selected files: ', selectedFiles);
+		if (!conversationName?.length) {
+			toggleOpen('Please enter chat name.', true, () => {
+				setIsLoading(false);
+				toggleOpen('', false, () => {});
+			});
+			// window.alert('Please Enter a conversation name');
+			return;
+		}
+		const documents: Array<Array<string>> = [];
+		for (let i = 0; i < selectedFiles.length; i++) {
+			console.log('selected file: ', selectedFiles[i]);
+			const textPages: string[] = await extractTextFromFile(
+				selectedFiles[i],
+			);
+			documents.push(textPages);
+		}
+		console.log('documents: ', documents);
 	}
 	return {
-		// selectedFile,
 		selectedFiles,
-		handleSubmit,
+		handleSubmit: handleSubmit2,
 		getRootProps,
 		isDragActive,
 		alertOpen: open,
