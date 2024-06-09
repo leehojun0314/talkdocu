@@ -39,3 +39,13 @@ export function hasSpecialChars(str: string) {
 	const specialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
 	return specialChars.test(str);
 }
+export function batchCaller(
+	target: Array<any>,
+	callback: (values: any) => void,
+	batchSize = 500,
+) {
+	for (let i = 0; i < target.length; i += batchSize) {
+		const batch = target.slice(i, i + batchSize);
+		callback(batch);
+	}
+}

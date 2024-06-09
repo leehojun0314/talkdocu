@@ -10,6 +10,7 @@ import { useDropzone } from 'react-dropzone';
 import { getDocument } from 'pdfjs-dist';
 import 'pdfjs-dist/build/pdf.worker.entry';
 import { extractTextFromFile } from '@/lib/extractTextFromPDF';
+import { TDocument } from '@/types/types';
 const fileSizes = {
 	'1gb': 1024 * 1024 * 1024,
 	'1mb': 1024 * 1024,
@@ -215,15 +216,62 @@ function useDragnDrop() {
 			// window.alert('Please Enter a conversation name');
 			return;
 		}
-		const documents: Array<Array<string>> = [];
+		const documents: {
+			documentName: string;
+			documentSize: number;
+			pages: string[];
+		}[] = [];
 		for (let i = 0; i < selectedFiles.length; i++) {
 			console.log('selected file: ', selectedFiles[i]);
 			const textPages: string[] = await extractTextFromFile(
 				selectedFiles[i],
 			);
-			documents.push(textPages);
+			documents.push({
+				documentName: selectedFiles[i].name,
+				documentSize: selectedFiles[i].size,
+				pages: textPages,
+			});
 		}
 		console.log('documents: ', documents);
+		axios({
+			method: 'post',
+			url: '/api/conversation/create_edge',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			data: JSON.stringify({
+				conversationName,
+				documents,
+			}),
+		})
+			.then((response) => {
+				console.log('response: ', response);
+				// toggleOpen(
+				// 	'Upload complete. Please wait until it finishes analyze.',
+				// 	true,
+				// 	() => {
+				// 		toggleOpen('', false, () => {});
+				// 		// window.location.href = '/chat';
+				// 		router.push('/manage');
+				// 	},
+				// );
+			})
+			.catch((err) => {
+				console.log('err: ', err);
+				const text = err.response?.data;
+				toggleOpen(
+					typeof text === 'string' && text.length > 0
+						? text
+						: 'Unexpected Error occured.',
+					true,
+					() => {
+						toggleOpen('', false, () => {});
+					},
+				);
+			})
+			.finally(() => {
+				setIsLoading(false);
+			});
 	}
 	return {
 		selectedFiles,

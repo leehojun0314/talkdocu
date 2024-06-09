@@ -21,8 +21,8 @@ export type TExtendedFile = formidable.File & {
 };
 export type TParagraph = {
 	content: string;
-	docuInfo: string;
-	docuMeta: any;
+	docuInfo?: string;
+	docuMeta?: any;
 	docuName: string;
 	docuId: number;
 	pageNumber: number;

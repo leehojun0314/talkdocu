@@ -1,18 +1,15 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { PrismaClient } from '@prisma/client/edge';
 
 export async function insertDocument({
 	documentName,
-	documentUrl,
 	documentSize,
 	convIntId,
 }: {
 	documentName: string;
-	documentUrl: string;
 	documentSize: number;
 	convIntId: number;
 }) {
+	const prisma = new PrismaClient();
 	return await prisma.document.create({
 		data: {
 			document_name: documentName,
@@ -28,6 +25,7 @@ export async function insertDocument({
 // }
 
 export async function selectDocuments(convIntId: number) {
+	const prisma = new PrismaClient();
 	return await prisma.document.findMany({
 		where: {
 			conversation_id: convIntId,
@@ -35,6 +33,7 @@ export async function selectDocuments(convIntId: number) {
 	});
 }
 export async function selectDocument(docuId: number, convIntId: number) {
+	const prisma = new PrismaClient();
 	return await prisma.document.findFirstOrThrow({
 		where: {
 			document_id: docuId,
@@ -44,6 +43,7 @@ export async function selectDocument(docuId: number, convIntId: number) {
 }
 
 export async function deleteDocument(docuId: number, convIntId: number) {
+	const prisma = new PrismaClient();
 	await prisma.$transaction(async (prisma) => {
 		await prisma.paragraph.deleteMany({
 			where: {

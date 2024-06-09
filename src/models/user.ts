@@ -53,10 +53,11 @@
 // 	}
 // }
 import { TExtendedSession, TProvider } from '@/types/types';
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { PrismaClient } from '@prisma/client/edge';
 
 export async function selectUser(userEmail: string, provider?: TProvider) {
+	const prisma = new PrismaClient();
+
 	return await prisma.userTable.findFirstOrThrow({
 		where: {
 			user_email: userEmail,
@@ -72,6 +73,8 @@ export async function insertUser(
 	authType: TProvider | null,
 	authId: string | null,
 ) {
+	const prisma = new PrismaClient();
+
 	return await prisma.userTable.create({
 		data: {
 			user_name: userName,
@@ -87,20 +90,38 @@ export async function insertUser(
 export async function getUserInfoFromSession(session: TExtendedSession | null) {
 	if (!session || !session.user || !session.user.email || !session.user.name)
 		throw new Error('Invalid parameter given');
+	const prisma = new PrismaClient();
 
-	const user = await selectUser(session.user.email, session.provider);
-	if (user && session.user) {
-		console.log('new user');
-		const newUser = await insertUser(
-			session.user.name,
-			session.user.email,
-			session.user.image || '',
-			session.provider || null,
-			session.authId || null,
-		);
-		console.log('inserted User:', newUser);
-		return newUser;
-	} else {
-		return user;
-	}
+	const user = await prisma.userTable.findFirstOrThrow({
+		where: {
+			user_email: session.user.email,
+			auth_type: session.provider,
+		},
+	});
+	// if (user && session.user) {
+	// 	console.log('new user');
+
+	// 	// const newUser = await insertUser(
+	// 	// 	session.user.name,
+	// 	// 	session.user.email,
+	// 	// 	session.user.image || '',
+	// 	// 	session.provider || null,
+	// 	// 	session.authId || null,
+	// 	// );
+	// 	const newUser = await prisma.userTable.create({
+	// 		data: {
+	// 			user_name: session.user.name,
+	// 			user_email: session.user.email,
+	// 			profile_img: session.user.image || '',
+	// 			auth_type: session.provider,
+	// 			auth_id: session.authId,
+	// 			last_login: new Date(),
+	// 		},
+	// 	});
+	// 	console.log('inserted User:', newUser);
+	// 	return newUser;
+	// } else {
+	// 	return user;
+	// }
+	return user;
 }

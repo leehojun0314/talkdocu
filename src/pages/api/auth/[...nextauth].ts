@@ -9,6 +9,8 @@ import * as jose from 'jose';
 // import { insertUser, selectUser } from '@/models';
 import { TProvider } from '@/types/types';
 import { insertUser, selectUser } from '@/models/user';
+import { PrismaClient } from '@prisma/client';
+import { withAccelerate } from '@prisma/extension-accelerate';
 export const authOptions: NextAuthOptions = {
 	// Configure one or more authentication providers
 	providers: [
@@ -106,29 +108,45 @@ export const authOptions: NextAuthOptions = {
 			console.log('sing in params: ', params);
 			try {
 				if (params.user && params.user.email && params.account) {
-					await selectUser(
-						params.user.email,
-						params?.account?.provider as TProvider,
-					);
+					// const user = await selectUser(
+					// 	params.user.email,
+					// 	params?.account?.provider as TProvider,
+					// );
+					const prisma = new PrismaClient().$extends(withAccelerate());
+					const user = await prisma.userTable.findFirst({
+						where: {
+							user_email: params.user.email,
+							auth_type: params.account.provider,
+						},
+						cacheStrategy: {
+							swr: 600,
+							ttl: 600,
+						},
+					});
+					console.log('user from db: ', user);
+					if (user) {
+						prisma.$disconnect();
+						return true;
+					} else {
+						//new user
 
-					return true;
+						const insertUserRes = await insertUser(
+							params.user.name as string,
+							params.user.email as string,
+							params.user.image as string,
+							params.account.provider as TProvider,
+							params.account.providerAccountId as string,
+						);
+						console.log('insert user res: ', insertUserRes);
+						prisma.$disconnect();
+						return true;
+					}
 				} else {
 					return false;
 				}
 			} catch (error) {
-				//new user
-
-				if (params.user && params.user.name && params.account) {
-					const insertUserRes = await insertUser(
-						params.user.name as string,
-						params.user.email as string,
-						params.user.image as string,
-						params.account.provider as TProvider,
-						params.account.providerAccountId as string,
-					);
-					console.log('insert User res: ', insertUserRes);
-				}
-				return true;
+				console.log('signin error: ', error);
+				return false;
 			}
 		},
 		async jwt({ token, account, session }) {

@@ -146,8 +146,7 @@
 // 	return result;
 // }
 import { configs } from '@/config';
-import { PrismaClient, Status } from '@prisma/client';
-const prisma = new PrismaClient();
+import { PrismaClient, Status } from '@prisma/client/edge';
 
 export async function insertConv({
 	conversationName,
@@ -158,6 +157,8 @@ export async function insertConv({
 	userId: number;
 	convStringId: string;
 }) {
+	const prisma = new PrismaClient();
+
 	return await prisma.conversation.create({
 		data: {
 			conversation_name: conversationName,
@@ -176,6 +177,8 @@ export async function updateConvStatus(
 	status: Status,
 	userId: number,
 ) {
+	const prisma = new PrismaClient();
+
 	return await prisma.conversation.updateMany({
 		where: {
 			id: convIntId,
@@ -198,6 +201,8 @@ export async function updateConv({
 	newName: string;
 	newSalutation: string;
 }) {
+	const prisma = new PrismaClient();
+
 	const conversation = await prisma.conversation.findFirst({
 		where: {
 			id: convIntId,
@@ -221,6 +226,8 @@ export async function updateConv({
 }
 
 export async function selectConversation(userId: number, convStringId: string) {
+	const prisma = new PrismaClient();
+
 	return await prisma.conversation.findFirstOrThrow({
 		where: {
 			conversation_id: convStringId,
@@ -235,6 +242,8 @@ export async function selectConversation(userId: number, convStringId: string) {
 }
 
 export async function selectConversations(userId: number) {
+	const prisma = new PrismaClient();
+
 	return await prisma.conversation.findMany({
 		where: {
 			user_id: userId,
@@ -246,6 +255,8 @@ export async function selectConversations(userId: number) {
 }
 
 export async function selectConvByStr(convStringId: string) {
+	const prisma = new PrismaClient();
+
 	return await prisma.conversation.findFirstOrThrow({
 		where: {
 			conversation_id: convStringId,
@@ -257,6 +268,8 @@ export async function selectConvByStrAuth(
 	convStringId: string,
 	userId: number,
 ) {
+	const prisma = new PrismaClient();
+
 	return await prisma.conversation.findFirstOrThrow({
 		where: {
 			conversation_id: convStringId,
@@ -269,6 +282,8 @@ export async function deleteConversationModel(
 	convIntId: number,
 	userId: number,
 ) {
+	const prisma = new PrismaClient();
+
 	const conversation = await prisma.conversation.findUnique({
 		where: {
 			id: convIntId,

@@ -25,7 +25,6 @@ export const config = {
 		bodyParser: false,
 	},
 };
-
 export default async function handler(
 	request: NextApiRequest,
 	response: NextApiResponse,
@@ -101,7 +100,6 @@ export default async function handler(
 				const fileSize = extendedFile.size;
 				const insertDocumentResult = await insertDocument({
 					documentName: originalFilename || '',
-					documentUrl: fileUrl,
 					documentSize: fileSize,
 					convIntId: convIntId,
 				});

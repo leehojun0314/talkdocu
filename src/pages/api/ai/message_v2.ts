@@ -1,5 +1,5 @@
 import createAIChat_edge from '@/lib/createAIChat_edge';
-import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
 import MessageGenerator from '@/utils/messageGenerator';
 import { ChatCompletionRequestMessage } from 'openai-edge';
 
