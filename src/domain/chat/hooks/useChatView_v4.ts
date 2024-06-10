@@ -16,6 +16,7 @@ import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCompletion } from 'ai/react';
 import { configs } from '@/config';
+import { extractTextFromFile } from '@/lib/extractTextFromPDF';
 export default function useChatViewV4() {
 	const { status: authStatus, data: authData } = useSession();
 	// const newAuthData: TExtendedAuthData | null = authData;
@@ -109,8 +110,8 @@ export default function useChatViewV4() {
 		question_id: 0,
 		answer_id: 0,
 		refer_content: '',
-		question_content: '',
-		answer_content: '',
+		question: { message: '' },
+		answer: { message: '' },
 	});
 	const [debateMessages, setDebateMessages] = useState<TDebateMessage[]>([]);
 	const [isLoadingDebate, setIsLoadingDebate] = useState<boolean>(false);
@@ -563,14 +564,17 @@ export default function useChatViewV4() {
 		}
 		if (authStatus === 'authenticated') {
 			//add my message
+			if (!conversation) {
+				return;
+			}
 			setDebateMessages((pre) => {
 				const newEl: TDebateMessage = {
 					id: 0,
 					content: input,
 					sender: 'user',
 					debate_id: debate.debate_id,
-					conversation_id: conversation?.conversation_id,
-					time: null,
+					conversation_id: Number(conversation.conversation_id),
+					time: new Date(),
 				};
 				return [...pre, newEl];
 			});
@@ -684,16 +688,36 @@ export default function useChatViewV4() {
 				);
 			}
 			if (addFiles.length) {
-				let formData = new FormData();
-				for (let i = 0; i < addFiles.length; i++) {
-					formData.append(`file${i}`, addFiles[i]);
+				const documents: {
+					documentName: string;
+					documentSize: number;
+					pages: string[];
+				}[] = [];
+
+				// let formData = new FormData();
+				// for (let i = 0; i < addFiles.length; i++) {
+				// 	formData.append(`file${i}`, addFiles[i]);
+				// }
+				// formData.append('convStringId', router.query.convId as string);
+				for (let file of addFiles) {
+					const textPages: string[] = await extractTextFromFile(file);
+					documents.push({
+						documentName: file.name,
+						documentSize: file.size,
+						pages: textPages,
+					});
 				}
-				formData.append('convStringId', router.query.convId as string);
 				promiseArr.push(
 					axios({
 						method: 'POST',
 						url: '/api/conversation/addFile',
-						data: formData,
+						data: JSON.stringify({
+							convStringId: router.query.convId,
+							documents,
+						}),
+						headers: {
+							'Content-Type': 'application/json',
+						},
 					}),
 				);
 			}

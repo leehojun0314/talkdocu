@@ -1,39 +1,35 @@
-import {
-	getUserInfoFromSession,
-	selectConvByStr,
-	selectDebateMessages,
-} from '@/models';
-import { insertDebateMessage } from '@/models/debate';
+// import // getUserInfoFromSession,
+// // selectConvByStr,
+// // selectDebateMessages,
+// '@/models';
+import { insertDebateMessage, selectDebateMessages } from '@/models/debate';
 import { TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
-
-export default async function handler(
-	request: NextApiRequest,
-	response: NextApiResponse,
-) {
-	if (request.method !== 'POST') {
-		response.status(404).send('Not found');
-		return;
-	}
-	const { userMessage, answerMessage, convStringId, debateId } = request.body;
-	if (!userMessage || !answerMessage || !convStringId || !debateId) {
-		response.status(400).send('Invalid parameter');
-		return;
-	}
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConvByStr } from '@/models/conversation';
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
+import { getErrorMessage } from '@/utils/errorMessage';
+export const runtime = 'edge';
+export default async function POST(request: Request) {
 	try {
-		const user: TUserFromDB = await getUserInfoFromSession(
-			await getServerSession(request, response, authOptions),
-		);
+		const user: TUserFromDB = await getUserInfoEdge(request);
 		if (!user) {
-			response.status(401).send('Unauthorized');
-			return;
+			// response.status(401).send('Unauthorized');
+			return new Response('Unauthorized', { status: 401 });
 		}
-		const convIntId = (await selectConvByStr(convStringId)).recordset[0].id;
+		const { userMessage, answerMessage, convStringId, debateId } =
+			await request.json();
+
+		if (!userMessage || !answerMessage || !convStringId || !debateId) {
+			// response.status(400).send('Invalid parameter');
+			return new Response('Invalid parameter', { status: 400 });
+		}
+		const convIntId = (await selectConvByStr(convStringId)).id;
 		if (!convIntId) {
-			response.status(400).send('Invalid conv id');
-			return;
+			// response.status(400).send('Invalid conv id');
+			return new Response('Invalid conv id', { status: 400 });
 		}
 		await insertDebateMessage(
 			userMessage,
@@ -49,12 +45,17 @@ export default async function handler(
 			convIntId,
 			user.user_id,
 		);
-		const newMessages = (await selectDebateMessages(debateId, user.user_id))
-			.recordset;
-
-		response.send({ messages: newMessages });
+		const newMessages = await selectDebateMessages(debateId, user.user_id);
+		// response.send({ messages: newMessages });
+		return new Response(JSON.stringify({ messages: newMessages }), {
+			status: 200,
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
 	} catch (error) {
-		console.log('error: ', error);
-		response.status(500).send(error);
+		console.log('insert debate error: ', error);
+		// response.status(500).send(error);
+		return new Response(getErrorMessage(error), { status: 500 });
 	}
 }

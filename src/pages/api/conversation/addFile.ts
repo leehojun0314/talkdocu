@@ -1,172 +1,136 @@
-import {
-	getUserInfoFromSession,
-	selectConvByStrAuth,
-	updateConvStatus,
-} from '@/models';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]';
-import { useFormidable } from '@/lib/formidable';
+// import { NextApiRequest, NextApiResponse } from 'next';
+// import { getServerSession } from 'next-auth';
+// import { authOptions } from '../auth/[...nextauth]';
+// import { useFormidable } from '@/lib/formidable';
 import { TParagraph, TUserFromDB } from '@/types/types';
-import formidable, { File } from 'formidable';
-import fs from 'fs';
-import { pageRender } from '@/lib/processFile';
-import PdfParse from 'pdf-parse';
-import { insertParagraphs } from '@/models/paragraph';
-import { upsertParagraph } from '@/models/pinecone';
-import { escapeQuotation } from '@/utils/functions';
+// import  { File } from 'formidable';
+// import fs from 'fs';
+// import { pageRender } from '@/lib/processFile';
+// import PdfParse from 'pdf-parse';
+// import { insertParagraphs } from '@/models/paragraph';
+// import { upsertParagraph } from '@/models/pinecone';
+import { batchCaller } from '@/utils/functions';
 import { insertDocument } from '@/models/document';
-import { configs } from '@/config';
-export const config = {
-	api: {
-		bodyParser: false,
-	},
-};
-export default async function handler(
-	request: NextApiRequest,
-	response: NextApiResponse,
+// import { configs } from '@/config';
+// import { getUserInfoFromSession } from '@/models/user';
+import { selectConvByStrAuth, updateConvStatus } from '@/models/conversation';
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
+import { prismaEdge } from '@/models';
+import { getErrorMessage } from '@/utils/errorMessage';
+// export const config = {
+// 	api: {
+// 		bodyParser: false,
+// 	},
+// };
+export const runtime = 'edge';
+export default async function POST(
+	request: Request,
+	// response: NextApiResponse,
 ) {
-	if (request.method !== 'POST') {
-		response.status(404).send('Bad request');
-		return;
-	}
+	console.log('add file called');
+	// if (request.method !== 'POST') {
+	// 	response.status(404).send('Bad request');
+	// 	return;
+	// }
 	// response.setHeader('Content-Type', 'application/json');
-	response.setHeader('X-Accel-Buffering', 'no');
+	// response.setHeader('X-Accel-Buffering', 'no');
 
-	const user: TUserFromDB = await getUserInfoFromSession(
-		await getServerSession(request, response, authOptions),
-	);
-	let fields, files, convStringId, convIntId;
+	const user: TUserFromDB = await getUserInfoEdge(request);
+	console.log('user: ', user);
+	const { convStringId, documents } = await request.json();
+	console.log('conv string id : ', convStringId);
+	// console.log('documents: ', documents);
+	// let fields, files, convStringId, convIntId;
 
 	if (!user) {
-		response.status(401).send('Unauthenticated');
-		return;
+		// response.status(401).send('Unauthenticated');
+		return new Response('Unauthenticated', { status: 401 });
 	}
+	if (!convStringId) {
+		return new Response('Invalid conversation parameter', { status: 400 });
+	}
+	if (!documents.length) {
+		return new Response('No file is given', { status: 400 });
+	}
+
 	try {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const formidableRes = await useFormidable(request);
-		fields = formidableRes.fields;
-		files = formidableRes.files;
-		convStringId = fields.convStringId;
-		if (!convStringId) {
-			throw new Error('Invalid conversation parameter');
-		}
-		convIntId = (await selectConvByStrAuth(convStringId, user.user_id))
-			.recordset[0].id;
+		const convIntId = (await selectConvByStrAuth(convStringId, user.user_id))
+			.id;
 		if (!convIntId) {
 			throw new Error('User is not the owner of the conversation.');
 		}
-		let fileCount = 0;
-		for (let file in files) {
-			fileCount++;
-		}
-		if (!fileCount) {
-			throw new Error('No file is given');
-		}
-	} catch (error) {
-		console.log('error: ', error);
-		response.status(500).send(error);
-	}
-	try {
+		console.log('conv int id: ', convIntId);
+		console.log('user: ', user);
 		await updateConvStatus(convIntId, 'analyzing', user.user_id);
-		let isError = { status: false, message: '' };
-		if (!files) {
-			throw new Error('No file is given');
-		}
-		for (let file of Object.values(files)) {
-			if (file instanceof File) {
-				isError = await processFile(file[0]);
-				if (isError.status) break;
-			}
-		}
-		if (isError.status) {
-			throw new Error(isError.message);
-		}
 
 		//upload blob
-		// let uploadResults = await uploadBlob_v2(files);
-		console.log('uploaded files: ', files);
-		let fileIndex = 0;
-		for (let file of Object.values(files)) {
-			// const { fileUrl, buffer, originalFilename, fileSize } = uploadResult;
-			if (!file) {
-				break;
-			}
-			const fileUrl = '';
-			const buffer = await fs.promises.readFile(file[0].filepath);
-			const originalFilename = file[0].originalFilename ?? '';
-			const fileSize = file[0].size;
-			let stringBeforeSent =
-				JSON.stringify({
-					message: `Uploading file: ${originalFilename}`,
-					status: 'uploading',
-					progress: `${Math.floor(
-						(fileIndex / Object.values(files).length) * 100,
-					)}`,
-				}) + '#';
-			console.log('string before sent: ', stringBeforeSent);
-			// response.write(stringBeforeSent);
-			//insert document in mssql
-			const insertDocumentResult = await insertDocument({
-				documentName: originalFilename,
-				documentUrl: fileUrl,
-				documentSize: fileSize,
+		// let fileIndex = 0;
+		for (let doc of documents) {
+			const insertDocRes = await insertDocument({
+				documentName: doc.documentName,
+				documentSize: doc.documentSize,
 				convIntId,
 			});
-			const documentId = insertDocumentResult.recordset[0].document_id;
-			console.log('documentid : ', documentId);
-			const pages: any[] = [];
-			const document = await PdfParse(buffer, {
-				pagerender: pageRender(pages),
-			});
+			const docuId = insertDocRes.document_id;
 			const paragraphs: TParagraph[] = [];
-			for (let i = 0; i < pages.length; i++) {
+			for (let i = 0; i < doc.pages.length; i++) {
 				paragraphs.push({
-					content:
-						`(page : ${i + 1})` + escapeQuotation(pages[i]).toLowerCase(),
-					// keywords: escapeQuotation(extracted[i].join(', ')),
+					content: doc.pages[i],
 					pageNumber: i + 1,
 					convIntId,
-					docuInfo: document.info,
-					docuMeta: document.metadata,
-					docuId: documentId,
-					docuName: originalFilename ?? '',
+					docuId,
+					docuName: doc.documentName,
 				});
 			}
-			await upsertParagraph({
-				paragraphs,
-				convIntId,
-				docuId: documentId,
+			const batches: TParagraph[][] = [];
+			batchCaller(paragraphs, (batchedParagraphs) => {
+				batches.push(batchedParagraphs);
 			});
-			await insertParagraphs({ paragraphs, convIntId, documentId });
-			// Send progress update to client
-
-			fileIndex++;
+			console.log('batches: ', batches);
+			const transactionRes = batches.map((batch) => {
+				return prismaEdge.$transaction(
+					batch.map((paragraph) =>
+						prismaEdge.paragraph.create({
+							data: {
+								document_id: docuId,
+								paragraph_content: paragraph.content,
+								order_number: paragraph.pageNumber,
+								conversation_id: convIntId,
+							},
+						}),
+					),
+				);
+			});
+			const promiseAllRes = await Promise.all(transactionRes);
+			console.log('promise all res: ', promiseAllRes);
 		}
+
 		await updateConvStatus(convIntId, 'created', user.user_id);
 		// response.write(JSON.stringify({ message: 'All files processed' }));
 		// response.end();
-		response.status(200).send('add file complete');
+		// response.status(200).send('add file complete');
+		return new Response('add file complete', { status: 200 });
 	} catch (error) {
-		console.log('error: ', error);
-		response.status(500).send(error);
+		console.log('add file error: ', error);
+		// response.status(500).send(error);
+		return new Response(getErrorMessage(error), { status: 500 });
 	}
 }
-const processFile = async (file: File) => {
-	try {
-		const bufferData = await fs.promises.readFile(file.filepath);
-		const pages: any[] = [];
-		await PdfParse(bufferData, { pagerender: pageRender(pages) });
-		const replacedTexts = pages.join('').replaceAll(' ', '');
-		if (!replacedTexts.length) {
-			throw new Error(
-				`Couldn't extract text from the file ${file.originalFilename}`,
-			);
-		}
-	} catch (err) {
-		console.log('error: ', err);
-		return { status: true, message: 'error occured' };
-	}
+// const processFile = async (file: File) => {
+// 	try {
+// 		const bufferData = await fs.promises.readFile(file.filepath);
+// 		const pages: any[] = [];
+// 		await PdfParse(bufferData, { pagerender: pageRender(pages) });
+// 		const replacedTexts = pages.join('').replaceAll(' ', '');
+// 		if (!replacedTexts.length) {
+// 			throw new Error(
+// 				`Couldn't extract text from the file ${file.originalFilename}`,
+// 			);
+// 		}
+// 	} catch (err) {
+// 		console.log('error: ', err);
+// 		return { status: true, message: 'error occured' };
+// 	}
 
-	return { status: false, message: '' };
-};
+// 	return { status: false, message: '' };
+// };

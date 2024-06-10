@@ -1,15 +1,9 @@
-import getRelatedParaPinecone from '@/lib/getRelatedParaPinecone';
-import {
-	getUserInfoFromSession,
-	selectConvByStr,
-	selectDocuments,
-} from '@/models';
 import { TDocument, TParagraph_DB, TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]';
-import { selectParagraphConv } from '@/models/paragraph';
 import getRelatedParaClosevector from '@/lib/getRelatedParaClosevector';
+import { selectConvByStr } from '@/models/conversation';
+import { selectDocuments } from '@/models/document';
+import { selectParagraphConv } from '@/models/paragraph';
 
 export default async function handler(
 	request: NextApiRequest,
@@ -33,11 +27,11 @@ export default async function handler(
 		// 	return;
 		// }
 		console.log('get paragraph body: ', request.body);
-		const convIntId = (await selectConvByStr(convStringId)).recordset[0].id;
-		const documents: TDocument[] = (await selectDocuments(convIntId))
-			.recordset;
-		const paragraphs: TParagraph_DB[] = (await selectParagraphConv(convIntId))
-			.recordset;
+		const convIntId = (await selectConvByStr(convStringId)).id;
+		const documents: TDocument[] = await selectDocuments(convIntId);
+
+		const paragraphs: TParagraph_DB[] = await selectParagraphConv(convIntId);
+
 		if (!documents.length || !paragraphs.length) {
 			response.status(400).send('There is no document');
 			return;

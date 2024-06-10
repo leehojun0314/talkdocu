@@ -33,41 +33,50 @@ export default function Speech() {
 	const { browserSupportsSpeechRecognition, transcript, resetTranscript } =
 		useSpeechRecognition();
 	const currentDevice = useDeviceDetect();
-	useEffect(() => {
-		if (router.isReady && visualizerRef.current && audio) {
-			const an = new AudioMotionAnalyzer(
-				visualizerRef.current,
-				visualizerOptions,
-			);
-			setAnalyzer(an);
-			const source = an.connectInput(audio);
 
-			return () => {
-				an.disconnectInput(source);
-			};
-		}
-	}, [visualizerRef, router, audio]);
-	useEffect(() => {
-		// const newRecognition =
-		// new window.webkitSpeechRecognition() || new window.SpeechRecognition();
-		// newRecognition.onresult = onRecognition;
-		// newRecognition.onspeechend = onSpeechEnd;
+	// useEffect(() => {
+	// 	if (router.isReady && visualizerRef.current && audio) {
+	// 		const an = new AudioMotionAnalyzer(
+	// 			visualizerRef.current,
+	// 			visualizerOptions,
+	// 		);
+	// 		setAnalyzer(an);
+	// 		an.connectedSources.forEach((node) => {
+	// 			an.disconnectInput(node);
+	// 		});
+	// 		// if(audio.sourceNode)
+	// 		let source: MediaElementAudioSourceNode;
+	// 		if (!audio.isConnected) {
+	// 			audio.conte
+	// 			source = an.connectInput(audio);
+	// 		}
 
-		// newRecognition.continuous = true;
+	// 		return () => {
+	// 			an.disconnectInput(source);
+	// 		};
+	// 	}
+	// }, [visualizerRef, router, audio]);
+	// useEffect(() => {
+	// 	// const newRecognition =
+	// 	// new window.webkitSpeechRecognition() || new window.SpeechRecognition();
+	// 	// newRecognition.onresult = onRecognition;
+	// 	// newRecognition.onspeechend = onSpeechEnd;
 
-		// setRecognition(newRecognition);
-		if (router.isReady) {
-			const recognition = SpeechRecognition.getRecognition();
-			if (recognition) {
-				recognition.onspeechend = onSpeechEnd;
-			}
+	// 	// newRecognition.continuous = true;
 
-			const newAudio = new Audio();
-			newAudio.onended = onAISpeakEnd;
-			newAudio.onplaying = onAIStartSpeaking;
-			setAudio(newAudio);
-		}
-	}, [router]);
+	// 	// setRecognition(newRecognition);
+	// 	if (router.isReady) {
+	// 		const recognition = SpeechRecognition.getRecognition();
+	// 		if (recognition) {
+	// 			recognition.onspeechend = onSpeechEnd;
+	// 		}
+
+	// 		const newAudio = new Audio();
+	// 		newAudio.onended = onAISpeakEnd;
+	// 		newAudio.onplaying = onAIStartSpeaking;
+	// 		setAudio(newAudio);
+	// 	}
+	// }, [router]);
 
 	const handleClose = useCallback(() => {
 		setSpeechOpen(false);
@@ -217,6 +226,31 @@ export default function Speech() {
 		getDisplayMedia,
 		getUserMedia,
 	]);
+	useEffect(() => {
+		if (router.isReady) {
+			console.log('visualizer ref: ', visualizerRef);
+			if (visualizerRef.current) {
+				const newAudio = new Audio();
+				newAudio.onended = onAISpeakEnd;
+				newAudio.onplaying = onAIStartSpeaking;
+				setAudio(newAudio);
+				const an = new AudioMotionAnalyzer(
+					visualizerRef.current,
+					visualizerOptions,
+				);
+				setAnalyzer(an);
+				const source = an.connectInput(newAudio);
+				const recognition = SpeechRecognition.getRecognition();
+				console.log('recognition : ', recognition);
+				if (recognition) {
+					recognition.onspeechend = onSpeechEnd;
+				}
+				return () => {
+					an.disconnectInput(source);
+				};
+			}
+		}
+	}, [router, visualizerRef, onAISpeakEnd, onSpeechEnd, onAIStartSpeaking]);
 	return (
 		<>
 			<Button css={sx.micButton} onClick={handleOpen}>
@@ -232,7 +266,7 @@ export default function Speech() {
 					sx={{ m: '0 auto', p: 2 }}
 					id='customized-dialog-title'
 				>
-					Talk to Document test
+					Talk to Document
 				</DialogTitle>
 				<IconButton
 					aria-label='close'

@@ -3,7 +3,7 @@ import createAIChat_edge from '@/lib/createAIChat_edge';
 // import { optimizingPrompt } from '@/lib/optimizingPrompt';
 
 import { TDebate, TDebateMessage, TProvider, TUserFromDB } from '@/types/types';
-import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
 import MessageGenerator from '@/utils/messageGenerator';
 import { ChatCompletionRequestMessage } from 'openai-edge';
 
@@ -36,12 +36,12 @@ export default async function POST(request: Request) {
 		);
 		prompt.push(
 			MessageGenerator.userMessage(
-				debate.question_content,
+				debate.question.message,
 			) as ChatCompletionRequestMessage,
 		);
 		prompt.push(
 			MessageGenerator.assistantMessage(
-				debate.answer_content,
+				debate.answer.message,
 			) as ChatCompletionRequestMessage,
 		);
 		// const optimizedHistory = await optimizingPrompt(

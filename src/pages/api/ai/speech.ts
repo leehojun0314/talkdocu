@@ -1,4 +1,4 @@
-import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
 import MessageGenerator from '@/utils/messageGenerator';
 import { createMessageTransformer } from '@/utils/transformers';
 
@@ -32,8 +32,8 @@ export default async function GET(request: Request) {
 				body: JSON.stringify({
 					convStringId,
 					text: questionText,
-					userEmail: userInfo.email,
-					userProvider: userInfo.provider,
+					userEmail: userInfo.user_email,
+					userProvider: userInfo.auth_type,
 				}),
 				headers: {
 					'Content-Type': 'application/json',

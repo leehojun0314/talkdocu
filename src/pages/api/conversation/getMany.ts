@@ -2,29 +2,34 @@ import { TExtendedSession, TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
-import { selectConversations, getUserInfoFromSession } from '@/models';
-
-export default async function handler(
-	request: NextApiRequest,
-	response: NextApiResponse,
-) {
-	if (request.method !== 'GET') {
-		response.status(400).send('bad request');
-		return;
-	}
+import { getUserInfoFromSession } from '@/models/user';
+import { selectConversations } from '@/models/conversation';
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
+import { getErrorMessage } from '@/utils/errorMessage';
+export const runtime = 'edge';
+export default async function GET(request: Request) {
 	try {
-		const session: TExtendedSession = await getServerSession(
-			request,
-			response,
-			authOptions,
-		);
-		const user: TUserFromDB = await getUserInfoFromSession(session);
+		// const session: TExtendedSession = await getServerSession(
+		// 	request,
+		// 	response,
+		// 	authOptions,
+		// );
+		const user: TUserFromDB = await getUserInfoEdge(request);
 
-		const { recordset } = await selectConversations(user);
+		const conversations = await selectConversations(user.user_id);
 
-		response.status(200).send({ conversations: recordset });
+		// response.status(200).send({ conversations });
+		return new Response(JSON.stringify({ conversations }), {
+			status: 200,
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
 	} catch (error) {
-		console.log(error);
-		response.status(500).send(error);
+		console.log('get many conversation error: ', error);
+		// response.status(500).send(error);
+		return new Response(getErrorMessage(error), {
+			status: 500,
+		});
 	}
 }

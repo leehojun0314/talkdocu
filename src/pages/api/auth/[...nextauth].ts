@@ -6,8 +6,12 @@ import KakaoProvider from 'next-auth/providers/kakao';
 import NaverProvider from 'next-auth/providers/naver';
 import { NextAuthOptions } from 'next-auth';
 import * as jose from 'jose';
-import { insertUser, selectUser } from '@/models';
+// import { insertUser, selectUser } from '@/models';
 import { TProvider } from '@/types/types';
+import { insertUser, selectUser } from '@/models/user';
+import { PrismaClient } from '@prisma/client';
+import { withAccelerate } from '@prisma/extension-accelerate';
+const prisma = new PrismaClient().$extends(withAccelerate());
 export const authOptions: NextAuthOptions = {
 	// Configure one or more authentication providers
 	providers: [
@@ -102,26 +106,45 @@ export const authOptions: NextAuthOptions = {
 		// 	return '/';
 		// },
 		async signIn(params) {
-			const { recordset } = await selectUser(
-				params.user.email as string,
-				params?.account?.provider as TProvider,
-			);
-			if (
-				!recordset.length &&
-				params.user &&
-				params.user.name &&
-				params.account
-			) {
-				const insertUserRes = await insertUser(
-					params.user.name as string,
-					params.user.email as string,
-					params.user.image as string,
-					params.account.provider as TProvider,
-					params.account.providerAccountId as string,
-				);
-				console.log('insert User res: ', insertUserRes);
+			console.log('sing in params: ', params);
+			try {
+				if (params.user && params.user.email && params.account) {
+					// const user = await selectUser(
+					// 	params.user.email,
+					// 	params?.account?.provider as TProvider,
+					// );
+					const user = await prisma.userTable.findFirst({
+						where: {
+							user_email: params.user.email,
+							auth_type: params.account.provider,
+						},
+						cacheStrategy: {
+							ttl: 7200,
+							swr: 14400,
+						},
+					});
+					console.log('user from db: ', user);
+					if (user) {
+						return true;
+					} else {
+						//new user
+						const insertUserRes = await insertUser(
+							params.user.name as string,
+							params.user.email as string,
+							params.user.image as string,
+							params.account.provider as TProvider,
+							params.account.providerAccountId as string,
+						);
+						console.log('insert user res: ', insertUserRes);
+						return true;
+					}
+				} else {
+					return false;
+				}
+			} catch (error) {
+				console.log('signin error: ', error);
+				return false;
 			}
-			return true;
 		},
 		async jwt({ token, account, session }) {
 			if (account?.provider) {

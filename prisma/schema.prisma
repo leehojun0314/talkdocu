@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL") // uses connection pooling
+  directUrl = env("DIRECT_DATABASE_URL") // uses a direct connection
+  
+}
+
+model Conversation {
+  id                Int          @id @default(autoincrement())
+  created_at        DateTime
+  user_id           Int
+  conversation_name String
+  salutation        String
+  status            Status       
+  visibility        Boolean
+  conversation_id   String       @db.VarChar(255)
+  messages          Message[]
+  debates           Debate[]
+  debate_messages   Debate_Message[]
+  paragraphs        Paragraph[]
+  documents         Document[]
+  user              UserTable    @relation(fields: [user_id], references: [user_id])
+}
+enum Status {
+  created
+  analyzing
+  error
+  deleted
+}
+
+model Debate {
+  debate_id       Int              @id @default(autoincrement())
+  question_id     Int
+  answer_id       Int
+  refer_content   String
+  conversation_id Int
+  user_id         Int
+  messages        Debate_Message[]
+  conversation    Conversation   @relation(fields: [conversation_id], references: [id])
+  user            UserTable      @relation(fields: [user_id], references: [user_id])
+  question        Message @relation("QuestionMessage", fields: [question_id], references: [message_id])
+  answer          Message @relation("AnswerMessage", fields: [answer_id], references: [message_id])
+}
+enum Sender{
+  assistant
+  user
+}
+model Debate_Message {
+  id              Int            @id @default(autoincrement())
+  content         String?
+  sender          Sender         
+  time            DateTime
+  debate_id       Int
+  conversation_id Int
+  user_id         Int
+  debate          Debate        @relation(fields: [debate_id], references: [debate_id])
+  conversation    Conversation  @relation(fields: [conversation_id], references: [id])
+  user            UserTable     @relation(fields: [user_id], references: [user_id])
+}
+
+model Document {
+  document_id     Int           @id @default(autoincrement())
+  document_name   String        @db.VarChar(255)
+  conversation_id Int
+  document_size   Int
+  conversation    Conversation @relation(fields: [conversation_id], references: [id])
+  paragraphs      Paragraph[]
+}
+
+model Message {
+  message_id      Int           @id @default(autoincrement())
+  message         String
+  created_time    DateTime
+  conversation_id Int
+  sender          String       @db.VarChar(10)
+  user_id         Int
+  is_question     Boolean
+  question_doc_name String?     @db.VarChar(50)
+  conversation    Conversation @relation(fields: [conversation_id], references: [id])
+  user            UserTable    @relation(fields: [user_id], references: [user_id])
+  debatesAsQuestion Debate[]  @relation("QuestionMessage")
+  debatesAsAnswer   Debate[]  @relation("AnswerMessage")
+}
+
+model Paragraph {
+  paragraph_id      Int           @id @default(autoincrement())
+  conversation_id   Int
+  paragraph_content String
+  order_number      Int
+  document_id       Int
+  conversation      Conversation @relation(fields: [conversation_id], references: [id])
+  document          Document     @relation(fields: [document_id], references: [document_id])
+}
+
+model UserTable {
+  user_id       Int            @id @default(autoincrement())
+  user_name     String        @db.VarChar(50)
+  user_email    String
+  profile_img   String?
+  auth_type     String?        @db.VarChar(50)
+  auth_id       String?        @db.VarChar(200)
+  last_login    DateTime?
+  conversations Conversation[]
+  messages      Message[]
+  debates       Debate[]
+  debate_messages Debate_Message[]
+}
