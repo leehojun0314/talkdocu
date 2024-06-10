@@ -11,6 +11,7 @@ import { TProvider } from '@/types/types';
 import { insertUser, selectUser } from '@/models/user';
 import { PrismaClient } from '@prisma/client';
 import { withAccelerate } from '@prisma/extension-accelerate';
+const prisma = new PrismaClient().$extends(withAccelerate());
 export const authOptions: NextAuthOptions = {
 	// Configure one or more authentication providers
 	providers: [
@@ -112,24 +113,21 @@ export const authOptions: NextAuthOptions = {
 					// 	params.user.email,
 					// 	params?.account?.provider as TProvider,
 					// );
-					const prisma = new PrismaClient().$extends(withAccelerate());
 					const user = await prisma.userTable.findFirst({
 						where: {
 							user_email: params.user.email,
 							auth_type: params.account.provider,
 						},
 						cacheStrategy: {
-							swr: 600,
-							ttl: 600,
+							ttl: 7200,
+							swr: 14400,
 						},
 					});
 					console.log('user from db: ', user);
 					if (user) {
-						prisma.$disconnect();
 						return true;
 					} else {
 						//new user
-
 						const insertUserRes = await insertUser(
 							params.user.name as string,
 							params.user.email as string,
@@ -138,7 +136,6 @@ export const authOptions: NextAuthOptions = {
 							params.account.providerAccountId as string,
 						);
 						console.log('insert user res: ', insertUserRes);
-						prisma.$disconnect();
 						return true;
 					}
 				} else {

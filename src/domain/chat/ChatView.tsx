@@ -21,7 +21,6 @@ import useChatViewV3 from './hooks/useChatView_v3';
 import { GetServerSideProps } from 'next';
 import { TConversation, TDocument, TMessage, TUserFromDB } from '@/types/types';
 import { getSession } from 'next-auth/react';
-import { getUserInfoFromSession, selectConversation } from '@/models';
 import { useCallback, useState } from 'react';
 import { ConversationDialog } from './el/ConversationDialog';
 import useChatViewV4 from './hooks/useChatView_v4';

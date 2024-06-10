@@ -51,12 +51,10 @@
 // 	return result;
 // }
 import { TParagraph } from '@/types/types';
-import { PrismaClient } from '@prisma/client/edge';
+import { prismaEdge } from '.';
 
 export async function selectParagraphDocu(docuId: number, convIntId: number) {
-	const prisma = new PrismaClient();
-
-	return await prisma.paragraph.findMany({
+	return await prismaEdge.paragraph.findMany({
 		where: {
 			conversation_id: convIntId,
 			document_id: docuId,
@@ -65,9 +63,7 @@ export async function selectParagraphDocu(docuId: number, convIntId: number) {
 }
 
 export async function selectParagraphConv(convIntId: number) {
-	const prisma = new PrismaClient();
-
-	return await prisma.paragraph.findMany({
+	return await prismaEdge.paragraph.findMany({
 		where: {
 			conversation_id: convIntId,
 		},
@@ -83,14 +79,12 @@ export async function insertParagraphs({
 	convIntId: number;
 	documentId: number;
 }) {
-	const prisma = new PrismaClient();
-
 	const batchSize = 500; // Batch size remains to manage load on the database
 	for (let i = 0; i < paragraphs.length; i += batchSize) {
 		const batch = paragraphs.slice(i, i + batchSize);
-		await prisma.$transaction(
+		await prismaEdge.$transaction(
 			batch.map((paragraph) =>
-				prisma.paragraph.create({
+				prismaEdge.paragraph.create({
 					data: {
 						document_id: documentId,
 						paragraph_content: paragraph.content,

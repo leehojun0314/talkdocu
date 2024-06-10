@@ -105,7 +105,7 @@ export type TDocument = {
 	conversation_id: number;
 	document_id: number;
 	document_name: string;
-	document_size: bigint;
+	document_size: number;
 };
 export type TReferenceDoc = {
 	page: number;

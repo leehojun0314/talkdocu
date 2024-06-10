@@ -1,5 +1,5 @@
 import { TSender } from '@/types/types';
-import { PrismaClient } from '@prisma/client/edge';
+import { prismaEdge } from '.';
 
 export async function insertDebate(
 	questionId: number,
@@ -8,9 +8,7 @@ export async function insertDebate(
 	convIntId: number,
 	userId: number,
 ) {
-	const prisma = new PrismaClient();
-
-	return await prisma.debate.create({
+	return await prismaEdge.debate.create({
 		data: {
 			question_id: questionId,
 			answer_id: answerId,
@@ -28,9 +26,7 @@ export async function insertDebateMessage(
 	convIntId: number,
 	userId: number,
 ) {
-	const prisma = new PrismaClient();
-
-	return await prisma.debate_Message.create({
+	return await prismaEdge.debate_Message.create({
 		data: {
 			content: content,
 			sender: sender,
@@ -42,9 +38,7 @@ export async function insertDebateMessage(
 	});
 }
 export async function selectDebate(answerId: number, userId: number) {
-	const prisma = new PrismaClient();
-
-	return await prisma.debate.findFirstOrThrow({
+	return await prismaEdge.debate.findFirstOrThrow({
 		where: {
 			answer_id: answerId,
 			user_id: userId,
@@ -69,9 +63,7 @@ export async function selectDebate(answerId: number, userId: number) {
 }
 
 export async function selectDebateById(debateId: number) {
-	const prisma = new PrismaClient();
-
-	return await prisma.debate.findUnique({
+	return await prismaEdge.debate.findUnique({
 		where: {
 			debate_id: debateId,
 		},
@@ -79,9 +71,7 @@ export async function selectDebateById(debateId: number) {
 }
 
 export async function selectDebateMessages(debateId: number, userId: number) {
-	const prisma = new PrismaClient();
-
-	return await prisma.debate_Message.findMany({
+	return await prismaEdge.debate_Message.findMany({
 		where: {
 			debate_id: debateId,
 			user_id: userId,

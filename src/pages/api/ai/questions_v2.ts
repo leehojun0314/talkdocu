@@ -1,11 +1,12 @@
 import createAIChat_edge from '@/lib/createAIChat_edge';
-import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
+// import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
 import MessageGenerator from '@/utils/messageGenerator';
 import { RequestContext } from '@vercel/edge';
 import { ChatCompletionRequestMessage } from 'openai-edge';
 
 export const runtime = 'edge';
-export default async function POST(request: Request, context: RequestContext) {
+export default async function POST(request: Request) {
 	try {
 		const userInfo = await getUserInfoEdge(request);
 		console.log('userInfo: ', userInfo);

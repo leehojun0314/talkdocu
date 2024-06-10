@@ -1,5 +1,3 @@
-import getRelatedParaPinecone from '@/lib/getRelatedParaPinecone';
-
 import { TDocument, TParagraph_DB, TUserFromDB } from '@/types/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';

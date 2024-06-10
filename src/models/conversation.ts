@@ -146,7 +146,8 @@
 // 	return result;
 // }
 import { configs } from '@/config';
-import { PrismaClient, Status } from '@prisma/client/edge';
+import { Status } from '@prisma/client/edge';
+import { prismaEdge } from '.';
 
 export async function insertConv({
 	conversationName,
@@ -157,16 +158,14 @@ export async function insertConv({
 	userId: number;
 	convStringId: string;
 }) {
-	const prisma = new PrismaClient();
-
-	return await prisma.conversation.create({
+	return await prismaEdge.conversation.create({
 		data: {
 			conversation_name: conversationName,
 			user_id: userId,
 			conversation_id: convStringId,
 			salutation: configs.salutationPrefixMessage,
 			created_at: new Date(),
-			status: 'analyzing',
+			status: 'created',
 			visibility: false,
 		},
 	});
@@ -177,9 +176,7 @@ export async function updateConvStatus(
 	status: Status,
 	userId: number,
 ) {
-	const prisma = new PrismaClient();
-
-	return await prisma.conversation.updateMany({
+	return await prismaEdge.conversation.updateMany({
 		where: {
 			id: convIntId,
 			user_id: userId,
@@ -201,9 +198,7 @@ export async function updateConv({
 	newName: string;
 	newSalutation: string;
 }) {
-	const prisma = new PrismaClient();
-
-	const conversation = await prisma.conversation.findFirst({
+	const conversation = await prismaEdge.conversation.findFirst({
 		where: {
 			id: convIntId,
 			user_id: userId,
@@ -214,7 +209,7 @@ export async function updateConv({
 		throw new Error('Conversation not found for the given user');
 	}
 
-	return await prisma.conversation.update({
+	return await prismaEdge.conversation.update({
 		where: {
 			id: convIntId,
 		},
@@ -226,9 +221,7 @@ export async function updateConv({
 }
 
 export async function selectConversation(userId: number, convStringId: string) {
-	const prisma = new PrismaClient();
-
-	return await prisma.conversation.findFirstOrThrow({
+	return await prismaEdge.conversation.findFirstOrThrow({
 		where: {
 			conversation_id: convStringId,
 			OR: [
@@ -242,9 +235,7 @@ export async function selectConversation(userId: number, convStringId: string) {
 }
 
 export async function selectConversations(userId: number) {
-	const prisma = new PrismaClient();
-
-	return await prisma.conversation.findMany({
+	return await prismaEdge.conversation.findMany({
 		where: {
 			user_id: userId,
 			status: {
@@ -255,9 +246,7 @@ export async function selectConversations(userId: number) {
 }
 
 export async function selectConvByStr(convStringId: string) {
-	const prisma = new PrismaClient();
-
-	return await prisma.conversation.findFirstOrThrow({
+	return await prismaEdge.conversation.findFirstOrThrow({
 		where: {
 			conversation_id: convStringId,
 		},
@@ -268,9 +257,7 @@ export async function selectConvByStrAuth(
 	convStringId: string,
 	userId: number,
 ) {
-	const prisma = new PrismaClient();
-
-	return await prisma.conversation.findFirstOrThrow({
+	return await prismaEdge.conversation.findFirstOrThrow({
 		where: {
 			conversation_id: convStringId,
 			user_id: userId,
@@ -282,9 +269,7 @@ export async function deleteConversationModel(
 	convIntId: number,
 	userId: number,
 ) {
-	const prisma = new PrismaClient();
-
-	const conversation = await prisma.conversation.findUnique({
+	const conversation = await prismaEdge.conversation.findUnique({
 		where: {
 			id: convIntId,
 		},
@@ -299,14 +284,22 @@ export async function deleteConversationModel(
 		);
 	}
 
-	return await prisma.$transaction([
-		prisma.debate_Message.deleteMany({
+	return await prismaEdge.$transaction([
+		prismaEdge.debate_Message.deleteMany({
 			where: { conversation_id: convIntId },
 		}),
-		prisma.debate.deleteMany({ where: { conversation_id: convIntId } }),
-		prisma.message.deleteMany({ where: { conversation_id: convIntId } }),
-		prisma.paragraph.deleteMany({ where: { conversation_id: convIntId } }),
-		prisma.document.deleteMany({ where: { conversation_id: convIntId } }),
-		prisma.conversation.delete({ where: { id: convIntId } }),
+		prismaEdge.debate.deleteMany({
+			where: { conversation_id: convIntId },
+		}),
+		prismaEdge.message.deleteMany({
+			where: { conversation_id: convIntId },
+		}),
+		prismaEdge.paragraph.deleteMany({
+			where: { conversation_id: convIntId },
+		}),
+		prismaEdge.document.deleteMany({
+			where: { conversation_id: convIntId },
+		}),
+		prismaEdge.conversation.delete({ where: { id: convIntId } }),
 	]);
 }

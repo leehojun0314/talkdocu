@@ -30,10 +30,10 @@ export default function DebateChats({
 	return (
 		<>
 			<ChatFromMe
-				textFromMe={debate.question_content}
+				textFromMe={debate.question.message}
 				profileUrl={auth?.user?.image}
 			/>
-			<ChatFromAI textFromAI={debate.answer_content} />
+			<ChatFromAI textFromAI={debate.answer.message} />
 			{messages?.length > 0 &&
 				messages?.map((message) => {
 					if (!message.content) {

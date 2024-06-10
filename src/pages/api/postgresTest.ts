@@ -1,23 +1,19 @@
+// import { prismaEdge } from '@/models';
 import { PrismaClient } from '@prisma/client/edge';
 // import { sql } from '@vercel/postgres';
+const prisma = new PrismaClient();
 export const runtime = 'edge';
 export default async function GET(request: Request) {
 	try {
-		const prisma = new PrismaClient();
 		// const result =
 		// 	await sql`CREATE TABLE Pets ( Name varchar(255), Owner varchar(255) );`;
-		const createRes = await prisma.userTable.create({
-			data: {
-				user_name: 'test',
-				user_email: 'testmail@example.com',
-				profile_img: 'testimageurl',
-				auth_type: 'google',
-				auth_id: 'somelongid',
-				last_login: new Date(),
+		const findRes = await prisma.userTable.findFirst({
+			where: {
+				user_id: 1,
 			},
 		});
-		console.log('create res:', createRes);
-		prisma.$disconnect();
+		console.log('create res:', findRes);
+		// prismaEdge.$disconnect();
 		return new Response(JSON.stringify('hi'), {
 			status: 200,
 		});

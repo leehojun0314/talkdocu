@@ -53,12 +53,10 @@
 // 	}
 // }
 import { TExtendedSession, TProvider } from '@/types/types';
-import { PrismaClient } from '@prisma/client/edge';
+import { prismaAccelerate, prismaEdge } from '.';
 
 export async function selectUser(userEmail: string, provider?: TProvider) {
-	const prisma = new PrismaClient();
-
-	return await prisma.userTable.findFirstOrThrow({
+	return await prismaEdge.userTable.findFirstOrThrow({
 		where: {
 			user_email: userEmail,
 			auth_type: provider,
@@ -73,9 +71,7 @@ export async function insertUser(
 	authType: TProvider | null,
 	authId: string | null,
 ) {
-	const prisma = new PrismaClient();
-
-	return await prisma.userTable.create({
+	return await prismaAccelerate.userTable.create({
 		data: {
 			user_name: userName,
 			user_email: userEmail,
@@ -90,9 +86,8 @@ export async function insertUser(
 export async function getUserInfoFromSession(session: TExtendedSession | null) {
 	if (!session || !session.user || !session.user.email || !session.user.name)
 		throw new Error('Invalid parameter given');
-	const prisma = new PrismaClient();
 
-	const user = await prisma.userTable.findFirstOrThrow({
+	const user = await prismaAccelerate.userTable.findFirstOrThrow({
 		where: {
 			user_email: session.user.email,
 			auth_type: session.provider,
@@ -108,7 +103,7 @@ export async function getUserInfoFromSession(session: TExtendedSession | null) {
 	// 	// 	session.provider || null,
 	// 	// 	session.authId || null,
 	// 	// );
-	// 	const newUser = await prisma.userTable.create({
+	// 	const newUser = await prismaEdge.userTable.create({
 	// 		data: {
 	// 			user_name: session.user.name,
 	// 			user_email: session.user.email,

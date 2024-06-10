@@ -22,7 +22,6 @@
 // });
 import { PrismaClient } from '@prisma/client';
 import { PrismaClient as PrismaClientEdge } from '@prisma/client/edge';
-import { withAccelerate } from '@prisma/extension-accelerate';
-
-export const prismaAccelerate = new PrismaClient().$extends(withAccelerate());
+// import { withAccelerate } from '@prisma/extension-accelerate';
+export const prismaAccelerate = new PrismaClient();
 export const prismaEdge = new PrismaClientEdge();

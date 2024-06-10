@@ -40,7 +40,8 @@
 // 			`SELECT * FROM Message WHERE conversation_id = '${convIntId}' AND user_id = ${userId} ORDER BY message_order ASC`,
 // 		);
 // }
-import { PrismaClient, Sender } from '@prisma/client/edge';
+import { Sender } from '@prisma/client/edge';
+import { prismaEdge } from '.';
 
 export async function insertQuestion(
 	convIntId: number,
@@ -48,9 +49,7 @@ export async function insertQuestion(
 	userId: number,
 	documentName: string,
 ) {
-	const prisma = new PrismaClient();
-
-	return await prisma.message.create({
+	return await prismaEdge.message.create({
 		data: {
 			message: questionsStr,
 			conversation_id: convIntId,
@@ -69,9 +68,7 @@ export async function insertMessage(
 	sender: Sender,
 	userId: number,
 ) {
-	const prisma = new PrismaClient();
-
-	return await prisma.message.create({
+	return await prismaEdge.message.create({
 		data: {
 			message: message,
 			conversation_id: convIntId,
@@ -84,9 +81,7 @@ export async function insertMessage(
 }
 
 export async function selectMessages(convIntId: number, userId: number) {
-	const prisma = new PrismaClient();
-
-	return await prisma.message.findMany({
+	return await prismaEdge.message.findMany({
 		where: {
 			conversation_id: convIntId,
 			user_id: userId,

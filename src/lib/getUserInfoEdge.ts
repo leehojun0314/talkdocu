@@ -1,3 +1,4 @@
+import { prismaEdge } from '@/models';
 import { extractToken } from '../utils/extractToken';
 import * as jose from 'jose';
 // import { PrismaClient } from '@prisma/client/edge';
@@ -9,15 +10,13 @@ export async function getUserInfoEdge(request: Request) {
 	const { payload } = await jose.jwtVerify(String(jwt), key, {
 		algorithms: ['HS256'],
 	});
-	console.log('payload: ', payload);
-	// const prisma = new PrismaClient().$extends(withAccelerate());
-	// return await prisma.userTable.findFirstOrThrow({
-	// 	where: {
-	// 		user_email: payload.email as string,
-	// 		auth_type: payload.provider as TProvider,
-	// 	},
-	// });
-	return payload;
+	const user = await prismaEdge.userTable.findFirstOrThrow({
+		where: {
+			user_email: payload.email as string,
+			auth_type: payload.provider as string,
+		},
+	});
+	return user;
 }
 // payload:  {
 // 	name: '이호준',

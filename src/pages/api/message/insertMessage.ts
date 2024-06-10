@@ -7,22 +7,15 @@ import { referenceDocsToString } from '@/utils/functions';
 import { insertDebate } from '@/models/debate';
 import { getUserInfoFromSession } from '@/models/user';
 import { selectConvByStr } from '@/models/conversation';
-
-export default async function handler(
-	request: NextApiRequest,
-	response: NextApiResponse,
-) {
-	if (request.method !== 'POST') {
-		response.status(404).send('Not found');
-		return;
-	}
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
+import { getErrorMessage } from '@/utils/errorMessage';
+export const runtime = 'edge';
+export default async function POST(request: Request) {
 	try {
-		const user: TUserFromDB = await getUserInfoFromSession(
-			await getServerSession(request, response, authOptions),
-		);
+		const user: TUserFromDB = await getUserInfoEdge(request);
 		if (!user) {
-			response.status(401).send('Unauthorized');
-			return;
+			// response.status(401).send('Unauthorized');
+			return new Response('Unauthorized', { status: 401 });
 		}
 		console.log('request body: ', request.body);
 		const {
@@ -31,10 +24,11 @@ export default async function handler(
 			convStringId,
 			referenceDocs,
 			relatedContent,
-		} = request.body;
+		} = await request.json();
+
 		if (!userMessage || !answerMessage || !convStringId || !referenceDocs) {
-			response.status(400).send('Invalid parameters');
-			return;
+			// response.status(400).send('Invalid parameters');
+			return new Response('Invalid parameters', { status: 400 });
 		}
 		const convIntId = (await selectConvByStr(convStringId)).id;
 		const insertQuestionRes = await insertMessage(
@@ -60,9 +54,19 @@ export default async function handler(
 			convIntId,
 			user.user_id,
 		);
-		response.send({ messages: newMessages, referenceDocs });
+		// response.send({ messages: newMessages, referenceDocs });
+		return new Response(
+			JSON.stringify({ messages: newMessages, referenceDocs }),
+			{
+				status: 200,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			},
+		);
 	} catch (error) {
 		console.log('insert message error: ', error);
-		response.status(500).send(error);
+		// response.status(500).send(error);
+		return new Response(getErrorMessage(error), { status: 500 });
 	}
 }

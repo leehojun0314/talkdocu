@@ -9,23 +9,13 @@ import {
 	deleteConversationModel,
 	selectConvByStrAuth,
 } from '@/models/conversation';
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
+import { getErrorMessage } from '@/utils/errorMessage';
 
-export default async function handler(
-	request: NextApiRequest,
-	response: NextApiResponse,
-) {
-	if (request.method !== 'DELETE') {
-		response.status(400).send('bad request');
-		return;
-	}
-	const convStringId: string = request.body.convStringId || '';
+export default async function DELETE(req: Request) {
 	try {
-		const session: TExtendedSession = await getServerSession(
-			request,
-			response,
-			authOptions,
-		);
-		const user: TUserFromDB = await getUserInfoFromSession(session);
+		const { convStringId } = await req.json();
+		const user: TUserFromDB = await getUserInfoEdge(req);
 		const conversation = await selectConvByStrAuth(
 			convStringId,
 			user.user_id,
@@ -50,9 +40,10 @@ export default async function handler(
 		// const pineconeRes = await deleteParagraphsPinecone(selectedConvIntId);
 		// console.log('pinecone delete res: ', pineconeRes);
 
-		response.status(200).send('conversation deleted');
+		// response.status(200).send('conversation deleted');
+		return new Response('conversation deleted', { status: 200 });
 	} catch (error) {
-		console.log('error: ', error);
-		response.status(500).send(error);
+		console.log('delete error: ', error);
+		return new Response(getErrorMessage(error), { status: 500 });
 	}
 }
