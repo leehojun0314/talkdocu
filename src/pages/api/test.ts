@@ -11,7 +11,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // import { decode } from 'next-auth/jwt';
 import * as jose from 'jose';
 import type { RequestContext } from '@vercel/edge';
-import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
+import { getUserInfoEdge } from '@/lib/getUserInfoEdge';
 type Data = {
 	name: string;
 };
