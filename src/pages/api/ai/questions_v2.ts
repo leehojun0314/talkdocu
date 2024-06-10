@@ -48,7 +48,7 @@ export default async function POST(request: Request) {
 			content: prompt.content as string,
 		});
 
-		const res = await createAIChat_edge(messages, 'gpt-3.5-turbo');
+		const res = await createAIChat_edge(messages, 'gpt-4-turbo');
 
 		return res;
 	} catch (error) {

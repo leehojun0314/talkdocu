@@ -76,7 +76,7 @@ export default async function POST(request: Request) {
 			MessageGenerator.userMessage(text) as ChatCompletionRequestMessage,
 		);
 		console.log('prompt: ', prompt);
-		const res = await createAIChat_edge(prompt, 'gpt-4');
+		const res = await createAIChat_edge(prompt, 'gpt-4-turbo');
 		return res;
 	} catch (error) {
 		console.log('error:', error);
