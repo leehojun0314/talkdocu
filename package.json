@@ -37,7 +37,7 @@
 		"jsonwebtoken": "^9.0.2",
 		"langchain": "^0.0.177",
 		"mssql": "^10.0.1",
-		"next": "13.2.4",
+		"next": "^14.2.4",
 		"next-auth": "^4.23.2",
 		"openai": "^4.23.0",
 		"openai-edge": "^1.2.2",
@@ -49,6 +49,7 @@
 		"react-redux": "^8.0.5",
 		"react-speech-recognition": "^3.10.0",
 		"redux": "^4.2.1",
+		"sharp": "^0.33.4",
 		"typescript": "5.0.2",
 		"uuid": "^9.0.1"
 	},

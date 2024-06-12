@@ -1,16 +1,11 @@
 import useAlert from '@/common/hooks/useAlert';
-import { TrootState } from '@/redux/reducers';
-import axiosAPI from '@/utils/axiosAPI';
 import checkFileExtension from '@/utils/checkFileType';
 import axios from 'axios';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { getDocument } from 'pdfjs-dist';
-import 'pdfjs-dist/build/pdf.worker.entry';
 import { extractTextFromFile } from '@/lib/extractTextFromPDF';
-import { TDocument } from '@/types/types';
 const fileSizes = {
 	'1gb': 1024 * 1024 * 1024,
 	'1mb': 1024 * 1024,

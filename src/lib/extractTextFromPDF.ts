@@ -1,21 +1,25 @@
 'use client';
 
-import { getDocument } from 'pdfjs-dist';
-import 'pdfjs-dist/build/pdf.worker.entry';
-export const extractTextFromFile = (file: File): Promise<string[]> => {
-	return new Promise<string[]>((resolve, reject) => {
+import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
+import 'pdfjs-dist/build/pdf.worker.mjs';
+// pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
+export const extractTextFromFile: (file: File) => Promise<string[]> = (
+	file: File,
+) => {
+	return new Promise((resolve, reject) => {
 		const fileReader = new FileReader();
-		fileReader.onload = async function (this) {
+		fileReader.onload = async function () {
 			try {
 				const typedArray = new Uint8Array(this.result as ArrayBuffer);
-				const pdf = await getDocument({ data: typedArray }).promise;
+				const pdf = await pdfjsLib.getDocument({ data: typedArray })
+					.promise;
 				const textPages: string[] = [];
 
 				for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
 					const page = await pdf.getPage(pageNum);
 					const textContent = await page.getTextContent();
 					const pageText = textContent.items
-						.map((item) => {
+						.map((item: any) => {
 							if ('str' in item) {
 								return item.str;
 							}
@@ -27,12 +31,14 @@ export const extractTextFromFile = (file: File): Promise<string[]> => {
 
 				resolve(textPages);
 			} catch (error) {
-				reject(error);
+				console.log('error: ', error);
+				reject([]);
 			}
 		};
 
 		fileReader.onerror = (error) => {
-			reject(error);
+			console.log('error: ', error);
+			reject([]);
 		};
 
 		fileReader.readAsArrayBuffer(file);

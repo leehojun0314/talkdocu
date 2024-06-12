@@ -1,5 +1,6 @@
 import { Html, Head, Main, NextScript } from 'next/document';
 import getConfig from 'next/config';
+import Script from 'next/script';
 
 const { publicRuntimeConfig } = getConfig();
 export default function Document() {
@@ -36,6 +37,7 @@ export default function Document() {
 					rel='stylesheet'
 					href='https://fonts.googleapis.com/icon?family=Material+Icons'
 				/>
+				<Script src='/pdfjs/pdf.mjs' type='module' />
 			</Head>
 			<body>
 				<Main />
