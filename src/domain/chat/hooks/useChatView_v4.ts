@@ -257,8 +257,8 @@ export default function useChatViewV4() {
           }
           console.log('get conv one response: ', response);
           setConversation(response.data.conversation);
-          // setSalutation(response.data.conversation.salutation);
-          setSalutation('Hello! How can I help you today?');
+          setSalutation(response.data.conversation.salutation);
+          // setSalutation('Hello! How can I help you today?');
           setMessages(response.data.messages);
           const tempDocuments: TDocument[] = response.data.documents;
           setDocuments(tempDocuments);
