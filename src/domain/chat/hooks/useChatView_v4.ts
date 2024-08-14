@@ -90,6 +90,7 @@ export default function useChatViewV4() {
   const [docuForQuestion, setDocuForQuestion] = useState<number>();
   const [input, setInput] = useState<string>('');
   const [salutation, setSalutation] = useState<string>();
+  const [questionMessage, setQuestionMessage] = useState<string>();
   const [isAnswerOpen, setIsAnswerOpen] = useState<boolean>(false);
   // const [answerContent, setAnswerContent] = useState<string>('')
   let answerContent = '';
@@ -260,6 +261,7 @@ export default function useChatViewV4() {
           setSalutation(response.data.conversation.salutation);
           // setSalutation('Hello! How can I help you today?');
           setMessages(response.data.messages);
+          setQuestionMessage(response.data.conversation.question_message);
           const tempDocuments: TDocument[] = response.data.documents;
           setDocuments(tempDocuments);
           if (tempDocuments.length > 0) {
@@ -764,5 +766,6 @@ export default function useChatViewV4() {
     isAlertOpen,
     alertContent,
     onAlertClose,
+    questionMessage,
   };
 }
