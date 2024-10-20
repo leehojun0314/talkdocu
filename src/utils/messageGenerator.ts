@@ -49,7 +49,7 @@ const MessageGenerator = {
   systemMessage: (content: string): ChatCompletionMessageParam => {
     return {
       role: 'system',
-      content: `당신은 챗봇으로써 다음 내용을 읽고 유저의 질문에 대답해주세요. 내용은 전체 내용에서 질문과 연관된 부분울 추출한 것입니다. 답변에 사용하는 언어는 사용자가 사용하는 언어와 동일하게 해주세요.
+      content: `당신은 챗봇으로써 다음 내용을 읽고 유저의 질문에 대답해주세요. 내용은 전체 내용에서 질문과 연관된 부분울 추출한 것입니다. 답변에 사용하는 언어는 사용자가 사용하는 언어와 동일하게 해주세요. 질문의 답변이 해당 내용이 없더라도 기반 지식으로 답변해주세요.
 			content : ${content}`,
     };
   },
