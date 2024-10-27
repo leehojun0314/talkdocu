@@ -16,6 +16,7 @@ import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCompletion } from 'ai/react';
 import { configs } from '@/config';
+import axiosAPI from '@/utils/axiosAPI';
 export default function useChatViewV4() {
   const { status: authStatus, data: authData } = useSession();
   // const newAuthData: TExtendedAuthData | null = authData;
@@ -101,6 +102,9 @@ export default function useChatViewV4() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [optionDialog, setOptionDialog] = useState<TOptionDialog>({
     isOpen: false,
+    systemMessage:
+      '당신은 챗봇으로써 다음 내용을 읽고 유저의 질문에 대답해주세요. 내용은 전체 내용에서 질문과 연관된 부분울 추출한 것입니다. 답변에 사용하는 언어는 사용자가 사용하는 언어와 동일하게 해주세요. 질문의 답변이 해당 내용이 없더라도 기반 지식으로 답변해주세요.',
+    provideContent: true,
   });
 
   //debate
@@ -264,6 +268,7 @@ export default function useChatViewV4() {
           setQuestionMessage(response.data.conversation.question_message);
           const tempDocuments: TDocument[] = response.data.documents;
           setDocuments(tempDocuments);
+
           if (tempDocuments.length > 0) {
             console.log('documents length is more than 0', tempDocuments[0]);
             setDocuForQuestion(tempDocuments[0].document_id);
@@ -286,6 +291,10 @@ export default function useChatViewV4() {
 
   useEffect(() => {
     if (loadDocuments) {
+      const options = JSON.parse(localStorage.getItem('options') as string);
+
+      console.log('options: ');
+      setOptionDialog({ isOpen: false, ...options });
       setIsLoading(true);
       axios
         .get(`/api/conversation/getOne?convStringId=${router.query.convId}`)
@@ -448,12 +457,27 @@ export default function useChatViewV4() {
     });
   }
   function handleOptionToggle() {
+    console.log('handle option toggle called');
     setOptionDialog((pre) => {
       return {
         ...pre,
         isOpen: !pre.isOpen,
       };
     });
+  }
+  function handleOptionSubmit() {
+    if (isLoading) {
+      return;
+    }
+    localStorage.setItem(
+      'options',
+      JSON.stringify({
+        systemMessage: optionDialog.systemMessage,
+        provideContent: optionDialog.provideContent,
+      }),
+    );
+    window.alert('Options saved!');
+    handleOptionToggle();
   }
   function handleChangeDocuSelect(evt: React.ChangeEvent<HTMLSelectElement>) {
     setDocuForQuestion(Number(evt.currentTarget.value));
@@ -524,33 +548,46 @@ export default function useChatViewV4() {
       setIsAnswerOpen(true);
       setIsScroll(true);
       setIsLoading(true);
-      axios
-        .post('/api/paragraph/getParagraph_v2', {
-          convStringId: router.query.convId,
-          text: input,
-        })
-        .then((response) => {
-          console.log('response: ', response.data);
-          const { relatedContent, referenceDocs } = response.data;
-          setTempReference({
-            referenceDocs,
-            relatedContent,
-          });
-          messageComplete(input, {
-            body: {
-              convStringId: router.query.convId,
+      if (optionDialog.provideContent) {
+        axios
+          .post('/api/paragraph/getParagraph_v2', {
+            convStringId: router.query.convId,
+            text: input,
+          })
+          .then((response) => {
+            console.log('response: ', response.data);
+            const { relatedContent, referenceDocs } = response.data;
+            setTempReference({
+              referenceDocs,
               relatedContent,
-            },
+            });
+            messageComplete(input, {
+              body: {
+                convStringId: router.query.convId,
+                relatedContent,
+                systemMessage: JSON.parse(
+                  localStorage.getItem('options') as string,
+                ).systemMessage,
+              },
+            });
+          })
+          .catch((err) => {
+            console.log('error:', err);
+            // setIsAnswerOpen(false)
+            setIsLoading(false);
+            if (typeof err.response.data === 'string') {
+              window.alert(err.response.data);
+            }
           });
-        })
-        .catch((err) => {
-          console.log('error:', err);
-          // setIsAnswerOpen(false)
-          setIsLoading(false);
-          if (typeof err.response.data === 'string') {
-            window.alert(err.response.data);
-          }
+      } else {
+        messageComplete(input, {
+          body: {
+            convStringId: router.query.convId,
+            systemMessage: JSON.parse(localStorage.getItem('options') as string)
+              .systemMessage,
+          },
         });
+      }
     }
   }
 
@@ -767,5 +804,7 @@ export default function useChatViewV4() {
     alertContent,
     onAlertClose,
     questionMessage,
+    setOptionDialog,
+    handleOptionSubmit,
   };
 }

@@ -51,7 +51,9 @@ export const ChatView = () => {
     docuForQuestion,
     handleChangeDocuSelect,
     handleOptionToggle,
+    handleOptionSubmit,
     optionDialog,
+    setOptionDialog,
     chatMode,
     handleChatMode,
     handleClickDebate,
@@ -97,10 +99,15 @@ export const ChatView = () => {
         onClose={onAlertClose}
         content={alertContent}
       />
-      <OptionDialog
-        isOpen={optionDialog.isOpen}
-        handleOptionClose={handleOptionToggle}
-      />
+      {!isLoading && (
+        <OptionDialog
+          optionDialog={optionDialog}
+          setOptionDialog={setOptionDialog}
+          handleOptionClose={handleOptionToggle}
+          handleOptionSubmit={handleOptionSubmit}
+        />
+      )}
+
       <AddDialog
         files={addFiles}
         open={isAddOpen}
