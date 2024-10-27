@@ -243,6 +243,7 @@ export default function useChatViewV4() {
       window.alert('Bad Request');
       return;
     }
+
     if (authStatus === 'unauthenticated') {
       window.alert('You need to login first.');
       window.sessionStorage.setItem('redirect', window.location.href);
@@ -254,6 +255,11 @@ export default function useChatViewV4() {
     // 	setIsLoading(true);
     // }
     else if (authStatus === 'authenticated') {
+      const options = JSON.parse(localStorage.getItem('options') as string);
+
+      console.log('options: ');
+      setOptionDialog({ isOpen: false, ...options });
+      setIsLoading(true);
       axios
         .get(`/api/conversation/getOne?convStringId=${router.query.convId}`)
         .then((response) => {
@@ -291,11 +297,6 @@ export default function useChatViewV4() {
 
   useEffect(() => {
     if (loadDocuments) {
-      const options = JSON.parse(localStorage.getItem('options') as string);
-
-      console.log('options: ');
-      setOptionDialog({ isOpen: false, ...options });
-      setIsLoading(true);
       axios
         .get(`/api/conversation/getOne?convStringId=${router.query.convId}`)
         .then((response) => {
@@ -476,7 +477,6 @@ export default function useChatViewV4() {
         provideContent: optionDialog.provideContent,
       }),
     );
-    window.alert('Options saved!');
     handleOptionToggle();
   }
   function handleChangeDocuSelect(evt: React.ChangeEvent<HTMLSelectElement>) {

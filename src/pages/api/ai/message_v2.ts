@@ -16,10 +16,10 @@ export default async function POST(request: Request) {
     console.log('body: ', body);
     const convStringId = body.convStringId;
     const relatedContent = body.relatedContent;
-
+    const provideContent = body.provideContent;
     const systemMessage = body.systemMessage;
     let prompt;
-    if (relatedContent) {
+    if (provideContent) {
       if (systemMessage) {
         prompt = systemMessage + 'Reference content: ' + relatedContent;
       } else {
@@ -33,7 +33,7 @@ export default async function POST(request: Request) {
       }
     }
     const text = body.prompt;
-    if (!convStringId || !relatedContent || !text) {
+    if (!convStringId || !text) {
       return new Response('Invalid parameter', { status: 400 });
     }
     // const prompt = MessageGenerator.systemMessage(relatedContent);
