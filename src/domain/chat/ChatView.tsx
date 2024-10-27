@@ -17,7 +17,6 @@ import DebateChats from './el/DebateChats';
 import { AddDialog } from './el/AddDialog';
 import ConfirmDialog from '@/common/el/Dialog/confirmDialog';
 import AlertDialog from '@/common/el/Dialog/alertDialog';
-import useChatViewV3 from './hooks/useChatView_v3';
 import { GetServerSideProps } from 'next';
 import { TConversation, TDocument, TMessage, TUserFromDB } from '@/types/types';
 import { getSession } from 'next-auth/react';
