@@ -565,9 +565,8 @@ export default function useChatViewV4() {
               body: {
                 convStringId: router.query.convId,
                 relatedContent,
-                systemMessage: JSON.parse(
-                  localStorage.getItem('options') as string,
-                ).systemMessage,
+                systemMessage: optionDialog.systemMessage,
+                provideContent: optionDialog.provideContent,
               },
             });
           })

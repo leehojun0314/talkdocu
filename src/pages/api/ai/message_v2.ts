@@ -32,6 +32,7 @@ export default async function POST(request: Request) {
         prompt = MessageGenerator.systemMessage('');
       }
     }
+    console.log('promt: ', prompt);
     const text = body.prompt;
     if (!convStringId || !text) {
       return new Response('Invalid parameter', { status: 400 });
