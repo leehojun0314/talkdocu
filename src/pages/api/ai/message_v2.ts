@@ -1,4 +1,6 @@
 import createAIChat_edge from '@/lib/createAIChat_edge';
+import { selectConversation } from '@/models';
+import { getPrompt } from '@/models/prompt';
 import { getUserInfoEdge } from '@/utils/getUserInfoEdge';
 import MessageGenerator from '@/utils/messageGenerator';
 import { ChatCompletionRequestMessage } from 'openai-edge';
@@ -29,7 +31,7 @@ export default async function POST(request: Request) {
       if (systemMessage) {
         prompt = systemMessage;
       } else {
-        prompt = MessageGenerator.systemMessage('');
+        prompt = '';
       }
     }
     console.log('promt: ', prompt);

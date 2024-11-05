@@ -255,10 +255,25 @@ export default function useChatViewV4() {
     // 	setIsLoading(true);
     // }
     else if (authStatus === 'authenticated') {
-      const options = JSON.parse(localStorage.getItem('options') as string);
+      // const options = JSON.parse(localStorage.getItem('options') as string);
 
       console.log('options: ');
-      setOptionDialog({ isOpen: false, ...options });
+      axiosAPI({
+        method: 'GET',
+        url: '/conversation/getPrompt?convStringId=' + router.query.convId,
+      })
+        .then((res) => {
+          console.log('get prompt response: ', res);
+          setOptionDialog({
+            isOpen: false,
+            systemMessage: res.data.prompt,
+            provideContent: !!res.data.provide_content,
+          });
+        })
+        .catch((err) => {
+          console.log('get prompt error: ', err);
+        });
+      // setOptionDialog({ isOpen: false, ...options });
       setIsLoading(true);
       axios
         .get(`/api/conversation/getOne?convStringId=${router.query.convId}`)
@@ -470,14 +485,31 @@ export default function useChatViewV4() {
     if (isLoading) {
       return;
     }
-    localStorage.setItem(
-      'options',
-      JSON.stringify({
-        systemMessage: optionDialog.systemMessage,
-        provideContent: optionDialog.provideContent,
-      }),
-    );
-    handleOptionToggle();
+    // localStorage.setItem(
+    //   'options',
+    //   JSON.stringify({
+    //     systemMessage: optionDialog.systemMessage,
+    //     provideContent: optionDialog.provideContent,
+    //   }),
+    // );
+    axiosAPI({
+      method: 'POST',
+      url: '/conversation/upsertPrompt?convStringId=' + router.query.convId,
+      data: {
+        prompt: optionDialog.systemMessage,
+        provide_content: optionDialog.provideContent,
+      },
+    })
+      .then((res) => {
+        console.log('upsert res: ', res);
+        window.alert('Update complete.');
+        handleOptionToggle();
+      })
+      .catch((err) => {
+        console.log('err:', err);
+        window.alert('Update prompt error');
+        // window.alert(err.response.data.message);
+      });
   }
   function handleChangeDocuSelect(evt: React.ChangeEvent<HTMLSelectElement>) {
     setDocuForQuestion(Number(evt.currentTarget.value));
