@@ -589,6 +589,7 @@ export default function useChatViewV4() {
           .then((response) => {
             console.log('response: ', response.data);
             const { relatedContent, referenceDocs } = response.data;
+            console.log('@@@@@@@@@related content: ', relatedContent);
             setTempReference({
               referenceDocs,
               relatedContent,
