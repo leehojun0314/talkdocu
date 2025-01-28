@@ -48,7 +48,7 @@ export default async function POST(request: Request, context: RequestContext) {
       content: prompt.content as string,
     });
 
-    const res = await createAIChat_edge(messages, 'gpt-4o');
+    const res = await createAIChat_edge(messages, 'deepseek-chat');
 
     return res;
   } catch (error) {

@@ -54,9 +54,7 @@ export async function getUserInfoFromSession(session: TExtendedSession | null) {
     session?.user?.email ?? '',
     session?.provider,
   );
-  console.log('recordset:', recordset);
 
-  console.log('session:', session);
   if (!recordset.length && session?.user && session?.user?.name) {
     console.log('new user');
     const insertedUser = await insertUser(
@@ -66,7 +64,6 @@ export async function getUserInfoFromSession(session: TExtendedSession | null) {
       session.provider as TProvider,
       session.authId as string,
     );
-    console.log('inserted User:', insertedUser);
     return insertedUser.recordset[0];
   } else {
     return recordset[0];

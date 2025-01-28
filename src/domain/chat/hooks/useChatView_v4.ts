@@ -264,11 +264,20 @@ export default function useChatViewV4() {
       })
         .then((res) => {
           console.log('get prompt response: ', res);
-          setOptionDialog({
-            isOpen: false,
-            systemMessage: res.data.prompt,
-            provideContent: !!res.data.provide_content,
-          });
+          if (res.data) {
+            setOptionDialog({
+              isOpen: false,
+              systemMessage: res.data.prompt,
+              provideContent: !!res.data.provide_content,
+            });
+          } else {
+            setOptionDialog({
+              isOpen: false,
+              systemMessage:
+                '당신은 친절한 챗봇 입니다. 친절하게 답변해주세요!',
+              provideContent: true,
+            });
+          }
         })
         .catch((err) => {
           console.log('get prompt error: ', err);
