@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TalkDocu Chatbot Demo</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .gradient-bg {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <header class="gradient-bg text-white p-4 md:p-6">
+      <div class="container mx-auto">
+        <h1 class="text-2xl md:text-3xl font-bold">TalkDocu Chatbot</h1>
+        <p class="mt-2 opacity-90">
+          A simple, embeddable chatbot for your website
+        </p>
+      </div>
+    </header>
+
+    <main class="container mx-auto py-8 px-4">
+      <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            Configure Your Chatbot
+          </h2>
+
+          <div class="space-y-4">
+            <div>
+              <label
+                for="convStringId"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Conversation ID</label
+              >
+              <input
+                type="text"
+                id="convStringId"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Enter your conversation ID"
+              />
+            </div>
+
+            <div>
+              <label
+                for="authToken"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Auth Token</label
+              >
+              <input
+                type="text"
+                id="authToken"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Enter your authentication token"
+              />
+            </div>
+
+            <button
+              id="initChatbot"
+              class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              Initialize Chatbot
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">How to Use</h2>
+
+          <div class="prose prose-indigo">
+            <p>
+              To use the TalkDocu Chatbot on your website, follow these steps:
+            </p>
+
+            <h3>1. Include the script</h3>
+            <pre
+              class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto"
+            ><code>&lt;script src="talkdocu-chatbot.js"&gt;&lt;/script&gt;</code></pre>
+
+            <h3>2. Initialize the chatbot</h3>
+            <pre
+              class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto"
+            ><code>// Option 1: Initialize when creating the chatbot
+const chatbot = new TalkDocuChatbot({
+  convStringId: 'your-conversation-id',
+  authToken: 'your-auth-token'
+});
+
+// Option 2: Initialize later
+const chatbot = new TalkDocuChatbot();
+chatbot.setConversation('your-conversation-id', 'your-auth-token');</code></pre>
+
+            <h3>3. Customize (Optional)</h3>
+            <p>
+              You can customize the chatbot by passing additional options to the
+              constructor:
+            </p>
+            <pre
+              class="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto"
+            ><code>const chatbot = new TalkDocuChatbot({
+  convStringId: 'your-conversation-id',
+  authToken: 'your-auth-token',
+  apiBase: '/api', // Change if your API is hosted elsewhere
+  salutation: 'Hello! How can I help you today?'
+});</code></pre>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+      <div class="container mx-auto px-4 text-center">
+        <p>&copy; 2023 TalkDocu Chatbot. All rights reserved.</p>
+        <p class="mt-2 text-sm opacity-75">
+          A simple, embeddable chatbot for your website using the TalkDocu API.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Include the TalkDocu Chatbot script -->
+    <script src="talkdocu-chatbot.js"></script>
+
+    <script>
+      // Initialize the chatbot when the button is clicked
+      document
+        .getElementById('initChatbot')
+        .addEventListener('click', function () {
+          const convStringId = document
+            .getElementById('convStringId')
+            .value.trim();
+          const authToken = document.getElementById('authToken').value.trim();
+
+          if (!convStringId || !authToken) {
+            alert('Please enter both Conversation ID and Auth Token');
+            return;
+          }
+
+          // Create a new instance or update existing one
+          if (window.chatbotInstance) {
+            window.chatbotInstance.setConversation(convStringId, authToken);
+          } else {
+            window.chatbotInstance = new TalkDocuChatbot({
+              convStringId: convStringId,
+              authToken: authToken,
+            });
+          }
+        });
+    </script>
+  </body>
+</html>

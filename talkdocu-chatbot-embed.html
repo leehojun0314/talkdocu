@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TalkDocu Chatbot - Embed Example</title>
+  </head>
+  <body>
+    <!-- Your existing website content goes here -->
+    <div style="padding: 20px; max-width: 800px; margin: 0 auto">
+      <h1>Your Website</h1>
+      <p>
+        This is an example of how to embed the TalkDocu Chatbot into your
+        existing website.
+      </p>
+      <p>
+        Simply add the script tag and initialize the chatbot with your
+        conversation ID and auth token.
+      </p>
+
+      <div
+        style="
+          margin-top: 30px;
+          padding: 15px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          background-color: #f9f9f9;
+        "
+      >
+        <h3>Embed Code</h3>
+        <pre
+          style="
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+          "
+        >
+&lt;!-- Add this script to the end of your body tag --&gt;
+&lt;script src="talkdocu-chatbot.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // Initialize the chatbot
+  document.addEventListener('DOMContentLoaded', function() {
+    const chatbot = new TalkDocuChatbot({
+      convStringId: 'YOUR_CONVERSATION_ID', // Replace with your actual conversation ID
+      authToken: 'YOUR_AUTH_TOKEN',        // Replace with your actual auth token
+      apiBase: '/api'                       // Change if your API is hosted elsewhere
+    });
+  });
+&lt;/script&gt;
+      </pre
+        >
+      </div>
+    </div>
+
+    <!-- TalkDocu Chatbot Script -->
+    <script src="talkdocu-chatbot.js"></script>
+
+    <!-- Initialize with demo values - Replace these with your actual credentials -->
+    <script>
+      // For demo purposes only - replace with your actual values in production
+      document.addEventListener('DOMContentLoaded', function () {
+        // You can uncomment and edit this to test the chatbot
+
+        const chatbot = new TalkDocuChatbot({
+          convStringId: '05b1fc10-8738-4ac6-87d8-176e44b5e38f-1738039968910', // Replace with your actual conversation ID
+          authToken:
+            'eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoi7J207Zi47KSAIiwiZW1haWwiOiJsaGo2NjYwMTIzNEBnbWFpbC5jb20iLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSmVmZ3dvSlY5Z0hPRHVnNFRlZVM5N2szaVk2cElFaHE5NlpEYkkwUlBUb253THY3Mjk9czk2LWMiLCJzdWIiOiIxMTEzODA5NjU5NjA1Mjk4MjgyNjkiLCJwcm92aWRlciI6Imdvb2dsZSIsImF1dGhJZCI6IjExMTM4MDk2NTk2MDUyOTgyODI2OSIsImV4cCI6MTc0NjY4MzkyMiwiaWF0IjoxNzQ2NjgwMzIyLCJqdGkiOiJob2p1bmdvZCJ9.93Y7o3BFGujx0NyHnwPIeghnMUVDwcVhCHX_nsUuOso', // Replace with your actual auth token
+          apiBase: 'https://talkdocu.com/api',
+        });
+
+        // For demo purposes, add a notice about needing real credentials
+        const notice = document.createElement('div');
+        notice.style.cssText =
+          'position: fixed; bottom: 90px; right: 20px; background-color: #fff3cd; color: #856404; padding: 10px 15px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-size: 14px; max-width: 300px;';
+        notice.innerHTML =
+          '<strong>Demo Mode</strong>: To activate the chatbot, uncomment the initialization code and replace with your actual credentials.';
+        document.body.appendChild(notice);
+      });
+    </script>
+  </body>
+</html>
