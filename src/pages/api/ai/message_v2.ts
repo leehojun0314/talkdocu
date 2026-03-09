@@ -49,7 +49,7 @@ export default async function POST(request: Request) {
       role: 'user',
       content: text,
     });
-    const res = await createAIChat_edge(messages, 'deepseek-chat');
+    const res = await createAIChat_edge(messages, 'gpt-4');
     return res;
   } catch (error) {
     return new Response('Error occured', { status: 500 });

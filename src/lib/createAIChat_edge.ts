@@ -12,8 +12,7 @@ export default async function createAIChat_edge(
 ) {
   console.log('messages: ', messages);
   const configuration = new Configuration({
-    apiKey: process.env.DEEPSEEK_API_KEY,
-    basePath: 'https://api.deepseek.com/v1',
+    apiKey: process.env.OPENAI_API_KEY,
   });
   const openai = new OpenAIApi(configuration);
   const res = await openai.createChatCompletion({
